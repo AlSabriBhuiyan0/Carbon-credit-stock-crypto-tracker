@@ -13,7 +13,14 @@ const authenticateToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return res.status(500).json({
+        error: 'Server misconfiguration',
+        message: 'JWT secret not configured'
+      });
+    }
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
   } catch (error) {
