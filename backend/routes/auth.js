@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validateRequest, userSchemas } = require('../middleware/validation');
 const { authenticateToken } = require('../middleware/auth');
+const { logger } = require('../middleware/errorHandler');
 const asyncHandler = require('../utils/asyncHandler');
 const User = require('../models/UserPostgreSQL');
 const SubscriptionPlan = require('../models/SubscriptionPlan');
@@ -264,12 +265,19 @@ router.post('/refresh',
 
     try {
       // Verify refresh token
-      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        return res.status(500).json({
+          error: 'Server misconfiguration',
+          message: 'JWT secret not configured'
+        });
+      }
+      const decoded = jwt.verify(refreshToken, secret);
       
       // Find user
       const user = await User.findById(decoded.userId);
       
-      if (!user || !user.isActive) {
+      if (!user || user.account_status !== 'active') {
         return res.status(401).json({
           error: 'Invalid refresh token',
           message: 'User not found or account deactivated'
@@ -330,18 +338,11 @@ router.post('/logout',
  *       401:
  *         description: Unauthorized
  */
-router.get('/me',
+router.get('/me', authenticateToken,
   asyncHandler(async (req, res) => {
     // This route should be protected by authenticateToken middleware
     // req.user will be set by the middleware
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Please login to access this resource'
-      });
-    }
-
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.userId || req.user.id);
     
     res.json({
       user

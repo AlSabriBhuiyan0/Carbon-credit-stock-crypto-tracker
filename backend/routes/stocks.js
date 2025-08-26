@@ -386,29 +386,34 @@ function generateMockPortfolioData(symbols, horizonDays) {
     positions: []
   };
   
+  let totalBaseValue = 0;
+  let totalCurrentValue = 0;
+
   symbols.forEach(symbol => {
     const basePrice = getBasePrice(symbol);
     const shares = Math.floor(Math.random() * 100) + 10;
     const currentPrice = basePrice + (Math.random() - 0.5) * 10;
-    const change = currentPrice - basePrice;
-    const changePercent = (change / basePrice) * 100;
-    const value = currentPrice * shares;
+    const positionBaseValue = basePrice * shares;
+    const positionCurrentValue = currentPrice * shares;
+    const positionChange = positionCurrentValue - positionBaseValue;
     
     portfolio.positions.push({
       symbol,
       shares,
       currentPrice: parseFloat(currentPrice.toFixed(2)),
       basePrice: parseFloat(basePrice.toFixed(2)),
-      change: parseFloat(change.toFixed(2)),
-      changePercent: parseFloat(changePercent.toFixed(2)),
-      value: parseFloat(value.toFixed(2))
+      change: parseFloat((currentPrice - basePrice).toFixed(2)),
+      changePercent: parseFloat((((currentPrice - basePrice) / basePrice) * 100).toFixed(2)),
+      value: parseFloat(positionCurrentValue.toFixed(2))
     });
     
-    portfolio.totalValue += value;
-    portfolio.totalChange += change;
+    totalBaseValue += positionBaseValue;
+    totalCurrentValue += positionCurrentValue;
+    portfolio.totalChange += positionChange;
   });
   
-  portfolio.totalChangePercent = (portfolio.totalChange / (portfolio.totalValue - portfolio.totalChange)) * 100;
+  portfolio.totalValue = totalCurrentValue;
+  portfolio.totalChangePercent = totalBaseValue > 0 ? (portfolio.totalChange / totalBaseValue) * 100 : 0;
   portfolio.totalValue = parseFloat(portfolio.totalValue.toFixed(2));
   portfolio.totalChange = parseFloat(portfolio.totalChange.toFixed(2));
   portfolio.totalChangePercent = parseFloat(portfolio.totalChangePercent.toFixed(2));
