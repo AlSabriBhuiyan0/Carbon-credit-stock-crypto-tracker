@@ -1,4 +1,4 @@
-# 🚀 Carbon Credit & Stock Tracker
+# 🚀 Carbon Credit & Stock & Crypto Tracker
 
 A comprehensive full-stack analytics platform for tracking and visualizing both stock market data and carbon credit transactions with AI-powered forecasting capabilities.
 
@@ -245,3 +245,4 @@ If you encounter any issues:
 ---
 
 **🎉 Welcome to the Carbon Credit & Stock Tracker! The system is production-ready and fully functional.**
+
