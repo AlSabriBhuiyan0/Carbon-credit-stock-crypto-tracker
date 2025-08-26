@@ -1,0 +1,66 @@
+{
+  "timestamp": "2025-08-26T18:16:50.056Z",
+  "testResults": [
+    {
+      "test": "Response Time",
+      "status": "PASS",
+      "details": "Average response time: 0ms (min: 3ms, max: 10005ms)"
+    },
+    {
+      "test": "Load Testing",
+      "status": "PASS",
+      "details": "Success rate: 100.0%, Throughput: 1.43 req/s, Avg response: 1756ms"
+    },
+    {
+      "test": "Stress Testing",
+      "status": "FAIL",
+      "details": "Error rate: 100.0%, Throughput: 0.00 req/s, Avg response: 0ms"
+    },
+    {
+      "test": "Concurrent Requests",
+      "status": "FAIL",
+      "details": "Success rate: 0.0%, Total time: 231ms, 50 concurrent requests"
+    },
+    {
+      "test": "Memory Usage",
+      "status": "PASS",
+      "details": "Memory increase: -1.08MB, Final heap: 13.22MB"
+    }
+  ],
+  "performanceMetrics": {
+    "responseTimes": [
+      {
+        "endpoint": "/api/stocks",
+        "responseTime": 12,
+        "status": "error",
+        "error": "Request failed with status code 404"
+      },
+      {
+        "endpoint": "/api/crypto",
+        "responseTime": 3,
+        "status": "error",
+        "error": "Request failed with status code 404"
+      },
+      {
+        "endpoint": "/api/carbon/projects",
+        "responseTime": 5,
+        "status": "error",
+        "error": "Request failed with status code 404"
+      },
+      {
+        "endpoint": "/api/dashboard",
+        "responseTime": 10005,
+        "status": "error",
+        "error": "timeout of 10000ms exceeded"
+      }
+    ],
+    "throughput": {
+      "successful": 100,
+      "failed": 0,
+      "total": 100,
+      "throughput": "1.43",
+      "avgResponseTime": 1756.26
+    },
+    "errors": []
+  }
+}

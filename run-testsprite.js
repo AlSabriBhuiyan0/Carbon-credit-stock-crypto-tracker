@@ -44,7 +44,9 @@ class TestSpriteRunner {
       { name: 'WebSocket Tests', file: 'websocket-tests.js' },
       { name: 'Database Tests', file: 'database-tests.js' },
       { name: 'AI Forecasting Tests', file: 'forecasting-tests.js' },
-      { name: 'Performance Tests', file: 'performance-tests.js' }
+      { name: 'Performance Tests', file: 'performance-tests.js' },
+      { name: 'UI Integration Tests', file: 'ui-integration-tests.js' },
+      { name: 'Stock Service Tests', file: 'stock-service-tests.js' }
     ];
 
     for (const suite of testSuites) {

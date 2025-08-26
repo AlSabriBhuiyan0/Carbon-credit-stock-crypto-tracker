@@ -1,0 +1,64 @@
+{
+  "timestamp": "2025-08-26T18:16:50.123Z",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0
+  },
+  "results": [
+    {
+      "suite": "Authentication Tests",
+      "file": "auth-tests.js",
+      "result": {
+        "success": true,
+        "output": "🔐 Running Authentication Tests...\n  📝 Testing User Registration...\n    ❌ User Registration: FAIL\n  🔑 Testing User Login...\n    ✅ User Login: PASS\n  🎫 Testing Token Validation...\n    ❌ Token Validation: FAIL\n  👥 Testing Role-Based Access...\n    ❌ Role-Based Access: FAIL\n  🔄 Testing Password Reset...\n    ❌ Password Reset: FAIL\n\n📊 Authentication Test Results:\n========================================\nTotal Tests: 5\nPassed: 1 ✅\nFailed: 4 ❌\nSkipped: 0 ⚠️\n\nDetailed Results:\n❌ User Registration: FAIL\n    Request failed with status code 400\n✅ User Login: PASS\n    User logged in successfully, token received\n❌ Token Validation: FAIL\n    Request failed with status code 404\n❌ Role-Based Access: FAIL\n    Request failed with status code 403\n❌ Password Reset: FAIL\n    Request failed with status code 500\n",
+        "code": 0
+      }
+    },
+    {
+      "suite": "API Endpoint Tests",
+      "file": "api-tests.js",
+      "result": {
+        "success": true,
+        "output": "🌐 Running API Endpoint Tests...\n  🔑 Authenticating for API tests...\n    ✅ Authentication successful\n  📈 Testing Stocks API...\n    ❌ Stocks API: FAIL\n  🪙 Testing Crypto API...\n    ❌ Crypto API: FAIL\n  🌱 Testing Carbon Credits API...\n    ❌ Carbon Credits API: FAIL\n  📊 Testing Dashboard API...\n    ✅ Dashboard API: PASS\n  💼 Testing Portfolio API...\n    ✅ Portfolio API: PASS\n  🔮 Testing Forecasting API...\n    ❌ Forecasting API: FAIL\n\n📊 API Test Results:\n========================================\nTotal Tests: 6\nPassed: 2 ✅\nFailed: 4 ❌\nSkipped: 0 ⚠️\n\nDetailed Results:\n❌ Stocks API: FAIL\n    Request failed with status code 404\n❌ Crypto API: FAIL\n    Request failed with status code 404\n❌ Carbon Credits API: FAIL\n    Request failed with status code 404\n✅ Dashboard API: PASS\n    Dashboard data retrieved successfully\n✅ Portfolio API: PASS\n    Portfolio data retrieved successfully\n❌ Forecasting API: FAIL\n    Request failed with status code 404\n",
+        "code": 0
+      }
+    },
+    {
+      "suite": "WebSocket Tests",
+      "file": "websocket-tests.js",
+      "result": {
+        "success": true,
+        "output": "🔌 Running WebSocket Tests...\n  📈 Testing Stocks WebSocket...\n",
+        "code": 0
+      }
+    },
+    {
+      "suite": "Database Tests",
+      "file": "database-tests.js",
+      "result": {
+        "success": true,
+        "output": "🗄️  Running Database Tests...\n  🔌 Initializing database connection...\n    ⚠️  Database connection failed, some tests may be skipped\n    Error: password authentication failed for user \"postgres\"\n  🔗 Testing Database Connection...\n    ❌ Database Connection: FAIL\n  📋 Testing Table Existence...\n    ❌ Table Existence: FAIL\n  🔄 Testing CRUD Operations...\n    ❌ CRUD Operations: FAIL\n  🔒 Testing Data Integrity...\n    ❌ Data Integrity: FAIL\n  ⚡ Testing Performance Queries...\n    ❌ Performance Queries: FAIL\n\n📊 Database Test Results:\n========================================\nTotal Tests: 5\nPassed: 0 ✅\nFailed: 5 ❌\nSkipped: 0 ⚠️\nWarnings: 0 ⚠️\nSuccess Rate: 0.0%\n\nDetailed Results:\n❌ Database Connection: FAIL\n    password authentication failed for user \"postgres\"\n❌ Table Existence: FAIL\n    password authentication failed for user \"postgres\"\n❌ CRUD Operations: FAIL\n    password authentication failed for user \"postgres\"\n❌ Data Integrity: FAIL\n    password authentication failed for user \"postgres\"\n❌ Performance Queries: FAIL\n    password authentication failed for user \"postgres\"\n  🧹 Cleaning up database connections...\n    ✅ Database connections closed\n",
+        "code": 0
+      }
+    },
+    {
+      "suite": "AI Forecasting Tests",
+      "file": "forecasting-tests.js",
+      "result": {
+        "success": true,
+        "output": "🔮 Running AI Forecasting Tests...\n  🔑 Authenticating for forecasting tests...\n    ✅ Authentication successful\n  📊 Testing Prophet Forecasting...\n    ❌ Prophet Forecasting: FAIL\n  📈 Testing ARIMA Forecasting...\n    ❌ ARIMA Forecasting: FAIL\n  📉 Testing Simple Forecasting...\n    ❌ Simple Forecasting: FAIL\n  🎯 Testing Forecasting Accuracy...\n    ❌ Forecasting Accuracy: FAIL\n  ⚡ Testing Model Performance...\n    ❌ Model Performance: FAIL\n    📊 Performance Details:\n      ⚠️ prophet: 3ms (Request failed with status code 404)\n      ⚠️ arima: 8ms (Request failed with status code 404)\n      ⚠️ simple: 4ms (Request failed with status code 404)\n\n📊 AI Forecasting Test Results:\n========================================\nTotal Tests: 5\nPassed: 0 ✅\nFailed: 5 ❌\nSkipped: 0 ⚠️\nWarnings: 0 ⚠️\nSuccess Rate: 0.0%\n\nDetailed Results:\n❌ Prophet Forecasting: FAIL\n    Request failed with status code 404\n❌ ARIMA Forecasting: FAIL\n    Request failed with status code 404\n❌ Simple Forecasting: FAIL\n    Request failed with status code 404\n❌ Forecasting Accuracy: FAIL\n    Request failed with status code 404\n❌ Model Performance: FAIL\n    All models failed\n",
+        "code": 0
+      }
+    },
+    {
+      "suite": "Performance Tests",
+      "file": "performance-tests.js",
+      "result": {
+        "success": true,
+        "output": "⚡ Running Performance Tests...\n  🔑 Authenticating for performance tests...\n    ✅ Authentication successful\n  ⏱️  Testing Response Time...\n    ✅ Response Time: PASS\n    📊 Response Time Details:\n      ⚠️ /api/stocks: 12ms (Request failed with status code 404)\n      ⚠️ /api/crypto: 3ms (Request failed with status code 404)\n      ⚠️ /api/carbon/projects: 5ms (Request failed with status code 404)\n      ⚠️ /api/dashboard: 10005ms (timeout of 10000ms exceeded)\n  📊 Testing Load Testing...\n    🎯 Load Test: 100 users, 60s duration, 10s ramp-up\n    ✅ Load Testing: PASS\n    📈 Results: 100/100 successful, 1.43 req/s throughput\n  🔥 Testing Stress Testing...\n    🎯 Stress Test: 500 users, 120s duration, 30s ramp-up\n    ❌ Stress Testing: FAIL\n    📈 Results: 0/1500 successful, 100.0% error rate, 0.00 req/s throughput\n  🔄 Testing Concurrent Requests...\n    🎯 Testing 50 concurrent requests...\n    ❌ Concurrent Requests: FAIL\n    📈 Results: 0/50 successful (0.0%), Total time: 231ms\n  💾 Testing Memory Usage...\n    ✅ Memory Usage: PASS\n    📊 Memory: +-1.08MB, Final: 13.22MB\n\n📊 Performance Test Results:\n========================================\nTotal Tests: 5\nPassed: 3 ✅\nFailed: 2 ❌\nWarnings: 0 ⚠️\nSuccess Rate: 60.0%\n\nDetailed Results:\n✅ Response Time: PASS\n    Average response time: 0ms (min: 3ms, max: 10005ms)\n✅ Load Testing: PASS\n    Success rate: 100.0%, Throughput: 1.43 req/s, Avg response: 1756ms\n❌ Stress Testing: FAIL\n    Error rate: 100.0%, Throughput: 0.00 req/s, Avg response: 0ms\n❌ Concurrent Requests: FAIL\n    Success rate: 0.0%, Total time: 231ms, 50 concurrent requests\n✅ Memory Usage: PASS\n    Memory increase: -1.08MB, Final heap: 13.22MB\n\n📊 Performance Metrics Summary:\n==================================================\nAverage Response Time: NaNms\nLoad Test Throughput: 1.43 req/s\nLoad Test Success Rate: 100.0%\n\n📁 Detailed performance report saved to: testsprite_tests/results/performance-report.json\n",
+        "code": 0
+      }
+    }
+  ]
+}
