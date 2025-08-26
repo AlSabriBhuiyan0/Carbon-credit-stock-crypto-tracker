@@ -32,6 +32,8 @@ const dashboardRoutes = require('./routes/dashboard');
 const subscriptionRoutes = require('./routes/subscriptions');
 const adminRoutes = require('./routes/admin');
 const unifiedRoutes = require('./routes/unified');
+const assetsRoutes = require('./routes/assets');
+const forecastRoutes = require('./routes/forecast');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -158,6 +160,8 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/crypto', require('./routes/crypto')); // Temporarily disabled auth for testing
 app.use('/api/unified', unifiedRoutes); // New unified service routes
+app.use('/api/assets', assetsRoutes); // Asset type detection and validation
+app.use('/api/forecast', forecastRoutes); // Forecast categorization and mixed asset handling
 
 // Debug route without authentication
 app.get('/debug/crypto/forecast/:symbol', async (req, res) => {

@@ -3,6 +3,30 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const unifiedWebSocketService = require('../services/unifiedWebSocketService');
 
+// Root route for basic stock service
+router.get('/', (req, res) => {
+  res.json({ 
+    message: 'Stock service working', 
+    status: 'ok',
+    availableEndpoints: [
+      '/api/stocks/status',
+      '/api/stocks/price/:symbol',
+      '/api/stocks/historical/:symbol',
+      '/api/stocks/list'
+    ]
+  });
+});
+
+// Stock list endpoint
+router.get('/list', (req, res) => {
+  const stockList = ['AAPL', 'GOOGL', 'MSFT', 'ADBE', 'AMD', 'TSLA'];
+  res.json({ 
+    success: true, 
+    stocks: stockList,
+    count: stockList.length
+  });
+});
+
 /**
  * @swagger
  * /api/stocks/status:
