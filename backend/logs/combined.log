@@ -782,3 +782,5 @@
 {"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-26T20:00:00.856Z"}
 {"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-26T20:00:00.858Z"}
 {"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-26T20:00:00.863Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-26T20:05:00.831Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-26T20:05:00.834Z"}
