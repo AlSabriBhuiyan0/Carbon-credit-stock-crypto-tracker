@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import StockView from './pages/StockView/StockView';
 import CarbonView from './pages/CarbonView/CarbonView';
 import CryptoView from './pages/CryptoView/CryptoView';
+import ForecastView from './pages/ForecastView/ForecastView';
 import Portfolio from './pages/Portfolio/Portfolio';
 import Reports from './pages/Reports/Reports';
 import Login from './pages/Auth/Login';
@@ -97,6 +98,11 @@ function AppRoutes() {
         <Route path="crypto" element={
           <ProtectedRoute allowedRoles={['public', 'company', 'regulator', 'ngo', 'investor']}>
             <CryptoView />
+          </ProtectedRoute>
+        } />
+        <Route path="forecasts" element={
+          <ProtectedRoute allowedRoles={['public', 'company', 'regulator', 'ngo', 'investor']}>
+            <ForecastView />
           </ProtectedRoute>
         } />
         <Route path="portfolio" element={

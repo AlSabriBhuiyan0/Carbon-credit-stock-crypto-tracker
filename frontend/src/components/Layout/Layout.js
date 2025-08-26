@@ -51,6 +51,7 @@ const Layout = () => {
     { name: 'Stocks', href: '/app/stocks', icon: TrendingUp, current: location.pathname === '/app/stocks' },
     { name: 'Carbon Credits', href: '/app/carbon', icon: Leaf, current: location.pathname === '/app/carbon' },
     { name: 'Crypto', href: '/app/crypto', icon: PieChart, current: location.pathname === '/app/crypto' },
+    { name: 'Forecasts', href: '/app/forecasts', icon: TrendingUp, current: location.pathname === '/app/forecasts' },
     { name: 'Portfolio', href: '/app/portfolio', icon: PieChart, current: location.pathname === '/app/portfolio' },
     { name: 'Reports', href: '/app/reports', icon: FileText, current: location.pathname === '/app/reports' }
   ];

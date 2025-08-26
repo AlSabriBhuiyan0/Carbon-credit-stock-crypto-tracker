@@ -85,17 +85,20 @@ router.post('/validate-mixed', (req, res) => {
     if (validation.isValid) {
       res.json({
         success: true,
+        isValid: true,
         ...validation
       });
     } else {
       res.status(400).json({
         success: false,
+        isValid: false,
         error: validation.error
       });
     }
   } catch (error) {
     res.status(500).json({ 
       success: false, 
+      isValid: false,
       error: error.message 
     });
   }
