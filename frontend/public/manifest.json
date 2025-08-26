@@ -1,0 +1,9 @@
+{
+  "short_name": "Tracker",
+  "name": "Stock + Carbon Tracker",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "icons": []
+}

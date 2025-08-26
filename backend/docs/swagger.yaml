@@ -1,0 +1,528 @@
+openapi: 3.0.3
+info:
+  title: Carbon Credit & Stock Tracker API
+  description: Comprehensive API for tracking carbon credits, stocks, and generating ML-powered forecasts
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://api.example.com/api
+    description: Production server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email
+        role:
+          type: string
+          enum: [user, analyst, admin]
+          description: User role
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Stock:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Stock symbol
+        name:
+          type: string
+          description: Company name
+        price:
+          type: number
+          description: Current price
+        change:
+          type: number
+          description: Price change
+        changePercent:
+          type: number
+          description: Price change percentage
+        volume:
+          type: integer
+          description: Trading volume
+        marketCap:
+          type: number
+          description: Market capitalization
+        sector:
+          type: string
+          description: Industry sector
+        timestamp:
+          type: string
+          format: date-time
+
+    CarbonCredit:
+      type: object
+      properties:
+        projectId:
+          type: string
+          description: Project identifier
+        type:
+          type: string
+          description: Project type
+        price:
+          type: number
+          description: Credit price
+        creditsIssued:
+          type: number
+          description: Number of credits issued
+        location:
+          type: string
+          description: Project location
+        status:
+          type: string
+          enum: [active, pending, completed]
+        timestamp:
+          type: string
+          format: date-time
+
+    Forecast:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Stock symbol or project type
+        model:
+          type: string
+          enum: [arima, prophet, simple]
+          description: Forecasting model used
+        horizonDays:
+          type: integer
+          description: Forecast horizon in days
+        next:
+          type: object
+          properties:
+            ds:
+              type: string
+              format: date
+            yhat:
+              type: number
+            yhat_lower:
+              type: number
+            yhat_upper:
+              type: number
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/ForecastPoint'
+
+    ForecastPoint:
+      type: object
+      properties:
+        ds:
+          type: string
+          format: date
+        yhat:
+          type: number
+        yhat_lower:
+          type: number
+        yhat_upper:
+          type: number
+
+    UNFCCCEmissions:
+      type: object
+      properties:
+        party_code:
+          type: string
+          description: Country code
+        gases:
+          type: string
+          description: Greenhouse gases queried
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              year:
+                type: integer
+              gas:
+                type: string
+              value:
+                type: number
+              category_name:
+                type: string
+        summary:
+          type: object
+          properties:
+            total_records:
+              type: integer
+            years:
+              type: array
+              items:
+                type: integer
+            categories:
+              type: array
+              items:
+                type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: integer
+          description: Error code
+
+paths:
+  /auth/login:
+    post:
+      summary: User login
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/register:
+    post:
+      summary: User registration
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - name
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                name:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /stocks:
+    get:
+      summary: Get all stocks
+      tags: [Stocks]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+          description: Maximum number of stocks to return
+      responses:
+        '200':
+          description: List of stocks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Stock'
+
+  /stocks/{symbol}:
+    get:
+      summary: Get stock by symbol
+      tags: [Stocks]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+          description: Stock symbol
+      responses:
+        '200':
+          description: Stock data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Stock'
+        '404':
+          description: Stock not found
+
+  /stocks/{symbol}/history:
+    get:
+      summary: Get stock price history
+      tags: [Stocks]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+          description: Stock symbol
+        - in: query
+          name: days
+          schema:
+            type: integer
+            default: 30
+          description: Number of days of history
+      responses:
+        '200':
+          description: Price history data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Stock'
+
+  /forecast/stocks:
+    post:
+      summary: Generate stock forecast
+      tags: [Forecasting]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - symbol
+              properties:
+                symbol:
+                  type: string
+                  description: Stock symbol
+                days:
+                  type: integer
+                  default: 30
+                  description: Forecast horizon in days
+                model:
+                  type: string
+                  enum: [arima, prophet, simple]
+                  default: simple
+                  description: Forecasting model to use
+      responses:
+        '200':
+          description: Forecast generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forecast'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /unfccc/status:
+    get:
+      summary: Get UNFCCC service status
+      tags: [UNFCCC]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Service status information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                  python_package_installed:
+                    type: boolean
+                  api_initialized:
+                    type: boolean
+                  zenodo_available:
+                    type: boolean
+
+  /unfccc/parties:
+    get:
+      summary: Get available parties (countries)
+      tags: [UNFCCC]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of available parties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    name:
+                      type: string
+                    type:
+                      type: string
+
+  /unfccc/emissions/{partyCode}:
+    get:
+      summary: Get emissions data for a specific party
+      tags: [UNFCCC]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: partyCode
+          required: true
+          schema:
+            type: string
+          description: ISO code of the party (e.g., USA, GBR, DEU)
+        - in: query
+          name: gases
+          schema:
+            type: string
+          description: Comma-separated list of gases (e.g., CO2,CH4,N2O)
+      responses:
+        '200':
+          description: Emissions data for the party
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UNFCCCEmissions'
+        '400':
+          description: Invalid party code
+        '500':
+          description: Internal server error
+
+  /unfccc/summary:
+    post:
+      summary: Get emissions summary for multiple parties
+      tags: [UNFCCC]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - partyCodes
+              properties:
+                partyCodes:
+                  type: array
+                  items:
+                    type: string
+                  description: List of party codes
+      responses:
+        '200':
+          description: Emissions summary for multiple parties
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary:
+                    type: object
+                  total_parties:
+                    type: integer
+                  successful_queries:
+                    type: integer
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Stocks
+    description: Stock market data operations
+  - name: Carbon Credits
+    description: Carbon credit project data
+  - name: Forecasting
+    description: ML-powered price forecasting
+  - name: UNFCCC
+    description: UNFCCC emissions data integration
+  - name: Users
+    description: User management operations
+  - name: Portfolios
+    description: User portfolio management
+  - name: Reports
+    description: Data reporting and analytics
