@@ -1,15 +1,15 @@
 {
-  "timestamp": "2025-08-26T18:16:50.056Z",
+  "timestamp": "2025-08-26T18:36:04.217Z",
   "testResults": [
     {
       "test": "Response Time",
       "status": "PASS",
-      "details": "Average response time: 0ms (min: 3ms, max: 10005ms)"
+      "details": "Average response time: 699ms (min: 2ms, max: 699ms)"
     },
     {
       "test": "Load Testing",
       "status": "PASS",
-      "details": "Success rate: 100.0%, Throughput: 1.43 req/s, Avg response: 1756ms"
+      "details": "Success rate: 100.0%, Throughput: 1.43 req/s, Avg response: 905ms"
     },
     {
       "test": "Stress Testing",
@@ -19,39 +19,38 @@
     {
       "test": "Concurrent Requests",
       "status": "FAIL",
-      "details": "Success rate: 0.0%, Total time: 231ms, 50 concurrent requests"
+      "details": "Success rate: 0.0%, Total time: 267ms, 50 concurrent requests"
     },
     {
       "test": "Memory Usage",
       "status": "PASS",
-      "details": "Memory increase: -1.08MB, Final heap: 13.22MB"
+      "details": "Memory increase: 1.68MB, Final heap: 13.38MB"
     }
   ],
   "performanceMetrics": {
     "responseTimes": [
       {
         "endpoint": "/api/stocks",
-        "responseTime": 12,
+        "responseTime": 13,
         "status": "error",
         "error": "Request failed with status code 404"
       },
       {
         "endpoint": "/api/crypto",
-        "responseTime": 3,
+        "responseTime": 2,
         "status": "error",
         "error": "Request failed with status code 404"
       },
       {
         "endpoint": "/api/carbon/projects",
-        "responseTime": 5,
+        "responseTime": 3,
         "status": "error",
         "error": "Request failed with status code 404"
       },
       {
         "endpoint": "/api/dashboard",
-        "responseTime": 10005,
-        "status": "error",
-        "error": "timeout of 10000ms exceeded"
+        "responseTime": 699,
+        "status": "success"
       }
     ],
     "throughput": {
@@ -59,7 +58,7 @@
       "failed": 0,
       "total": 100,
       "throughput": "1.43",
-      "avgResponseTime": 1756.26
+      "avgResponseTime": 905.18
     },
     "errors": []
   }
