@@ -439,14 +439,46 @@ const ForecastView = () => {
                           <span className="font-medium text-gray-900">{forecast.symbol}</span>
                           <span className="text-sm text-gray-500">Stock</span>
                         </div>
-                        <div className="space-y-2">
-                          {forecast.forecast.predictions.map((prediction, index) => (
-                            <div key={index} className="flex justify-between text-sm">
-                              <span className="text-gray-600">{prediction.date}</span>
-                              <span className="font-medium">${prediction.price.toLocaleString()}</span>
-                              <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                        <div className="space-y-3">
+                          {/* Combined Model */}
+                          <div className="border-l-4 border-blue-500 pl-3">
+                            <div className="text-xs font-medium text-blue-600 mb-2">Combined Model</div>
+                            {forecast.forecast.predictions.map((prediction, index) => (
+                              <div key={index} className="flex justify-between text-sm">
+                                <span className="text-gray-600">{prediction.date}</span>
+                                <span className="font-medium">${prediction.price.toLocaleString()}</span>
+                                <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Prophet Model */}
+                          {forecast.forecast.prophet && (
+                            <div className="border-l-4 border-green-500 pl-3">
+                              <div className="text-xs font-medium text-green-600 mb-2">Prophet Model</div>
+                              {forecast.forecast.prophet.map((prediction, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span className="text-gray-600">{prediction.date}</span>
+                                  <span className="font-medium">${prediction.price.toLocaleString()}</span>
+                                  <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
+                          
+                          {/* ARIMA Model */}
+                          {forecast.forecast.arima && (
+                            <div className="border-l-4 border-purple-500 pl-3">
+                              <div className="text-xs font-medium text-purple-600 mb-2">ARIMA Model</div>
+                              {forecast.forecast.arima.map((prediction, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span className="text-gray-600">{prediction.date}</span>
+                                  <span className="font-medium">${prediction.price.toLocaleString()}</span>
+                                  <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -468,14 +500,46 @@ const ForecastView = () => {
                           <span className="font-medium text-gray-900">{forecast.symbol}</span>
                           <span className="text-sm text-gray-500">Crypto</span>
                         </div>
-                        <div className="space-y-2">
-                          {forecast.forecast.predictions.map((prediction, index) => (
-                            <div key={index} className="flex justify-between text-sm">
-                              <span className="text-gray-600">{prediction.date}</span>
-                              <span className="font-medium">${prediction.price.toLocaleString()}</span>
-                              <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                        <div className="space-y-3">
+                          {/* Combined Model */}
+                          <div className="border-l-4 border-blue-500 pl-3">
+                            <div className="text-xs font-medium text-blue-600 mb-2">Combined Model</div>
+                            {forecast.forecast.predictions.map((prediction, index) => (
+                              <div key={index} className="flex justify-between text-sm">
+                                <span className="text-gray-600">{prediction.date}</span>
+                                <span className="font-medium">${prediction.price.toLocaleString()}</span>
+                                <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Prophet Model */}
+                          {forecast.forecast.prophet && (
+                            <div className="border-l-4 border-green-500 pl-3">
+                              <div className="text-xs font-medium text-green-600 mb-2">Prophet Model</div>
+                              {forecast.forecast.prophet.map((prediction, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span className="text-gray-500">{prediction.date}</span>
+                                  <span className="font-medium">${prediction.price.toLocaleString()}</span>
+                                  <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
+                          
+                          {/* ARIMA Model */}
+                          {forecast.forecast.arima && (
+                            <div className="border-l-4 border-purple-500 pl-3">
+                              <div className="text-xs font-medium text-purple-600 mb-2">ARIMA Model</div>
+                              {forecast.forecast.arima.map((prediction, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span className="text-gray-600">{prediction.date}</span>
+                                  <span className="font-medium">${prediction.price.toLocaleString()}</span>
+                                  <span className="text-gray-500">{(prediction.confidence * 100).toFixed(0)}%</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

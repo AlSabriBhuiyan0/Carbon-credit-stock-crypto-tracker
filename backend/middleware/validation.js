@@ -273,10 +273,10 @@ const portfolioSchemas = {
   }),
 
   addStockToPortfolio: Joi.object({
-    stockId: Joi.string()
+    stockSymbol: Joi.string()
       .required()
       .messages({
-        'any.required': 'Stock ID is required'
+        'any.required': 'Stock symbol is required'
       }),
     quantity: Joi.number()
       .positive()
