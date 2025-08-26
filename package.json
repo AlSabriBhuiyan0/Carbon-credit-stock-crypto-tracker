@@ -26,6 +26,7 @@
     "testsprite:api": "node testsprite_tests/api-tests.js",
     "testsprite:ui": "node testsprite_tests/ui-integration-tests.js",
     "testsprite:stock": "node testsprite_tests/stock-service-tests.js",
+    "testsprite:mismatch": "node testsprite_tests/forecast-mismatch-tests.js",
     "testsprite:setup": "node -e \"console.log('TestSprite is ready! Run: npm run testsprite')\""
   },
   "keywords": [

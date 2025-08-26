@@ -46,7 +46,8 @@ class TestSpriteRunner {
       { name: 'AI Forecasting Tests', file: 'forecasting-tests.js' },
       { name: 'Performance Tests', file: 'performance-tests.js' },
       { name: 'UI Integration Tests', file: 'ui-integration-tests.js' },
-      { name: 'Stock Service Tests', file: 'stock-service-tests.js' }
+      { name: 'Stock Service Tests', file: 'stock-service-tests.js' },
+      { name: 'Forecast Mismatch Tests', file: 'forecast-mismatch-tests.js' }
     ];
 
     for (const suite of testSuites) {
