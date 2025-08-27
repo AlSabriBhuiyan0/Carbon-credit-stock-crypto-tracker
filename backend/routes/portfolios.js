@@ -28,10 +28,10 @@ router.get('/', authenticateToken, asyncHandler(async (req, res) => {
   const realPortfolio = {
     userId: req.user.id,
     assets: [
-      { symbol: 'AAPL', type: 'stock', quantity: 10, avgPrice: 150.00, currentPrice: 150.25 },
+      { symbol: 'AAPL', type: 'stock', quantity: 10, avgPrice: 150.00, currentPrice: 227.76 },
       { symbol: 'GOOGL', type: 'stock', quantity: 5, avgPrice: 2800.00, currentPrice: 2805.50 },
-      { symbol: 'BTCUSDT', type: 'crypto', quantity: 0.5, avgPrice: 45000.00, currentPrice: 45025.75 },
-      { symbol: 'ETHUSDT', type: 'crypto', quantity: 2, avgPrice: 3000.00, currentPrice: 3002.25 }
+      { symbol: 'BTCUSDT', type: 'crypto', quantity: 0.5, avgPrice: 45000.00, currentPrice: 111897.44 },
+      { symbol: 'ETHUSDT', type: 'crypto', quantity: 2, avgPrice: 3000.00, currentPrice: 4610.68 }
     ],
     totalValue: 0,
     lastUpdated: new Date().toISOString()

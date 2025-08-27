@@ -31,31 +31,45 @@ const ForecastView = () => {
     ['user-portfolio'],
     async () => {
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token');
+        }
+        
         const response = await axios.get('http://localhost:5001/api/portfolios', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
-        return response.data;
+        
+        if (response.data && response.data.assets) {
+          return response.data;
+        } else {
+          throw new Error('Invalid portfolio data structure');
+        }
       } catch (error) {
-        console.log('Could not fetch user portfolio, using default assets');
+        console.log('Could not fetch user portfolio, using default assets:', error.message);
         // Fallback to default assets if portfolio fetch fails
         return {
           assets: [
-            { symbol: 'AAPL', type: 'stock' },
-            { symbol: 'GOOGL', type: 'stock' },
-            { symbol: 'MSFT', type: 'stock' },
-            { symbol: 'BTCUSDT', type: 'crypto' },
-            { symbol: 'ETHUSDT', type: 'crypto' }
-          ]
+            { symbol: 'AAPL', type: 'stock', currentPrice: 227.76 },
+            { symbol: 'GOOGL', type: 'stock', currentPrice: 2805.50 },
+            { symbol: 'MSFT', type: 'stock', currentPrice: 415.22 },
+            { symbol: 'BTCUSDT', type: 'crypto', currentPrice: 111897.44 },
+            { symbol: 'ETHUSDT', type: 'crypto', currentPrice: 4610.68 }
+          ],
+          totalValue: 117346.60 // Default total value based on current market prices
         };
       }
     },
     {
       staleTime: 5 * 60 * 1000,
       onSuccess: (data) => {
+        console.log('📊 Portfolio data received:', data);
         // Organize portfolio assets by type
-        const stocks = data.assets.filter(asset => asset.type === 'stock').map(asset => asset.symbol);
-        const crypto = data.assets.filter(asset => asset.type === 'crypto').map(asset => asset.symbol);
-        setAvailableAssets({ stocks, crypto });
+        if (data && data.assets) {
+          const stocks = data.assets.filter(asset => asset.type === 'stock').map(asset => asset.symbol);
+          const crypto = data.assets.filter(asset => asset.type === 'crypto').map(asset => asset.symbol);
+          setAvailableAssets({ stocks, crypto });
+        }
       }
     }
   );
@@ -104,7 +118,10 @@ const ForecastView = () => {
     },
     {
       enabled: selectedAssets.length > 0,
-      staleTime: 2 * 60 * 1000
+      staleTime: 2 * 60 * 1000,
+      onSuccess: (data) => {
+        console.log('📈 Forecast data received:', data);
+      }
     }
   );
 
@@ -548,26 +565,144 @@ const ForecastView = () => {
               )}
             </div>
 
-            {/* Forecast Summary */}
+            {/* Portfolio Summary */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Portfolio Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {userPortfolio?.totalValue ? `$${userPortfolio.totalValue.toLocaleString()}` : 'N/A'}
+                    {forecastLoading ? (
+                      <span className="text-gray-500">Loading...</span>
+                    ) : forecastData?.forecasts ? (
+                      (() => {
+                        let totalValue = 0;
+                        console.log('🔍 Calculating portfolio value from forecast data:', forecastData.forecasts);
+                        
+                        if (forecastData.forecasts.stocks) {
+                          forecastData.forecasts.stocks.forEach(stock => {
+                            console.log(`📊 Stock ${stock.symbol}: $${stock.currentPrice}`);
+                            totalValue += stock.currentPrice || 0;
+                          });
+                        }
+                        if (forecastData.forecasts.crypto) {
+                          forecastData.forecasts.crypto.forEach(crypto => {
+                            console.log(`📊 Crypto ${crypto.symbol}: $${crypto.currentPrice}`);
+                            totalValue += crypto.currentPrice || 0;
+                          });
+                        }
+                        
+                        console.log(`💰 Total calculated value: $${totalValue}`);
+                        return totalValue > 0 ? `$${totalValue.toLocaleString()}` : 'N/A';
+                      })()
+                    ) : userPortfolio?.totalValue ? `$${userPortfolio.totalValue.toLocaleString()}` : 'N/A'}
                   </div>
-                  <div className="text-sm text-gray-500">Total Assets</div>
+                  <div className="text-sm text-gray-500">Selected Assets Value</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">{forecastData.horizon}</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {selectedAssets.length > 0 ? selectedAssets.length : 0}
+                  </div>
+                  <div className="text-sm text-gray-500">Selected Assets</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">{forecastHorizon}</div>
                   <div className="text-sm text-gray-500">Forecast Days</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {new Date(forecastData.timestamp).toLocaleDateString()}
+                    {forecastData?.timestamp ? new Date(forecastData.timestamp).toLocaleDateString() : 'N/A'}
                   </div>
-                  <div className="text-sm text-gray-500">Generated</div>
+                  <div className="text-sm text-gray-500">Last Generated</div>
                 </div>
               </div>
+              
+              {/* Debug Information */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-md font-medium text-gray-900 mb-3">Debug Info</h4>
+                  <div className="bg-gray-50 p-3 rounded text-sm">
+                    <p><strong>Selected Assets:</strong> {selectedAssets.join(', ')}</p>
+                    <p><strong>Forecast Data Available:</strong> {forecastData ? 'Yes' : 'No'}</p>
+                    <p><strong>Forecasts Object:</strong> {forecastData?.forecasts ? 'Available' : 'Not Available'}</p>
+                    <p><strong>Stocks Count:</strong> {forecastData?.forecasts?.stocks?.length || 0}</p>
+                    <p><strong>Crypto Count:</strong> {forecastData?.forecasts?.crypto?.length || 0}</p>
+                    <p><strong>User Portfolio:</strong> {userPortfolio ? 'Available' : 'Not Available'}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Selected Assets Summary */}
+              {selectedAssets.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-md font-medium text-gray-900 mb-3">Selected Assets Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {selectedAssets.map((asset) => {
+                      const assetType = assetTypes?.[asset] || 'unknown';
+                      const isStock = assetType === 'stock';
+                      const isCrypto = assetType === 'crypto';
+                      
+                      // Get current price from forecast data or fallback
+                      let currentPrice = 0;
+                      if (forecastData?.forecasts) {
+                        if (isStock && forecastData.forecasts.stocks) {
+                          const stock = forecastData.forecasts.stocks.find(s => s.symbol === asset);
+                          currentPrice = stock?.currentPrice || 0;
+                        } else if (isCrypto && forecastData.forecasts.crypto) {
+                          const crypto = forecastData.forecasts.crypto.find(c => c.symbol === asset);
+                          currentPrice = crypto?.currentPrice || 0;
+                        }
+                      }
+                      
+                      return (
+                        <div key={asset} className={`p-3 rounded-lg border ${
+                          isStock ? 'bg-blue-50 border-blue-200' :
+                          isCrypto ? 'bg-orange-50 border-orange-200' :
+                          'bg-gray-50 border-gray-200'
+                        }`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center">
+                              {getAssetIcon(assetType)}
+                              <span className="ml-2 font-medium text-gray-900">{asset}</span>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              isStock ? 'bg-blue-100 text-blue-800' :
+                              isCrypto ? 'bg-orange-100 text-orange-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {assetType}
+                            </span>
+                          </div>
+                          {currentPrice > 0 && (
+                            <div className="text-sm text-gray-600">
+                              Current Price: <span className="font-medium">${currentPrice.toLocaleString()}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* No Assets Selected State */}
+        {!forecastData && !forecastLoading && selectedAssets.length === 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div className="text-gray-400 mb-4">
+              <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Assets Selected</h3>
+            <p className="text-gray-600 mb-4">
+              Select up to {maxAssets} assets from your portfolio to generate forecasts
+            </p>
+            <div className="text-sm text-gray-500">
+              <p>• Choose from available stocks and crypto assets</p>
+              <p>• Generate AI-powered price predictions</p>
+              <p>• Download detailed reports in multiple formats</p>
             </div>
           </div>
         )}

@@ -13,9 +13,9 @@ class AssetTypeService {
 
   // Common crypto symbols
   static cryptoSymbols = [
-    'BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT', 'AVAX', 'MATIC',
-    'LINK', 'UNI', 'LTC', 'BCH', 'XRP', 'VET', 'VETUSDT', 'DOGE',
-    'SHIB', 'TRX', 'EOS', 'XLM', 'ATOM', 'NEAR', 'FTM', 'ALGO'
+    'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'DOTUSDT', 'AVAXUSDT', 'MATICUSDT',
+    'LINKUSDT', 'UNIUSDT', 'LTCUSDT', 'BCHUSDT', 'XRPUSDT', 'VETUSDT', 'DOGEUSDT',
+    'SHIBUSDT', 'TRXUSDT', 'EOSUSDT', 'XLMUSDT', 'ATOMUSDT', 'NEARUSDT', 'FTMUSDT', 'ALGOUSDT'
   ];
 
   /**

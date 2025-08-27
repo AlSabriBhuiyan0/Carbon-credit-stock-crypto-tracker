@@ -326,7 +326,7 @@ router.get('/health', (req, res) => {
  *       400:
  *         description: Invalid request
  */
-router.post('/download', (req, res) => {
+router.post('/download', async (req, res) => {
   try {
     const { assets, horizon, format = 'pdf' } = req.body;
     
@@ -344,44 +344,21 @@ router.post('/download', (req, res) => {
       });
     }
     
-    // Generate forecast data for the report
-    const categorized = AssetTypeService.categorizeAssets(assets);
-    const forecasts = {};
+    // Call the mixed forecast endpoint internally to get the correct structure
+    const mixedForecastResponse = await axios.post(`http://localhost:5001/api/forecast/mixed`, {
+      assets,
+      horizon,
+      useRealData: true
+    });
     
-    // For download, we need to match the mixed forecast structure exactly
-    if (categorized.stocks.length > 0) {
-      forecasts.stocks = await Promise.all(categorized.stocks.map(async (symbol) => {
-        const forecastData = await generateForecastPredictions(horizon, 'stock', symbol);
-        return {
-          symbol,
-          type: 'stock',
-          currentPrice: 150, // Default fallback
-          forecast: {
-            horizon: horizon,
-            predictions: forecastData.combined,
-            prophet: forecastData.prophet,
-            arima: forecastData.arima
-          }
-        };
-      }));
+    if (!mixedForecastResponse.data.success) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Failed to generate forecasts for download' 
+      });
     }
     
-    if (categorized.crypto.length > 0) {
-      forecasts.crypto = await Promise.all(categorized.crypto.map(async (symbol) => {
-        const forecastData = await generateForecastPredictions(horizon, 'crypto', symbol);
-        return {
-          symbol,
-          type: 'crypto',
-          currentPrice: 45000, // Default fallback
-          forecast: {
-            horizon: horizon,
-            predictions: forecastData.combined,
-            prophet: forecastData.prophet,
-            arima: forecastData.arima
-          }
-        };
-      }));
-    }
+    const forecasts = mixedForecastResponse.data.forecasts;
     
     // Debug: Log the forecasts structure
     console.log('🔍 Download forecasts structure:', JSON.stringify(forecasts, null, 2));
@@ -418,6 +395,7 @@ router.post('/download', (req, res) => {
     res.send(reportData);
     
   } catch (error) {
+    console.error('❌ Download error:', error);
     res.status(500).json({ 
       success: false, 
       error: error.message 
@@ -654,18 +632,41 @@ async function getRealStockData(symbol) {
  */
 async function getRealCryptoData(symbol) {
   try {
-    // Try to get real-time data from our crypto symbols endpoint
-    const response = await axios.get(`http://localhost:5001/api/crypto/symbols`);
-    if (response.data && response.data.symbols) {
-      const crypto = response.data.symbols.find(s => s.symbol === symbol);
-      if (crypto && crypto.price) {
-        console.log(`✅ Found real-time crypto price for ${symbol}: $${crypto.price}`);
+    // First try to get fresh price directly from Binance REST API for maximum accuracy
+    try {
+      const binanceResponse = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`, {
+        timeout: 5000 // 5 second timeout
+      });
+      
+      if (binanceResponse.data && binanceResponse.data.price) {
+        const currentPrice = parseFloat(binanceResponse.data.price);
+        console.log(`✅ Fresh Binance REST API price for ${symbol}: $${currentPrice}`);
         return {
           symbol,
-          price: crypto.price,
+          price: currentPrice,
           lastUpdated: new Date().toISOString()
         };
       }
+    } catch (binanceError) {
+      console.log(`⚠️  Binance REST API failed for ${symbol}: ${binanceError.message}`);
+    }
+    
+    // Fallback to our crypto symbols endpoint
+    try {
+      const response = await axios.get(`http://localhost:5001/api/crypto/symbols`);
+      if (response.data && response.data.symbols) {
+        const crypto = response.data.symbols.find(s => s.symbol === symbol);
+        if (crypto && crypto.price) {
+          console.log(`✅ Found real-time crypto price for ${symbol}: $${crypto.price}`);
+          return {
+            symbol,
+            price: crypto.price,
+            lastUpdated: new Date().toISOString()
+          };
+        }
+      }
+    } catch (endpointError) {
+      console.log(`⚠️  Crypto symbols endpoint failed for ${symbol}: ${endpointError.message}`);
     }
     
     // If we can't get real-time data, try to get from the crypto service directly
@@ -684,26 +685,23 @@ async function getRealCryptoData(symbol) {
       console.log(`⚠️  Crypto service lookup failed for ${symbol}: ${cryptoError.message}`);
     }
     
-    // Fallback to simulated data if real data not available
+    // Final fallback to updated base prices
     console.log(`⚠️  Using fallback crypto price for ${symbol}`);
     const basePrices = {
-      'BTCUSDT': 111333, 'ETHUSDT': 4610, 'BNBUSDT': 862, 'ADAUSDT': 0.87, 'SOLUSDT': 197, 'DOTUSDT': 3.92, 'LINKUSDT': 24.5, 'MATICUSDT': 0.38, 'AVAXUSDT': 24.3, 'UNIUSDT': 9.98
+      'BTCUSDT': 112313, 'ETHUSDT': 4610, 'BNBUSDT': 862, 'ADAUSDT': 0.87, 'SOLUSDT': 197, 'DOTUSDT': 3.92, 'LINKUSDT': 24.5, 'MATICUSDT': 0.38, 'AVAXUSDT': 24.3, 'UNIUSDT': 9.98
     };
     
     const basePrice = basePrices[symbol] || 1000;
-    const priceVariation = (Math.random() - 0.5) * 0.08; // ±4% variation (crypto is more volatile)
-    const currentPrice = basePrice * (1 + priceVariation);
-    
     return {
       symbol,
-      price: parseFloat(currentPrice.toFixed(2)),
+      price: basePrice,
       lastUpdated: new Date().toISOString()
     };
   } catch (error) {
     console.log(`⚠️  Could not fetch real crypto data for ${symbol}: ${error.message}`);
     // Fallback to updated base prices
     const basePrices = {
-      'BTCUSDT': 111333, 'ETHUSDT': 4610, 'BNBUSDT': 862, 'ADAUSDT': 0.87, 'SOLUSDT': 197, 'DOTUSDT': 3.92, 'LINKUSDT': 24.5, 'MATICUSDT': 0.38, 'AVAXUSDT': 24.3, 'UNIUSDT': 9.98
+      'BTCUSDT': 112313, 'ETHUSDT': 4610, 'BNBUSDT': 862, 'ADAUSDT': 0.87, 'SOLUSDT': 197, 'DOTUSDT': 3.92, 'LINKUSDT': 24.5, 'MATICUSDT': 0.38, 'AVAXUSDT': 24.3, 'UNIUSDT': 9.98
     };
     const basePrice = basePrices[symbol] || 1000;
     return {

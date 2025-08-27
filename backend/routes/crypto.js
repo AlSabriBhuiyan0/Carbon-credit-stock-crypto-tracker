@@ -46,13 +46,42 @@ router.get('/symbols', async (req, res) => {
     
     for (const symbol of symbols) {
       try {
-        const price = await cryptoForecastingService.getRealTimePrice(symbol);
-        if (price) {
+        // First try to get fresh price directly from Binance REST API for maximum accuracy
+        let currentPrice = null;
+        let priceChange = 0;
+        let priceChangePercent = 0;
+        
+        try {
+          const binanceResponse = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`, {
+            timeout: 5000 // 5 second timeout
+          });
+          
+          if (binanceResponse.data) {
+            currentPrice = parseFloat(binanceResponse.data.lastPrice);
+            priceChange = parseFloat(binanceResponse.data.priceChange);
+            priceChangePercent = parseFloat(binanceResponse.data.priceChangePercent);
+            console.log(`✅ Fresh Binance price for ${symbol}: $${currentPrice}`);
+          }
+        } catch (binanceError) {
+          console.log(`⚠️  Binance REST API failed for ${symbol}: ${binanceError.message}`);
+        }
+        
+        // Fallback to crypto service if Binance fails
+        if (!currentPrice) {
+          const price = await cryptoForecastingService.getRealTimePrice(symbol);
+          if (price) {
+            currentPrice = price.price || price.lastPrice || 0;
+            priceChange = price.priceChange || 0;
+            priceChangePercent = price.priceChangePercent || 0;
+          }
+        }
+        
+        if (currentPrice) {
           prices.push({
             symbol,
-            price: price.price || price.lastPrice || 0,
-            change: price.priceChange || 0,
-            changePercent: price.priceChangePercent || 0
+            price: currentPrice,
+            change: priceChange,
+            changePercent: priceChangePercent
           });
         }
       } catch (error) {
