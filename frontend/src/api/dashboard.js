@@ -121,7 +121,7 @@ export const dashboardApi = {
       if (params.symbols && params.symbols.length > 0) {
         const response = await http.post('/api/forecast/mixed', {
           assets: params.symbols,
-          horizon: params.timeRange === '1w' ? 7 : params.timeRange === '1m' ? 30 : 7,
+          horizon: params.timeRange === '1d' ? 1 : params.timeRange === '1w' ? 7 : params.timeRange === '1m' ? 30 : params.timeRange === '3m' ? 90 : 7,
           useRealData: true
         });
         return response.data;

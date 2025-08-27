@@ -144,9 +144,23 @@ const Dashboard = () => {
 
   const { data: forecastData, isLoading: forecastLoading, error: forecastError } = useQuery(
     ['forecasts', timeRange, forecastModel, forecastSymbols.join(',')],
-    () => {
-      console.log('🔮 Fetching dashboard forecasts...', { timeRange, model: forecastModel, symbols: forecastSymbols });
-      return dashboardApi.getForecasts({ timeRange, model: forecastModel, symbols: forecastSymbols });
+    async () => {
+      try {
+        console.log('🔮 Fetching dashboard forecasts...', { timeRange, model: forecastModel, symbols: forecastSymbols });
+        const result = await dashboardApi.getForecasts({ timeRange, model: forecastModel, symbols: forecastSymbols });
+        console.log('🔮 Forecast API result:', result);
+        console.log('🔮 Forecast API result structure:', {
+          hasData: !!result,
+          hasForecasts: !!result?.forecasts,
+          hasStocks: !!result?.forecasts?.stocks,
+          stocksLength: result?.forecasts?.stocks?.length || 0,
+          firstStock: result?.forecasts?.stocks?.[0]
+        });
+        return result;
+      } catch (error) {
+        console.error('🔮 Forecast API error:', error);
+        throw error;
+      }
     },
     { 
       enabled: forecastSymbols.length > 0, // Always enable when symbols are available
@@ -154,30 +168,35 @@ const Dashboard = () => {
       staleTime: 60000, // 1 minute
       refetchOnWindowFocus: true,
       refetchInterval: 30000, // Refetch every 30 seconds
+      onError: (error) => {
+        console.error('🔮 Forecast query error:', error);
+      }
     }
   );
 
   // Debug forecast data
   console.log('🔮 Dashboard forecast data:', {
     hasData: !!forecastData,
-    data: forecastData?.data,
+    data: forecastData,
     isLoading: forecastLoading,
     error: forecastError,
     symbols: forecastSymbols,
+    symbolsLength: forecastSymbols.length,
     activeView,
-    queryEnabled: (activeView === 'overview' || activeView === 'forecasts') && forecastSymbols.length > 0
+    queryEnabled: forecastSymbols.length > 0,
+    queryKey: ['forecasts', timeRange, forecastModel, forecastSymbols.join(',')]
   });
 
   // Ensure forecast data is always available for the ForecastingCard
-  const finalForecastData = forecastData?.data || {
-    // New unified forecast structure
+  const finalForecastData = forecastData ? forecastData : {
+    // Fallback structure only when no forecast data exists
     forecasts: {
-      stocks: forecastData?.data?.forecasts?.stocks || [],
-      crypto: forecastData?.data?.forecasts?.crypto || []
+      stocks: [],
+      crypto: []
     },
     // Legacy structure for backward compatibility
-    stockForecasts: forecastData?.data?.stockForecasts || {},
-    carbonForecasts: forecastData?.data?.carbonForecasts || [],
+    stockForecasts: {},
+    carbonForecasts: [],
     marketPredictions: {
       volatility: 0.15,
       trendStrength: 0.7,
@@ -204,11 +223,13 @@ const Dashboard = () => {
 
   // Debug logging for forecast data
   console.log('🔮 Dashboard finalForecastData:', {
-    hasForecastData: !!forecastData?.data,
+    hasForecastData: !!forecastData,
+    rawForecastData: forecastData,
     forecastsStocks: finalForecastData.forecasts?.stocks?.length || 0,
     forecastsCrypto: finalForecastData.forecasts?.crypto?.length || 0,
     stockForecasts: Object.keys(finalForecastData.stockForecasts || {}).length,
-    carbonForecasts: finalForecastData.carbonForecasts?.length || 0
+    carbonForecasts: finalForecastData.carbonForecasts?.length || 0,
+    firstStock: finalForecastData.forecasts?.stocks?.[0]
   });
 
   // Fetch health statuses

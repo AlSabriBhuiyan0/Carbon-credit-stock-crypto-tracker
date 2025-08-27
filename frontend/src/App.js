@@ -137,6 +137,9 @@ function AppRoutes() {
             <InvestorDashboard />
           </ProtectedRoute>
         } />
+        
+        {/* Catch-all route for app paths */}
+        <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
       </Route>
 
       {/* 404 route */}
@@ -167,7 +170,7 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <AuthProvider>
-              <Router>
+              <Router basename="/">
                 <AppRoutes />
                 <Toaster
                   position="top-right"
