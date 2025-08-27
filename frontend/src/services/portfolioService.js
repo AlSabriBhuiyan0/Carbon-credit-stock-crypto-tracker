@@ -19,7 +19,8 @@ class PortfolioService {
       }
 
       const data = await response.json();
-      return data.portfolio;
+      // Backend returns data directly, not wrapped in portfolio object
+      return data;
     } catch (error) {
       console.error('Error fetching portfolio summary:', error);
       throw error;

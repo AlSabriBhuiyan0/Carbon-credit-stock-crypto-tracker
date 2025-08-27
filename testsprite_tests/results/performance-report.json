@@ -1,20 +1,20 @@
 {
-  "timestamp": "2025-08-26T18:57:29.728Z",
+  "timestamp": "2025-08-27T16:38:49.599Z",
   "testResults": [
     {
       "test": "Response Time",
       "status": "PASS",
-      "details": "Average response time: 348ms (min: 4ms, max: 691ms)"
+      "details": "Average response time: 345ms (min: 3ms, max: 686ms)"
     },
     {
       "test": "Load Testing",
       "status": "PASS",
-      "details": "Success rate: 99.0%, Throughput: 1.41 req/s, Avg response: 1820ms"
+      "details": "Success rate: 99.0%, Throughput: 1.41 req/s, Avg response: 1403ms"
     },
     {
       "test": "Stress Testing",
       "status": "PASS",
-      "details": "Error rate: 0.0%, Throughput: 9.99 req/s, Avg response: 5ms"
+      "details": "Error rate: 0.0%, Throughput: 9.99 req/s, Avg response: 4ms"
     },
     {
       "test": "Concurrent Requests",
@@ -24,31 +24,31 @@
     {
       "test": "Memory Usage",
       "status": "PASS",
-      "details": "Memory increase: 1.68MB, Final heap: 12.94MB"
+      "details": "Memory increase: 0.27MB, Final heap: 12.26MB"
     }
   ],
   "performanceMetrics": {
     "responseTimes": [
       {
         "endpoint": "/api/stocks",
-        "responseTime": 5,
+        "responseTime": 3,
         "status": "success"
       },
       {
         "endpoint": "/api/crypto",
-        "responseTime": 10,
+        "responseTime": 5,
         "status": "error",
         "error": "Request failed with status code 404"
       },
       {
         "endpoint": "/api/carbon/projects",
-        "responseTime": 4,
+        "responseTime": 5,
         "status": "error",
         "error": "Request failed with status code 404"
       },
       {
         "endpoint": "/api/dashboard",
-        "responseTime": 691,
+        "responseTime": 686,
         "status": "success"
       }
     ],
@@ -57,7 +57,7 @@
       "failed": 1,
       "total": 100,
       "throughput": "1.41",
-      "avgResponseTime": 1819.7878787878788
+      "avgResponseTime": 1403.4646464646464
     },
     "errors": []
   }

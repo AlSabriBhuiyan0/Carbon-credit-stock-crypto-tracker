@@ -5,5 +5,12 @@
   "localEndpoint": "http://localhost:5001",
   "loginUser": "alsunny43@gmail.com",
   "loginPassword": "Alsunny65@",
-  "serverPort": 40857
+  "serverPort": 42617,
+  "executionArgs": {
+    "projectName": "Carbon-credit-stock-crypto-tracker",
+    "projectPath": "/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker",
+    "testIds": [],
+    "additionalInstruction": "Re-run full suite and frontend tests. Pay special attention to /api/portfolios and /api/crypto endpoints used by the portfolio and forecast views.",
+    "envs": {}
+  }
 }

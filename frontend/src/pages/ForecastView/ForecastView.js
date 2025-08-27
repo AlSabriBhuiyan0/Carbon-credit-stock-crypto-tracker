@@ -31,7 +31,7 @@ const ForecastView = () => {
     ['user-portfolio'],
     async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/portfolio', {
+        const response = await axios.get('http://localhost:5001/api/portfolios', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         return response.data;
@@ -43,8 +43,8 @@ const ForecastView = () => {
             { symbol: 'AAPL', type: 'stock' },
             { symbol: 'GOOGL', type: 'stock' },
             { symbol: 'MSFT', type: 'stock' },
-            { symbol: 'BTC', type: 'crypto' },
-            { symbol: 'ETH', type: 'crypto' }
+            { symbol: 'BTCUSDT', type: 'crypto' },
+            { symbol: 'ETHUSDT', type: 'crypto' }
           ]
         };
       }
@@ -552,7 +552,9 @@ const ForecastView = () => {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">{forecastData.count}</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {userPortfolio?.totalValue ? `$${userPortfolio.totalValue.toLocaleString()}` : 'N/A'}
+                  </div>
                   <div className="text-sm text-gray-500">Total Assets</div>
                 </div>
                 <div>

@@ -29,6 +29,45 @@ router.get('/status', async (req, res) => { // Temporarily disabled auth for tes
 
 /**
  * @swagger
+ * /api/crypto/symbols:
+ *   get:
+ *     summary: Get available crypto symbols with prices
+ *     tags: [Crypto]
+ *     responses:
+ *       200:
+ *         description: List of crypto symbols with current prices
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/symbols', async (req, res) => {
+  try {
+    const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'DOTUSDT', 'LINKUSDT', 'MATICUSDT', 'AVAXUSDT', 'UNIUSDT'];
+    const prices = [];
+    
+    for (const symbol of symbols) {
+      try {
+        const price = await cryptoForecastingService.getRealTimePrice(symbol);
+        if (price) {
+          prices.push({
+            symbol,
+            price: price.price || price.lastPrice || 0,
+            change: price.priceChange || 0,
+            changePercent: price.priceChangePercent || 0
+          });
+        }
+      } catch (error) {
+        console.log(`⚠️  Could not fetch price for ${symbol}: ${error.message}`);
+      }
+    }
+    
+    res.json({ symbols: prices });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
  * /api/crypto/price/{symbol}:
  *   get:
  *     summary: Get real-time crypto price

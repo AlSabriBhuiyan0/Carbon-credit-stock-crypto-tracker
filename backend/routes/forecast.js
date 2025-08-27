@@ -348,27 +348,43 @@ router.post('/download', (req, res) => {
     const categorized = AssetTypeService.categorizeAssets(assets);
     const forecasts = {};
     
+    // For download, we need to match the mixed forecast structure exactly
     if (categorized.stocks.length > 0) {
-      forecasts.stocks = categorized.stocks.map(symbol => ({
-        symbol,
-        type: 'stock',
-        forecast: {
-          horizon: horizon,
-          predictions: generateForecastPredictions(horizon, 'stock', symbol)
-        }
+      forecasts.stocks = await Promise.all(categorized.stocks.map(async (symbol) => {
+        const forecastData = await generateForecastPredictions(horizon, 'stock', symbol);
+        return {
+          symbol,
+          type: 'stock',
+          currentPrice: 150, // Default fallback
+          forecast: {
+            horizon: horizon,
+            predictions: forecastData.combined,
+            prophet: forecastData.prophet,
+            arima: forecastData.arima
+          }
+        };
       }));
     }
     
     if (categorized.crypto.length > 0) {
-      forecasts.crypto = categorized.crypto.map(symbol => ({
-        symbol,
-        type: 'crypto',
-        forecast: {
-          horizon: horizon,
-          predictions: generateForecastPredictions(horizon, 'crypto', symbol)
-        }
+      forecasts.crypto = await Promise.all(categorized.crypto.map(async (symbol) => {
+        const forecastData = await generateForecastPredictions(horizon, 'crypto', symbol);
+        return {
+          symbol,
+          type: 'crypto',
+          currentPrice: 45000, // Default fallback
+          forecast: {
+            horizon: horizon,
+            predictions: forecastData.combined,
+            prophet: forecastData.prophet,
+            arima: forecastData.arima
+          }
+        };
       }));
     }
+    
+    // Debug: Log the forecasts structure
+    console.log('🔍 Download forecasts structure:', JSON.stringify(forecasts, null, 2));
     
     // Generate report based on format
     let reportData, contentType, filename;
@@ -638,8 +654,8 @@ async function getRealStockData(symbol) {
  */
 async function getRealCryptoData(symbol) {
   try {
-    // Try to get real-time data from our dashboard API
-    const response = await axios.get(`http://localhost:5001/api/dashboard/crypto/symbols`);
+    // Try to get real-time data from our crypto symbols endpoint
+    const response = await axios.get(`http://localhost:5001/api/crypto/symbols`);
     if (response.data && response.data.symbols) {
       const crypto = response.data.symbols.find(s => s.symbol === symbol);
       if (crypto && crypto.price) {
@@ -704,41 +720,59 @@ async function getRealCryptoData(symbol) {
 function generateCSVReport(assets, horizon, forecasts) {
   let csv = 'Asset Type,Symbol,Date,Predicted Price,Confidence,Model\n';
   
-  if (forecasts.stocks) {
+  console.log('🔍 CSV Report - forecasts structure:', JSON.stringify(forecasts, null, 2));
+  
+  if (forecasts.stocks && Array.isArray(forecasts.stocks)) {
     forecasts.stocks.forEach(stock => {
-      // Combined predictions
-      stock.forecast.predictions.forEach(prediction => {
-        csv += `Stock,${stock.symbol},${prediction.date},${prediction.price},${prediction.confidence},Combined\n`;
-      });
+      console.log('🔍 Processing stock:', stock.symbol, 'forecast structure:', JSON.stringify(stock.forecast, null, 2));
       
-      // Prophet predictions
-      stock.forecast.prophet.forEach(prediction => {
-        csv += `Stock,${stock.symbol},${prediction.date},${prediction.price},${prediction.confidence},Prophet\n`;
-      });
+      if (stock.forecast && stock.forecast.predictions && Array.isArray(stock.forecast.predictions)) {
+        // Combined predictions
+        stock.forecast.predictions.forEach(prediction => {
+          csv += `Stock,${stock.symbol},${prediction.date},${prediction.price},${prediction.confidence},Combined\n`;
+        });
+      }
       
-      // ARIMA predictions
-      stock.forecast.arima.forEach(prediction => {
-        csv += `Stock,${stock.symbol},${prediction.date},${prediction.price},${prediction.confidence},ARIMA\n`;
-      });
+      if (stock.forecast && stock.forecast.prophet && Array.isArray(stock.forecast.prophet)) {
+        // Prophet predictions
+        stock.forecast.prophet.forEach(prediction => {
+          csv += `Stock,${stock.symbol},${prediction.date},${prediction.price},${prediction.confidence},Prophet\n`;
+        });
+      }
+      
+      if (stock.forecast && stock.forecast.arima && Array.isArray(stock.forecast.arima)) {
+        // ARIMA predictions
+        stock.forecast.arima.forEach(prediction => {
+          csv += `Stock,${stock.symbol},${prediction.date},${prediction.price},${prediction.confidence},ARIMA\n`;
+        });
+      }
     });
   }
   
-  if (forecasts.crypto) {
+  if (forecasts.crypto && Array.isArray(forecasts.crypto)) {
     forecasts.crypto.forEach(crypto => {
-      // Combined predictions
-      crypto.forecast.predictions.forEach(prediction => {
-        csv += `Crypto,${crypto.symbol},${prediction.date},${prediction.price},${prediction.confidence},Combined\n`;
-      });
+      console.log('🔍 Processing crypto:', crypto.symbol, 'forecast structure:', JSON.stringify(crypto.forecast, null, 2));
       
-      // Prophet predictions
-      crypto.forecast.prophet.forEach(prediction => {
-        csv += `Crypto,${crypto.symbol},${prediction.date},${prediction.price},${prediction.confidence},Prophet\n`;
-      });
+      if (crypto.forecast && crypto.forecast.predictions && Array.isArray(crypto.forecast.predictions)) {
+        // Combined predictions
+        crypto.forecast.predictions.forEach(prediction => {
+          csv += `Crypto,${crypto.symbol},${prediction.date},${prediction.price},${prediction.confidence},Combined\n`;
+        });
+      }
       
-      // ARIMA predictions
-      crypto.forecast.arima.forEach(prediction => {
-        csv += `Crypto,${crypto.symbol},${prediction.date},${prediction.price},${prediction.confidence},ARIMA\n`;
-      });
+      if (crypto.forecast && crypto.forecast.prophet && Array.isArray(crypto.forecast.prophet)) {
+        // Prophet predictions
+        crypto.forecast.prophet.forEach(prediction => {
+          csv += `Crypto,${crypto.symbol},${prediction.date},${prediction.price},${prediction.confidence},Prophet\n`;
+        });
+      }
+      
+      if (crypto.forecast && crypto.forecast.arima && Array.isArray(crypto.forecast.arima)) {
+        // ARIMA predictions
+        crypto.forecast.arima.forEach(prediction => {
+          csv += `Crypto,${crypto.symbol},${prediction.date},${prediction.price},${prediction.confidence},ARIMA\n`;
+        });
+      }
     });
   }
   

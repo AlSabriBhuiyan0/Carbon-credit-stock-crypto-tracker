@@ -152,7 +152,7 @@ app.use('/api/stocks', stockRoutes);
 app.use('/api/carbon', carbonRoutes);
 app.use('/api/unfccc', authenticateToken, require('./routes/unfccc'));
 app.use('/api/users', authenticateToken, userRoutes);
-app.use('/api/portfolio', authenticateToken, portfolioRoutes);
+app.use('/api/portfolios', authenticateToken, portfolioRoutes);
 app.use('/api/notifications', authenticateToken, notificationRoutes);
 app.use('/api/reports', authenticateToken, reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
