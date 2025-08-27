@@ -20,13 +20,97 @@ const ForecastView = () => {
   const [forecastHorizon, setForecastHorizon] = useState(7);
   const [maxAssets] = useState(3);
 
-  // Available assets for selection (will be populated from user portfolio)
+  // Available assets for selection (ALL available symbols, not just portfolio)
   const [availableAssets, setAvailableAssets] = useState({
-    stocks: [],
-    crypto: []
+    stocks: [
+      // Fallback default stock symbols
+      'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX', 'AMD', 'INTC'
+    ],
+    crypto: [
+      // Fallback default crypto symbols
+      'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'DOTUSDT', 'AVAXUSDT', 'MATICUSDT'
+    ]
   });
 
-  // Fetch user portfolio to populate available assets
+  // Fetch ALL available stock symbols (not just portfolio)
+  const { data: stockSymbols, isLoading: stockSymbolsLoading, error: stockSymbolsError } = useQuery(
+    ['stock-symbols'],
+    async () => {
+      try {
+        console.log('🔍 Fetching stock symbols from /api/dashboard/stock-symbols...');
+        const response = await axios.get('http://localhost:5001/api/dashboard/stock-symbols');
+        console.log('📊 Stock symbols response:', response.data);
+        if (response.data && response.data.success) {
+          return response.data.data || [];
+        }
+        console.warn('⚠️ Stock symbols response missing success or data:', response.data);
+        return [];
+      } catch (error) {
+        console.error('❌ Error fetching stock symbols:', error.message);
+        if (error.response) {
+          console.error('Response status:', error.response.status);
+          console.error('Response data:', error.response.data);
+        }
+        return [];
+      }
+    },
+    {
+      staleTime: 5 * 60 * 1000,
+      retry: 3,
+      onSuccess: (data) => {
+        console.log('📊 Stock symbols received:', data.length, 'symbols');
+        if (data && data.length > 0) {
+          const stockSymbols = data.map(item => item.symbol || item);
+          console.log('📊 Setting stock symbols:', stockSymbols);
+          setAvailableAssets(prev => ({ ...prev, stocks: stockSymbols }));
+        }
+      },
+      onError: (error) => {
+        console.error('❌ Stock symbols query failed:', error);
+      }
+    }
+  );
+
+  // Fetch ALL available crypto symbols (not just portfolio)
+  const { data: cryptoSymbols, isLoading: cryptoSymbolsLoading, error: cryptoSymbolsError } = useQuery(
+    ['crypto-symbols'],
+    async () => {
+      try {
+        console.log('🔍 Fetching crypto symbols from /api/dashboard/crypto-symbols...');
+        const response = await axios.get('http://localhost:5001/api/dashboard/crypto-symbols');
+        console.log('🪙 Crypto symbols response:', response.data);
+        if (response.data && response.data.success) {
+          return response.data.data || [];
+        }
+        console.warn('⚠️ Crypto symbols response missing success or data:', response.data);
+        return [];
+      } catch (error) {
+        console.error('❌ Error fetching crypto symbols:', error.message);
+        if (error.response) {
+          console.error('Response status:', error.response.status);
+          console.error('Response data:', error.response.data);
+        }
+        return [];
+      }
+    },
+    {
+      staleTime: 5 * 60 * 1000,
+      retry: 3,
+      onSuccess: (data) => {
+        console.log('🪙 Crypto symbols received:', data.length, 'symbols');
+        if (data && data.length > 0) {
+          const cryptoSymbols = data.map(item => item.symbol || item);
+          console.log('🪙 Setting crypto symbols:', cryptoSymbols);
+          setAvailableAssets(prev => ({ ...prev, crypto: cryptoSymbols }));
+        }
+      },
+      onError: (error) => {
+        console.error('❌ Crypto symbols query failed:', error);
+      }
+    }
+  );
+
+  // Fetch user portfolio for display purposes only
   const { data: userPortfolio, isLoading: portfolioLoading } = useQuery(
     ['user-portfolio'],
     async () => {
@@ -64,12 +148,6 @@ const ForecastView = () => {
       staleTime: 5 * 60 * 1000,
       onSuccess: (data) => {
         console.log('📊 Portfolio data received:', data);
-        // Organize portfolio assets by type
-        if (data && data.assets) {
-          const stocks = data.assets.filter(asset => asset.type === 'stock').map(asset => asset.symbol);
-          const crypto = data.assets.filter(asset => asset.type === 'crypto').map(asset => asset.symbol);
-          setAvailableAssets({ stocks, crypto });
-        }
       }
     }
   );
@@ -86,7 +164,14 @@ const ForecastView = () => {
           const response = await axios.get(`http://localhost:5001/api/assets/${asset}/type`);
           types[asset] = response.data.type;
         } catch (error) {
-          types[asset] = 'unknown';
+          // Use asset type service logic as fallback
+          if (availableAssets.stocks.includes(asset)) {
+            types[asset] = 'stock';
+          } else if (availableAssets.crypto.includes(asset)) {
+            types[asset] = 'crypto';
+          } else {
+            types[asset] = 'unknown';
+          }
         }
       }
       return types;
@@ -275,14 +360,30 @@ const ForecastView = () => {
                      <div>
                        <h3 className="text-lg font-medium text-gray-900 mb-3">
                          <Building2 className="w-4 h-4 inline mr-2 text-blue-600" />
-                         Stock Assets
-                         {portfolioLoading && <span className="ml-2 text-sm text-gray-500">(Loading...)</span>}
+                         Stock Assets ({availableAssets.stocks.length} available)
+                         {stockSymbolsLoading && <span className="ml-2 text-sm text-gray-500">(Loading...)</span>}
                        </h3>
+                       
+                       {/* Error Display */}
+                       {stockSymbolsError && (
+                         <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-md">
+                           <div className="text-sm text-red-800">
+                             <strong>Error loading stock symbols:</strong> {stockSymbolsError.message}
+                           </div>
+                           <button 
+                             onClick={() => window.location.reload()}
+                             className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
+                           >
+                             Retry
+                           </button>
+                         </div>
+                       )}
+                       
                        <div className="space-y-2">
-                         {portfolioLoading ? (
+                         {stockSymbolsLoading ? (
                            <div className="text-center py-4 text-gray-500">
                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                             Loading portfolio assets...
+                             Loading stock symbols...
                            </div>
                          ) : availableAssets.stocks.length > 0 ? (
                            availableAssets.stocks.map((symbol) => (
@@ -301,7 +402,7 @@ const ForecastView = () => {
                            ))
                          ) : (
                            <div className="text-center py-4 text-gray-500">
-                             No stock assets in portfolio
+                             {stockSymbolsError ? 'Failed to load stock symbols' : 'No stock symbols available'}
                            </div>
                          )}
                        </div>
@@ -313,14 +414,30 @@ const ForecastView = () => {
                      <div>
                        <h3 className="text-lg font-medium text-gray-900 mb-3">
                          <Bitcoin className="w-4 h-4 inline mr-2 text-orange-600" />
-                         Crypto Assets
-                         {portfolioLoading && <span className="ml-2 text-sm text-gray-500">(Loading...)</span>}
+                         Crypto Assets ({availableAssets.crypto.length} available)
+                         {cryptoSymbolsLoading && <span className="ml-2 text-sm text-gray-500">(Loading...)</span>}
                        </h3>
+                       
+                       {/* Error Display */}
+                       {cryptoSymbolsError && (
+                         <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-md">
+                           <div className="text-sm text-red-800">
+                             <strong>Error loading crypto symbols:</strong> {cryptoSymbolsError.message}
+                           </div>
+                           <button 
+                             onClick={() => window.location.reload()}
+                             className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
+                           >
+                             Retry
+                           </button>
+                         </div>
+                       )}
+                       
                        <div className="space-y-2">
-                         {portfolioLoading ? (
+                         {cryptoSymbolsLoading ? (
                            <div className="text-center py-4 text-gray-500">
                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600 mx-auto mb-2"></div>
-                             Loading portfolio assets...
+                             Loading crypto symbols...
                            </div>
                          ) : availableAssets.crypto.length > 0 ? (
                            availableAssets.crypto.map((symbol) => (
@@ -339,7 +456,7 @@ const ForecastView = () => {
                            ))
                          ) : (
                            <div className="text-center py-4 text-gray-500">
-                             No crypto assets in portfolio
+                             {cryptoSymbolsError ? 'Failed to load crypto symbols' : 'No crypto symbols available'}
                            </div>
                          )}
                        </div>
@@ -425,6 +542,87 @@ const ForecastView = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Portfolio Reference */}
+        {userPortfolio && userPortfolio.assets && userPortfolio.assets.length > 0 && (
+          <div className="bg-blue-50 rounded-lg border border-blue-200 p-4 mb-8">
+            <h3 className="text-lg font-medium text-blue-900 mb-3">
+              💼 Your Portfolio Assets (Reference)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-sm font-medium text-blue-800 mb-2">Stocks</h4>
+                <div className="flex flex-wrap gap-2">
+                  {userPortfolio.assets
+                    .filter(asset => asset.type === 'stock')
+                    .map(asset => (
+                      <span key={asset.symbol} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                        {asset.symbol} - ${asset.currentPrice?.toFixed(2) || 'N/A'}
+                      </span>
+                    ))}
+                  {userPortfolio.assets.filter(asset => asset.type === 'stock').length === 0 && (
+                    <span className="text-sm text-blue-600">No stocks in portfolio</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-blue-800 mb-2">Crypto</h4>
+                <div className="flex flex-wrap gap-2">
+                  {userPortfolio.assets
+                    .filter(asset => asset.type === 'crypto')
+                    .map(asset => (
+                      <span key={asset.symbol} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                        {asset.symbol} - ${asset.currentPrice?.toFixed(2) || 'N/A'}
+                      </span>
+                    ))}
+                  {userPortfolio.assets.filter(asset => asset.type === 'crypto').length === 0 && (
+                    <span className="text-sm text-orange-600">No crypto in portfolio</span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-blue-200">
+              <div className="text-sm text-blue-700">
+                <strong>Total Portfolio Value:</strong> ${userPortfolio.totalValue?.toFixed(2) || 'N/A'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Debug Information */}
+        <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 mb-8">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">
+            🔧 Debug Information
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h4 className="font-medium text-gray-800 mb-2">Asset Loading Status</h4>
+              <div className="space-y-1">
+                <div>Stock Symbols: {stockSymbolsLoading ? '🔄 Loading...' : stockSymbolsError ? '❌ Error' : `✅ ${availableAssets.stocks.length} loaded`}</div>
+                <div>Crypto Symbols: {cryptoSymbolsLoading ? '🔄 Loading...' : cryptoSymbolsError ? '❌ Error' : `✅ ${availableAssets.crypto.length} loaded`}</div>
+                <div>Portfolio: {portfolioLoading ? '🔄 Loading...' : userPortfolio ? '✅ Loaded' : '❌ Failed'}</div>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-800 mb-2">Current Selection</h4>
+              <div className="space-y-1">
+                <div>Asset Type: <span className="font-medium">{assetType}</span></div>
+                <div>Selected Assets: {selectedAssets.length}/{maxAssets}</div>
+                <div>Selected: {selectedAssets.length > 0 ? selectedAssets.join(', ') : 'None'}</div>
+              </div>
+            </div>
+          </div>
+          {stockSymbolsError && (
+            <div className="mt-3 p-2 bg-red-100 border border-red-200 rounded text-xs text-red-800">
+              <strong>Stock Symbols Error:</strong> {stockSymbolsError.message}
+            </div>
+          )}
+          {cryptoSymbolsError && (
+            <div className="mt-3 p-2 bg-red-100 border border-red-200 rounded text-xs text-red-800">
+              <strong>Crypto Symbols Error:</strong> {cryptoSymbolsError.message}
+            </div>
+          )}
         </div>
 
                        {/* Forecast Results */}

@@ -5,8 +5,7 @@ import {
   RefreshCw,
   Clock,
   TrendingUp,
-  TrendingDown,
-  BarChart3
+  TrendingDown
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -40,7 +39,7 @@ const Dashboard = () => {
   const [activeView, setActiveView] = useState('overview');
   const [timeRange, setTimeRange] = useState('1d');
   const [forecastModel, setForecastModel] = useState('simple');
-  const [forecastSymbols, setForecastSymbols] = useState([]);
+  const [forecastSymbols, setForecastSymbols] = useState(['AAPL', 'GOOGL', 'BTCUSDT']); // Default symbols instead of empty array
   
   // Load available stock symbols and set defaults
   useEffect(() => {
@@ -150,7 +149,7 @@ const Dashboard = () => {
       return dashboardApi.getForecasts({ timeRange, model: forecastModel, symbols: forecastSymbols });
     },
     { 
-      enabled: (activeView === 'overview' || activeView === 'forecasts') && forecastSymbols.length > 0,
+      enabled: forecastSymbols.length > 0, // Always enable when symbols are available
       retry: 2,
       staleTime: 60000, // 1 minute
       refetchOnWindowFocus: true,
@@ -171,8 +170,14 @@ const Dashboard = () => {
 
   // Ensure forecast data is always available for the ForecastingCard
   const finalForecastData = forecastData?.data || {
-    stockForecasts: {},
-    carbonForecasts: [],
+    // New unified forecast structure
+    forecasts: {
+      stocks: forecastData?.data?.forecasts?.stocks || [],
+      crypto: forecastData?.data?.forecasts?.crypto || []
+    },
+    // Legacy structure for backward compatibility
+    stockForecasts: forecastData?.data?.stockForecasts || {},
+    carbonForecasts: forecastData?.data?.carbonForecasts || [],
     marketPredictions: {
       volatility: 0.15,
       trendStrength: 0.7,
@@ -196,6 +201,15 @@ const Dashboard = () => {
       regressionAccuracy: 78
     }
   };
+
+  // Debug logging for forecast data
+  console.log('🔮 Dashboard finalForecastData:', {
+    hasForecastData: !!forecastData?.data,
+    forecastsStocks: finalForecastData.forecasts?.stocks?.length || 0,
+    forecastsCrypto: finalForecastData.forecasts?.crypto?.length || 0,
+    stockForecasts: Object.keys(finalForecastData.stockForecasts || {}).length,
+    carbonForecasts: finalForecastData.carbonForecasts?.length || 0
+  });
 
   // Fetch health statuses
   useEffect(() => {

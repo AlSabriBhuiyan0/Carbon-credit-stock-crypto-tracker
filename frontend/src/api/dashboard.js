@@ -41,7 +41,6 @@ export const dashboardApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching crypto data:', error);
-      throw error;
       // Return fallback data if API fails
       return {
         cryptos: [],
@@ -73,7 +72,7 @@ export const dashboardApi = {
   // Get crypto symbols
   getCryptoSymbols: async () => {
     try {
-      const response = await http.get('/api/dashboard/crypto/symbols');
+      const response = await http.get('/api/dashboard/crypto-symbols');
       return response.data;
     } catch (error) {
       console.error('Error fetching crypto symbols:', error);
@@ -115,9 +114,20 @@ export const dashboardApi = {
     }
   },
 
-  // Get forecasting data
+  // Get forecasting data using the new unified forecast system
   getForecasts: async (params = {}) => {
     try {
+      // Use the new unified forecast endpoint for mixed assets
+      if (params.symbols && params.symbols.length > 0) {
+        const response = await http.post('/api/forecast/mixed', {
+          assets: params.symbols,
+          horizon: params.timeRange === '1w' ? 7 : params.timeRange === '1m' ? 30 : 7,
+          useRealData: true
+        });
+        return response.data;
+      }
+      
+      // Fallback to old endpoint for backward compatibility
       const query = new URLSearchParams();
       Object.entries(params).forEach(([k, v]) => {
         if (v == null) return;

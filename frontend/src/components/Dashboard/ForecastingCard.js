@@ -19,9 +19,35 @@ import { getCryptoDisplayName } from '../../api/crypto';
 const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [], onSymbolsChange }) => {
   const [selectedModel, setSelectedModel] = useState('simple');
   const [showComparison, setShowComparison] = useState(false);
-  const [symbols, setSymbols] = useState([]);
-  const [cryptoSymbols, setCryptoSymbols] = useState([]);
+  const [symbols, setSymbols] = useState([
+    // Fallback stock symbols to ensure they're always available
+    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'JPM', 'JNJ',
+    'V', 'WMT', 'PG', 'UNH', 'HD', 'MA', 'PFE', 'ABBV', 'KO', 'BAC', 'PEP', 'TMO',
+    'COST', 'DIS', 'ADBE', 'CRM', 'NKE', 'ACN', 'DHR', 'LLY'
+  ]);
+  const [cryptoSymbols, setCryptoSymbols] = useState([
+    // Fallback crypto symbols to ensure they're always available
+    'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'DOTUSDT', 'AVAXUSDT', 'MATICUSDT',
+    'LINKUSDT', 'UNIUSDT', 'LTCUSDT', 'BCHUSDT', 'XRPUSDT', 'VETUSDT', 'DOGEUSDT'
+  ]);
   const [assetType, setAssetType] = useState('stocks'); // 'stocks' or 'crypto'
+
+  // Helper function to determine if a symbol is crypto or stock
+  const isCryptoSymbol = (symbol) => {
+    if (!symbol) return false;
+    const cryptoSuffixes = ['USDT', 'BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT', 'AVAX', 'MATIC', 'LINK', 'UNI', 'LTC', 'BCH', 'XRP', 'VET', 'DOGE'];
+    return cryptoSuffixes.some(suffix => symbol.toUpperCase().includes(suffix));
+  };
+
+  // Helper function to get clean stock symbols (filter out crypto)
+  const getCleanStockSymbols = (symbolList) => {
+    return symbolList.filter(symbol => !isCryptoSymbol(symbol));
+  };
+
+  // Helper function to get clean crypto symbols
+  const getCleanCryptoSymbols = (symbolList) => {
+    return symbolList.filter(symbol => isCryptoSymbol(symbol));
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -29,8 +55,18 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
       try {
         const resp = await dashboardApi.getStockSymbols();
         if (!mounted) return;
-        setSymbols(resp?.data || []);
-      } catch (_) {}
+        if (resp?.data && resp.data.length > 0) {
+          // Filter out crypto symbols and ensure we have clean stock symbols
+          const cleanStockSymbols = getCleanStockSymbols(resp.data);
+          if (cleanStockSymbols.length > 0) {
+            setSymbols(cleanStockSymbols);
+          }
+        }
+        // Keep fallback symbols if API fails or returns no valid stocks
+      } catch (error) {
+        console.warn('Failed to fetch stock symbols, using fallback:', error);
+        // Keep existing fallback symbols
+      }
     })();
     return () => { mounted = false; };
   }, []);
@@ -41,8 +77,18 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
       try {
         const resp = await dashboardApi.getCryptoSymbols();
         if (!mounted) return;
-        setCryptoSymbols(resp?.data || []);
-      } catch (_) {}
+        if (resp?.data && resp.data.length > 0) {
+          // Filter to ensure we have clean crypto symbols
+          const cleanCryptoSymbols = getCleanCryptoSymbols(resp.data);
+          if (cleanCryptoSymbols.length > 0) {
+            setCryptoSymbols(cleanCryptoSymbols);
+          }
+        }
+        // Keep fallback symbols if API fails or returns no valid crypto
+      } catch (error) {
+        console.warn('Failed to fetch crypto symbols, using fallback:', error);
+        // Keep existing fallback symbols
+      }
     })();
     return () => { mounted = false; };
   }, []);
@@ -77,6 +123,9 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
   }
 
   const {
+    // New unified forecast structure
+    forecasts = {},
+    // Legacy structure for backward compatibility
     stockForecasts = {},
     carbonForecasts = [],
     marketPredictions = {},
@@ -85,14 +134,102 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
     modelPerformance = {}
   } = data || {};
 
+  // Extract forecasts from new structure if available
+  const { stocks: newStockForecasts = [], crypto: newCryptoForecasts = [] } = forecasts;
+  
+  // Use new structure if available, otherwise fall back to legacy
+  const finalStockForecasts = newStockForecasts.length > 0 ? newStockForecasts : stockForecasts;
+  // Note: finalCryptoForecasts is available for future crypto forecast display
+  const finalCryptoForecasts = newCryptoForecasts.length > 0 ? newCryptoForecasts : carbonForecasts;
+
+  // Transform the new forecast structure to match the expected format
+  const transformedStockForecasts = {};
+  if (newStockForecasts.length > 0) {
+    newStockForecasts.forEach(stock => {
+      if (stock.forecast) {
+        // Create Prophet forecast entry
+        if (stock.forecast.prophet && stock.forecast.prophet.length > 0) {
+          transformedStockForecasts[`${stock.symbol}_prophet`] = {
+            symbol: stock.symbol,
+            model: 'prophet',
+            forecast: stock.forecast,
+            prophet: {
+              next: stock.forecast.prophet[0] || {},
+              performance: { rmse: 0.1 } // Default RMSE
+            },
+            summary: {
+              trend: stock.forecast.predictions && stock.forecast.predictions.length > 0 ? 
+                (stock.forecast.predictions[0].price > stock.currentPrice ? 'Bullish' : 'Bearish') : 'Neutral',
+              confidence: stock.forecast.predictions && stock.forecast.predictions.length > 0 ? 
+                stock.forecast.predictions[0].confidence : 0.8,
+              volatility: 0.15 // Default volatility
+            }
+          };
+        }
+        
+        // Create ARIMA forecast entry
+        if (stock.forecast.arima && stock.forecast.arima.length > 0) {
+          transformedStockForecasts[`${stock.symbol}_arima`] = {
+            symbol: stock.symbol,
+            model: 'arima',
+            forecast: stock.forecast,
+            arima: {
+              next: stock.forecast.arima[0] || {},
+              order: [1, 1, 1], // Default ARIMA order
+              performance: { rmse: 0.1 } // Default RMSE
+            },
+            summary: {
+              trend: stock.forecast.predictions && stock.forecast.predictions.length > 0 ? 
+                (stock.forecast.predictions[0].price > stock.currentPrice ? 'Bullish' : 'Bearish') : 'Neutral',
+              confidence: stock.forecast.predictions && stock.forecast.predictions.length > 0 ? 
+                stock.forecast.predictions[0].confidence : 0.8,
+              volatility: 0.15 // Default volatility
+            }
+          };
+        }
+        
+        // Create Simple forecast entry (using combined predictions)
+        if (stock.forecast.predictions && stock.forecast.predictions.length > 0) {
+          transformedStockForecasts[`${stock.symbol}_simple`] = {
+            symbol: stock.symbol,
+            model: 'simple',
+            forecast: stock.forecast,
+            summary: {
+              trend: stock.forecast.predictions[0].price > stock.currentPrice ? 'Bullish' : 'Bearish',
+              confidence: stock.forecast.predictions[0].confidence,
+              volatility: 0.15 // Default volatility
+            }
+          };
+        }
+      }
+    });
+  }
+
+  // Use transformed forecasts if available, otherwise fall back to legacy
+  const displayStockForecasts = Object.keys(transformedStockForecasts).length > 0 ? 
+    transformedStockForecasts : finalStockForecasts;
+
   // Debug logging
   console.log('🔮 ForecastingCard - Raw data:', data);
-  console.log('🔮 ForecastingCard - Stock forecasts:', stockForecasts);
+  console.log('🔮 ForecastingCard - New stock forecasts:', newStockForecasts);
+  console.log('🔮 ForecastingCard - New crypto forecasts:', newCryptoForecasts);
+  console.log('🔮 ForecastingCard - Legacy stock forecasts:', stockForecasts);
+  console.log('🔮 ForecastingCard - Transformed forecasts:', transformedStockForecasts);
+  console.log('🔮 ForecastingCard - Display forecasts:', displayStockForecasts);
   console.log('🔮 ForecastingCard - Selected symbols:', selectedSymbols);
   console.log('🔮 ForecastingCard - Selected model:', selectedModel);
   console.log('🔮 ForecastingCard - Symbols array:', symbols);
   console.log('🔮 ForecastingCard - Crypto symbols array:', cryptoSymbols);
   console.log('🔮 ForecastingCard - Asset type:', assetType);
+  
+  // Additional debugging for forecast data structure
+  if (newStockForecasts.length > 0) {
+    console.log('🔮 ForecastingCard - First stock forecast structure:', newStockForecasts[0]);
+    console.log('🔮 ForecastingCard - First stock forecast.forecast:', newStockForecasts[0]?.forecast);
+    console.log('🔮 ForecastingCard - First stock forecast.forecast.prophet:', newStockForecasts[0]?.forecast?.prophet);
+    console.log('🔮 ForecastingCard - First stock forecast.forecast.arima:', newStockForecasts[0]?.forecast?.arima);
+    console.log('🔮 ForecastingCard - First stock forecast.forecast.predictions:', newStockForecasts[0]?.forecast?.predictions);
+  }
 
   const {
     overallAccuracy = 0,
@@ -424,81 +561,203 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
         {/* Asset Selector */}
         <div className="mb-6">
           <div className="text-sm font-semibold text-gray-800 mb-2">
-            {assetType === 'stocks' ? 'Stock Symbols' : 'Crypto Symbols'}
+            {assetType === 'stocks' ? 'Stock Symbols' : 
+             assetType === 'crypto' ? 'Crypto Symbols' : 
+             'Stock & Crypto Symbols (Mixed)'}
           </div>
-                                          <div className="flex flex-wrap gap-2">
-             {(assetType === 'stocks' ? symbols : cryptoSymbols).slice(0, 20).map(sym => {
-               // Handle both string symbols (stocks) and object symbols (crypto)
-               let symbol = '';
-               let displayName = '';
-               
-               if (assetType === 'crypto') {
-                 if (typeof sym === 'string') {
-                   symbol = sym;
-                   displayName = sym;
-                 } else if (sym && typeof sym === 'object' && sym.symbol) {
-                   symbol = sym.symbol;
-                   displayName = sym.name || sym.symbol || 'Unknown';
-                 } else {
-                   console.warn('🔮 ForecastingCard - Invalid crypto symbol in selector:', sym);
-                   return null;
-                 }
-               } else {
-                 // Stocks - should be strings
-                 if (typeof sym === 'string') {
-                   symbol = sym;
-                   displayName = sym;
-                 } else {
-                   console.warn('🔮 ForecastingCard - Invalid stock symbol in selector:', sym);
-                   return null;
-                 }
-               }
-               
-               // Skip if symbol is undefined, null, or not a string
-               if (!symbol || typeof symbol !== 'string') {
-                 console.warn('🔮 ForecastingCard - Symbol is not a valid string:', symbol);
-                 return null;
-               }
-               
-               // Ensure displayName is a string
-               if (typeof displayName !== 'string') {
-                 displayName = String(displayName);
-               }
-               
-               const active = selectedSymbols?.includes(symbol);
-               return (
-                 <button
-                   key={symbol}
-                   onClick={() => {
-                     if (!onSymbolsChange) return;
-                     const next = active ? selectedSymbols.filter(s => s !== symbol) : [...selectedSymbols, symbol];
-                     onSymbolsChange(next);
-                   }}
-                   className={`px-2 py-1 rounded border text-xs ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
-                 >
-                   {displayName}
-                 </button>
-               );
-             })}
-           </div>
-                     <div className="mt-2 text-xs text-gray-500">
-             Selected: {(() => {
-               if (!selectedSymbols || selectedSymbols.length === 0) return 'None';
-               
-               // Ensure all symbols are strings before joining
-               const validSymbols = selectedSymbols
-                 .map(s => typeof s === 'string' ? s : (s && typeof s === 'object' && s.symbol ? s.symbol : null))
-                 .filter(Boolean);
-               
-               return validSymbols.join(', ') || 'None';
-             })()}
-             {assetType === 'crypto' && selectedSymbols.length > 0 && (
-               <span className="ml-2 text-purple-600">
-                 (Crypto forecasts will use Prophet/ARIMA models)
-               </span>
-             )}
-           </div>
+          <div className="flex flex-wrap gap-2">
+            {(() => {
+              let symbolsToShow = [];
+              
+              if (assetType === 'stocks') {
+                symbolsToShow = symbols.slice(0, 30); // Show more stock symbols
+              } else if (assetType === 'crypto') {
+                symbolsToShow = cryptoSymbols.slice(0, 20);
+              } else if (assetType === 'mixed') {
+                // Show both stock and crypto symbols in mixed mode
+                const stockSymbols = symbols.slice(0, 15).map(s => ({ symbol: s, type: 'stock', displayName: s }));
+                const cryptoSymbolsList = cryptoSymbols.slice(0, 15).map(s => {
+                  if (typeof s === 'string') {
+                    return { symbol: s, type: 'crypto', displayName: s };
+                  } else if (s && typeof s === 'object' && s.symbol) {
+                    return { symbol: s.symbol, type: 'crypto', displayName: s.name || s.symbol };
+                  }
+                  return null;
+                }).filter(Boolean);
+                symbolsToShow = [...stockSymbols, ...cryptoSymbolsList];
+              }
+              
+              return symbolsToShow.map(sym => {
+                let symbol = '';
+                let displayName = '';
+                let symbolType = '';
+                
+                if (assetType === 'mixed') {
+                  // Mixed mode - sym is already processed
+                  symbol = sym.symbol;
+                  displayName = sym.displayName;
+                  symbolType = sym.type;
+                } else if (assetType === 'crypto') {
+                  if (typeof sym === 'string') {
+                    symbol = sym;
+                    displayName = sym;
+                    symbolType = 'crypto';
+                  } else if (sym && typeof sym === 'object' && sym.symbol) {
+                    symbol = sym.symbol;
+                    displayName = sym.name || sym.symbol || 'Unknown';
+                    symbolType = 'crypto';
+                  } else {
+                    console.warn('🔮 ForecastingCard - Invalid crypto symbol in selector:', sym);
+                    return null;
+                  }
+                } else {
+                  // Stocks - should be strings
+                  if (typeof sym === 'string') {
+                    symbol = sym;
+                    displayName = sym;
+                    symbolType = 'stock';
+                  } else {
+                    console.warn('🔮 ForecastingCard - Invalid stock symbol in selector:', sym);
+                    return null;
+                  }
+                }
+                
+                // Skip if symbol is undefined, null, or not a string
+                if (!symbol || typeof symbol !== 'string') {
+                  console.warn('🔮 ForecastingCard - Symbol is not a valid string:', symbol);
+                  return null;
+                }
+                
+                // Ensure displayName is a string
+                if (typeof displayName !== 'string') {
+                  displayName = String(displayName);
+                }
+                
+                const active = selectedSymbols?.includes(symbol);
+                return (
+                  <button
+                    key={symbol}
+                    onClick={() => {
+                      if (!onSymbolsChange) return;
+                      const next = active ? selectedSymbols.filter(s => s !== symbol) : [...selectedSymbols, symbol];
+                      onSymbolsChange(next);
+                    }}
+                    className={`px-2 py-1 rounded border text-xs flex items-center space-x-1 transition-all ${
+                      active ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                    }`}
+                  >
+                    {assetType === 'mixed' && (
+                      <span className={`w-2 h-2 rounded-full ${
+                        symbolType === 'stock' ? 'bg-blue-500' : 'bg-purple-500'
+                      }`}></span>
+                    )}
+                    {displayName}
+                  </button>
+                );
+              });
+            })()}
+          </div>
+          
+          {/* Show selected symbols count and allow clearing */}
+          <div className="mt-2 flex items-center justify-between">
+            <div className="text-xs text-gray-500">
+              Selected: {(() => {
+                if (!selectedSymbols || selectedSymbols.length === 0) return 'None';
+                
+                // Ensure all symbols are strings before joining
+                const validSymbols = selectedSymbols
+                  .map(s => typeof s === 'string' ? s : (s && typeof s === 'object' && s.symbol ? s.symbol : null))
+                  .filter(Boolean);
+                
+                return `${validSymbols.length} assets: ${validSymbols.slice(0, 3).join(', ')}${validSymbols.length > 3 ? ` and ${validSymbols.length - 3} more` : ''}`;
+              })()}
+              {assetType === 'crypto' && selectedSymbols.length > 0 && (
+                <span className="ml-2 text-purple-600">
+                  (Crypto forecasts will use Prophet/ARIMA models)
+                </span>
+              )}
+            </div>
+            
+            {/* Action buttons */}
+            <div className="flex items-center space-x-2">
+              {/* Select All button for stocks */}
+              {assetType === 'stocks' && symbols.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (!onSymbolsChange) return;
+                    const allStockSymbols = symbols.slice(0, 10); // Select first 10 stocks
+                    onSymbolsChange(allStockSymbols);
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
+                >
+                  Select Top 10
+                </button>
+              )}
+              
+              {/* Clear selection button */}
+              {selectedSymbols && selectedSymbols.length > 0 && (
+                <button
+                  onClick={() => onSymbolsChange && onSymbolsChange([])}
+                  className="text-xs text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Forecast Status Summary */}
+        {selectedSymbols && selectedSymbols.length > 0 && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-blue-800">📊 Current Forecast Status</h4>
+              <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                {Object.keys(displayStockForecasts).length > 0 ? 'Active' : 'Pending'}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="text-center">
+                <div className="text-lg font-bold text-blue-600">{selectedSymbols.length}</div>
+                <div className="text-blue-700">Assets Selected</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-green-600">{Object.keys(displayStockForecasts).length}</div>
+                <div className="text-green-700">Forecasts Generated</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-purple-600">{selectedModel.toUpperCase()}</div>
+                <div className="text-purple-700">Active Model</div>
+              </div>
+            </div>
+            
+            {Object.keys(displayStockForecasts).length > 0 && (
+              <div className="mt-3 pt-3 border-t border-blue-200">
+                <div className="text-xs text-blue-700">
+                  ✅ Real-time forecasts available for: {Object.keys(displayStockForecasts).slice(0, 3).join(', ')}
+                  {Object.keys(displayStockForecasts).length > 3 && ` and ${Object.keys(displayStockForecasts).length - 3} more`}
+                </div>
+              </div>
+            )}
+            
+            {/* Debug Information */}
+            <div className="mt-3 pt-3 border-t border-blue-200">
+              <details className="text-xs">
+                <summary className="cursor-pointer text-blue-700 font-medium">🔧 Debug Info</summary>
+                <div className="mt-2 text-xs text-gray-600 space-y-1">
+                  <div>Raw Data: {data ? '✅' : '❌'}</div>
+                  <div>New Stock Forecasts: {newStockForecasts.length}</div>
+                  <div>Transformed Forecasts: {Object.keys(transformedStockForecasts).length}</div>
+                  <div>Display Forecasts: {Object.keys(displayStockForecasts).length}</div>
+                  <div>Selected Symbols: {selectedSymbols.join(', ')}</div>
+                  <div>Asset Type: {assetType}</div>
+                  <div>Selected Model: {selectedModel}</div>
+                </div>
+              </details>
+            </div>
+          </div>
+        )}
 
         {/* Model Performance */}
         <div className="mb-6">
@@ -657,11 +916,11 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                 Time Range: {timeRange} • Model: {selectedModel === 'simple' ? 'Simple' : selectedModel === 'prophet' ? 'Prophet' : 'ARIMA'}
               </div>
               <div className="text-xs text-green-600">
-                📊 Real-time predictions from {Object.keys(stockForecasts).length} stocks
+                📊 Real-time predictions from {Object.keys(displayStockForecasts).length} stocks
               </div>
               {/* Debug info */}
               <div className="text-xs text-purple-600 mt-1">
-                🔧 Debug: Data={!!data}, Forecasts={Object.keys(stockForecasts).length}, Symbols={selectedSymbols.length}
+                🔧 Debug: Data={!!data}, Forecasts={Object.keys(displayStockForecasts).length}, Symbols={selectedSymbols.length}
               </div>
             </div>
           </div>
@@ -700,7 +959,7 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
              
              if (validSymbols.length === 0) return null;
              
-                          const entries = Object.entries(stockForecasts);
+                          const entries = Object.entries(displayStockForecasts);
              const matches = entries.filter(([, f]) => f && f.model === selectedModel);
              const toRender = (matches.length ? matches : entries).slice(0, 6);
              const showNotice = matches.length === 0 && entries.length > 0;
@@ -787,10 +1046,10 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
              );
            })()}
           
-          {selectedSymbols && selectedSymbols.length > 0 && Object.keys(stockForecasts).length > 6 && (
+                      {selectedSymbols && selectedSymbols.length > 0 && Object.keys(displayStockForecasts).length > 6 && (
             <div className="mt-4 text-center">
               <div className="text-sm text-gray-500">
-                Showing 6 of {Object.keys(stockForecasts).length} stocks • 
+                Showing 6 of {Object.keys(displayStockForecasts).length} stocks • 
                 <span className="text-blue-600 ml-1">Switch models to see different predictions</span>
               </div>
             </div>
@@ -959,7 +1218,7 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                     <span className="text-sm text-gray-600">Next Prediction:</span>
                     <span className="text-lg font-bold text-purple-600">
                       {(() => {
-                        const prophet = Object.values(stockForecasts).find(f => f.model === 'prophet');
+                        const prophet = Object.values(finalStockForecasts).find(f => f.model === 'prophet');
                         return prophet?.next?.yhat 
                           ? `$${prophet.next.yhat.toFixed(2)}`
                           : 'N/A';
@@ -971,7 +1230,7 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                     <span className="text-sm text-gray-600">Confidence Range:</span>
                     <span className="text-xs text-gray-500">
                       {(() => {
-                        const prophet = Object.values(stockForecasts).find(f => f.model === 'prophet');
+                        const prophet = Object.values(finalStockForecasts).find(f => f.model === 'prophet');
                         return prophet?.next?.yhat_lower && prophet?.next?.yhat_upper
                           ? `$${prophet.next.yhat_lower.toFixed(2)} - $${prophet.next.yhat_upper.toFixed(2)}`
                           : 'N/A';
@@ -983,7 +1242,7 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                     <span className="text-sm text-gray-600">Horizon:</span>
                     <span className="text-xs text-gray-500">
                       {(() => {
-                        const prophet = Object.values(stockForecasts).find(f => f.model === 'prophet');
+                        const prophet = Object.values(finalStockForecasts).find(f => f.model === 'prophet');
                         return prophet?.horizonDays || '7';
                       })()} days
                     </span>
@@ -1014,7 +1273,7 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                     <span className="text-sm text-gray-600">Next Prediction:</span>
                     <span className="text-lg font-bold text-green-600">
                       {(() => {
-                        const arima = Object.values(stockForecasts).find(f => f.model === 'arima');
+                        const arima = Object.values(finalStockForecasts).find(f => f.model === 'arima');
                         return arima?.next?.yhat 
                           ? `$${arima.next.yhat.toFixed(2)}`
                           : 'N/A';
@@ -1026,7 +1285,7 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                     <span className="text-sm text-gray-600">Confidence Range:</span>
                     <span className="text-xs text-gray-500">
                       {(() => {
-                        const arima = Object.values(stockForecasts).find(f => f.model === 'arima');
+                        const arima = Object.values(finalStockForecasts).find(f => f.model === 'arima');
                         return arima?.next?.yhat_lower && arima?.next?.yhat_upper
                           ? `$${arima.next.yhat_lower.toFixed(2)} - $${arima.next.yhat_upper.toFixed(2)}`
                           : 'N/A';
@@ -1038,7 +1297,7 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                     <span className="text-sm text-gray-600">Model Order:</span>
                     <span className="text-xs text-gray-500 font-mono">
                       {(() => {
-                        const arima = Object.values(stockForecasts).find(f => f.model === 'arima');
+                        const arima = Object.values(finalStockForecasts).find(f => f.model === 'arima');
                         return arima?.order ? `ARIMA(${arima.order.join(',')})` : 'N/A';
                       })()}
                     </span>
@@ -1048,8 +1307,8 @@ const ForecastingCard = ({ data, timeRange, onModelChange, selectedSymbols = [],
                     <span className="text-sm text-gray-600">Accuracy (RMSE):</span>
                     <span className="text-xs text-gray-500">
                       {(() => {
-                        const arima = Object.values(stockForecasts).find(f => f.model === 'arima');
-                        return arima?.performance?.rmse ? arima.performance.rmse.toFixed(2) : 'N/A';
+                        const arima = Object.values(finalStockForecasts).find(f => f.model === 'arima');
+                        return arima?.performance.rmse ? arima.performance.rmse.toFixed(2) : 'N/A';
                       })()}
                     </span>
                   </div>

@@ -4,18 +4,29 @@
  */
 
 class AssetTypeService {
-  // Common stock symbols
+  // Common stock symbols (expanded list)
   static stockSymbols = [
+    // Tech stocks
     'AAPL', 'GOOGL', 'MSFT', 'ADBE', 'AMD', 'TSLA', 'NVDA', 'NFLX',
     'AMZN', 'META', 'CRM', 'ORCL', 'INTC', 'CSCO', 'IBM', 'V',
-    'JPM', 'JNJ', 'PG', 'UNH', 'HD', 'MA', 'PFE', 'ABT'
+    'JPM', 'JNJ', 'PG', 'UNH', 'HD', 'MA', 'PFE', 'ABT',
+    // Additional popular stocks
+    'SPY', 'QQQ', 'IWM', 'GLD', 'SLV', 'TLT', 'VNQ', 'XLE',
+    'XLF', 'XLK', 'XLV', 'XLI', 'XLP', 'XLY', 'XLB', 'XLC',
+    'KO', 'PEP', 'WMT', 'COST', 'TGT', 'LOW', 'SBUX', 'MCD',
+    'DIS', 'NKE', 'BA', 'CAT', 'GE', 'F', 'GM', 'T'
   ];
 
-  // Common crypto symbols
+  // Common crypto symbols (support both formats)
   static cryptoSymbols = [
+    // USDT pairs (Binance format)
     'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'DOTUSDT', 'AVAXUSDT', 'MATICUSDT',
     'LINKUSDT', 'UNIUSDT', 'LTCUSDT', 'BCHUSDT', 'XRPUSDT', 'VETUSDT', 'DOGEUSDT',
-    'SHIBUSDT', 'TRXUSDT', 'EOSUSDT', 'XLMUSDT', 'ATOMUSDT', 'NEARUSDT', 'FTMUSDT', 'ALGOUSDT'
+    'SHIBUSDT', 'TRXUSDT', 'EOSUSDT', 'XLMUSDT', 'ATOMUSDT', 'NEARUSDT', 'FTMUSDT', 'ALGOUSDT',
+    // Short symbols (common format)
+    'BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT', 'AVAX', 'MATIC',
+    'LINK', 'UNI', 'LTC', 'BCH', 'XRP', 'VET', 'DOGE',
+    'SHIB', 'TRX', 'EOS', 'XLM', 'ATOM', 'NEAR', 'FTM', 'ALGO'
   ];
 
   /**

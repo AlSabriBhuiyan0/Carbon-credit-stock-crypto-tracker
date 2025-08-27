@@ -155,14 +155,36 @@ class UnifiedWebSocketService extends EventEmitter {
       service.ws.close();
     }
 
+    // Define all crypto symbols to track
+    const cryptoSymbols = [
+      'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 
+      'DOTUSDT', 'LINKUSDT', 'MATICUSDT', 'AVAXUSDT', 'UNIUSDT',
+      'XRPUSDT', 'DOGEUSDT', 'LTCUSDT', 'BCHUSDT', 'ATOMUSDT',
+      'NEARUSDT', 'FTMUSDT', 'ALGOUSDT', 'VETUSDT', 'ICPUSDT'
+    ];
+
     return new Promise((resolve, reject) => {
       try {
-        service.ws = new WebSocket(this.config.binance.url + 'btcusdt@trade');
+        // Subscribe to all crypto symbols
+        const streams = cryptoSymbols.map(symbol => symbol.toLowerCase() + '@trade').join('/');
+        service.ws = new WebSocket(this.config.binance.url + streams);
         
         service.ws.on('open', () => {
-          console.log('[BINANCE] WebSocket connected');
+          console.log('[BINANCE] WebSocket connected to', cryptoSymbols.length, 'crypto symbols');
           service.connected = true;
           service.reconnectAttempts = 0;
+          service.subscribedSymbols = cryptoSymbols;
+          
+          // Initialize cache with default data for all symbols
+          cryptoSymbols.forEach(symbol => {
+            this.cache.binance.set(symbol, {
+              symbol,
+              price: 0,
+              quantity: 0,
+              timestamp: new Date()
+            });
+          });
+          
           this.setupBinancePingPong();
           resolve();
         });
@@ -272,6 +294,8 @@ class UnifiedWebSocketService extends EventEmitter {
         // For now, simulate stock data since we don't have real WebSocket
         console.log('[STOCKS] Starting simulated stock service');
         service.connected = true;
+        service.isActive = true;
+        service.startTime = Date.now();
         
         // Simulate real-time stock data
         service.simulationInterval = setInterval(() => {
@@ -334,6 +358,8 @@ class UnifiedWebSocketService extends EventEmitter {
         // For now, simulate carbon credit data
         console.log('[CARBON] Starting simulated carbon service');
         service.connected = true;
+        service.isActive = true;
+        service.startTime = Date.now();
         
         // Simulate real-time carbon data
         service.simulationInterval = setInterval(() => {

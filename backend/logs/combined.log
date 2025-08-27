@@ -1111,3 +1111,262 @@
 {"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:05:00.845Z"}
 {"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:10:00.020Z"}
 {"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:10:00.022Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:15:00.212Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:15:00.218Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:20:00.560Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:20:00.569Z"}
+{"ip":"127.0.0.1","level":"error","message":"Username is required","method":"POST","stack":"Error: Username is required\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/middleware/validation.js:20:19\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/routes/auth.js:61:5\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:119:3)\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:284:15\n    at Function.process_params (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:346:12)","timestamp":"2025-08-27T18:20:40.098Z","url":"/api/auth/register","userAgent":"axios/1.11.0"}
+{"level":"info","message":"Password reset requested for user: 23","timestamp":"2025-08-27T18:20:40.820Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:25:00.394Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:25:00.396Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:30:00.242Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:30:00.251Z"}
+{"ip":"127.0.0.1","level":"error","message":"Username is required","method":"POST","stack":"Error: Username is required\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/middleware/validation.js:20:19\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/routes/auth.js:61:5\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:119:3)\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:284:15\n    at Function.process_params (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:346:12)","timestamp":"2025-08-27T18:32:37.486Z","url":"/api/auth/register","userAgent":"axios/1.11.0"}
+{"level":"info","message":"Password reset requested for user: 23","timestamp":"2025-08-27T18:32:38.217Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:35:00.886Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:35:00.896Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:40:00.054Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:40:00.055Z"}
+{"ip":"127.0.0.1","level":"error","message":"Username is required","method":"POST","stack":"Error: Username is required\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/middleware/validation.js:20:19\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/routes/auth.js:61:5\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:119:3)\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:284:15\n    at Function.process_params (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:346:12)","timestamp":"2025-08-27T18:43:53.808Z","url":"/api/auth/register","userAgent":"axios/1.11.0"}
+{"level":"info","message":"Password reset requested for user: 23","timestamp":"2025-08-27T18:43:54.221Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:45:00.717Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:45:00.720Z"}
+{"ip":"127.0.0.1","level":"error","message":"Username is required","method":"POST","stack":"Error: Username is required\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/middleware/validation.js:20:19\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/routes/auth.js:61:5\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:119:3)\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:284:15\n    at Function.process_params (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:346:12)","timestamp":"2025-08-27T18:48:37.574Z","url":"/api/auth/register","userAgent":"axios/1.11.0"}
+{"level":"info","message":"Password reset requested for user: 23","timestamp":"2025-08-27T18:48:38.054Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:50:00.126Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:50:00.130Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T18:55:00.310Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T18:55:00.313Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T18:57:54.451Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T18:57:54.454Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T18:57:54.454Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T18:57:54.504Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T18:57:54.542Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T18:57:58.385Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T18:57:58.387Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T18:57:58.388Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T18:57:58.389Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T18:57:58.390Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T18:58:29.378Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T18:58:29.382Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T18:58:29.382Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T18:58:29.445Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T18:58:29.482Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T18:58:32.667Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T18:58:32.668Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T18:58:32.669Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T18:58:32.670Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T18:58:32.670Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:00:00.760Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:00:00.760Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-27T19:00:00.761Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-27T19:00:00.767Z"}
+{"ip":"127.0.0.1","level":"error","message":"Username is required","method":"POST","stack":"Error: Username is required\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/middleware/validation.js:20:19\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/routes/auth.js:61:5\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:119:3)\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:284:15\n    at Function.process_params (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:346:12)","timestamp":"2025-08-27T19:00:05.861Z","url":"/api/auth/register","userAgent":"axios/1.11.0"}
+{"level":"info","message":"Password reset requested for user: 23","timestamp":"2025-08-27T19:00:06.373Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:05:00.546Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:05:00.552Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:08:18.993Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:08:18.999Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:08:19.000Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:08:19.084Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:08:19.137Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:08:24.599Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:08:24.601Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:08:24.602Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:08:24.603Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:08:24.604Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:08:39.718Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:08:39.725Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:08:39.726Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:08:39.804Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:08:39.868Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:08:43.992Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:08:43.995Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:08:43.997Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:08:43.999Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:08:44.000Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:10:00.054Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:10:00.055Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:13:20.899Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:13:20.902Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:13:20.902Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:13:20.961Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:13:21.034Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:13:24.356Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:13:24.358Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:13:24.361Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:13:24.362Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:13:24.365Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:14:29.453Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:14:29.457Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:14:29.458Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:14:29.538Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:14:29.591Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:14:32.841Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:14:32.842Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:14:32.843Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:14:32.843Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:14:32.844Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:15:12.198Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:15:12.203Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:15:12.204Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:15:12.298Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:15:12.350Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:15:15.117Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:15:15.118Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:15:15.118Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:15:15.119Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:15:15.119Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:18:01.880Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:18:01.883Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:18:01.883Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:18:01.962Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:18:02.115Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:18:05.584Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:18:05.585Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:18:05.586Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:18:05.587Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:18:05.588Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:18:23.771Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:18:23.775Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:18:23.777Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:18:23.847Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:18:23.897Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:18:26.460Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:18:26.461Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:18:26.462Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:18:26.462Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:18:26.463Z"}
+{"ip":"127.0.0.1","level":"error","message":"Username is required","method":"POST","stack":"Error: Username is required\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/middleware/validation.js:20:19\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/routes/auth.js:61:5\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/route.js:119:3)\n    at Layer.handle [as handle_request] (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/layer.js:95:5)\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:284:15\n    at Function.process_params (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/express/lib/router/index.js:346:12)","timestamp":"2025-08-27T19:19:33.772Z","url":"/api/auth/register","userAgent":"axios/1.11.0"}
+{"level":"info","message":"Password reset requested for user: 23","timestamp":"2025-08-27T19:19:34.236Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:20:00.565Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:20:00.566Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:25:00.014Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:25:00.017Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:30:00.124Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:30:00.125Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:35:00.482Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:35:00.497Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:40:00.386Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:40:00.392Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:40:33.483Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:40:33.488Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:40:33.488Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:40:33.564Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:40:33.620Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:40:38.629Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:40:38.630Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:40:38.631Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:40:38.632Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:40:38.633Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T19:40:56.707Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T19:40:56.711Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T19:40:56.712Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T19:40:56.773Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T19:40:56.809Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T19:40:59.755Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T19:40:59.756Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T19:40:59.757Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T19:40:59.757Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T19:40:59.758Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:45:00.101Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:45:00.102Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:50:00.254Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:50:00.256Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T19:55:00.388Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T19:55:00.389Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:00:00.521Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:00:00.521Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-27T20:00:00.527Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-27T20:00:00.532Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:05:00.644Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:05:00.644Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:10:00.796Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:10:00.796Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:15:00.930Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:15:00.931Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:20:00.036Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:20:00.037Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:25:00.124Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:25:00.125Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:30:00.577Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:30:00.590Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T20:39:03.905Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T20:39:03.911Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T20:39:03.912Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T20:39:04.017Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T20:39:04.088Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T20:39:08.091Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T20:39:08.093Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T20:39:08.094Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T20:39:08.095Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T20:39:08.096Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T20:41:12.687Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T20:41:12.693Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T20:41:12.698Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T20:41:12.793Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T20:41:12.847Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T20:41:17.986Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T20:41:17.988Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T20:41:17.989Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T20:41:17.991Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T20:41:17.994Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T20:47:12.689Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T20:47:12.691Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T20:47:12.692Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T20:47:12.758Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T20:47:12.813Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T20:47:15.850Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T20:47:15.851Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T20:47:15.851Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T20:47:15.852Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T20:47:15.852Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T20:48:24.184Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T20:48:24.186Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T20:48:24.187Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T20:48:24.238Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T20:48:24.275Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T20:48:27.130Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T20:48:27.131Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T20:48:27.132Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T20:48:27.133Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T20:48:27.133Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:50:00.224Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:50:00.226Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T20:55:00.376Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T20:55:00.377Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T21:05:00.887Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T21:05:00.891Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T21:10:00.564Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T21:10:00.616Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T21:15:00.052Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T21:15:00.055Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T21:20:00.316Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T21:20:00.321Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T21:25:00.645Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T21:25:00.646Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T21:30:00.888Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T21:30:00.894Z"}
+{"cause":{},"level":"error","message":"PostgreSQL health check failed: Connection terminated due to connection timeout","stack":"Error: Connection terminated due to connection timeout\n    at /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async healthCheck (/home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/services/database.js:431:24)\n    at async /home/alsunny/Documents/GitHub/Carbon-credit-stock-crypto-tracker/backend/server.js:132:19","timestamp":"2025-08-27T21:31:53.518Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-08-27T21:35:00.778Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-08-27T21:35:00.792Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T21:42:30.496Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T21:42:30.500Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T21:42:30.500Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T21:42:30.578Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T21:42:30.673Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T21:42:34.481Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T21:42:34.482Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T21:42:34.483Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T21:42:34.484Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T21:42:34.484Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-27T21:45:57.063Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-27T21:45:57.069Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-27T21:45:57.069Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-27T21:45:57.135Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-27T21:45:57.178Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-27T21:46:00.401Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-27T21:46:00.402Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-27T21:46:00.404Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-27T21:46:00.405Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-27T21:46:00.407Z"}

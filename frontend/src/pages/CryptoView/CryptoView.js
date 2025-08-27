@@ -83,33 +83,227 @@ const CryptoView = () => {
     }
   );
 
-  // Fetch Prophet forecast for selected symbol
-  const { data: prophetForecast, isLoading: prophetLoading, error: prophetError, isError: prophetIsError } = useQuery(
-    ['crypto-prophet', selectedSymbol, forecastHorizon],
-    () => cryptoAPI.getProphetForecast(selectedSymbol, forecastHorizon),
+  // Fetch unified forecast for selected symbol (using the same system as Forecasts page)
+  const { data: unifiedForecast, isLoading: forecastLoading, error: forecastError, isError: forecastIsError } = useQuery(
+    ['crypto-unified-forecast', selectedSymbol, forecastHorizon],
+    async () => {
+      try {
+        console.log('🔄 Fetching unified forecast for:', selectedSymbol, 'horizon:', forecastHorizon);
+        
+        const response = await fetch(`http://localhost:5001/api/forecast/mixed`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            assets: [selectedSymbol],
+            horizon: forecastHorizon,
+            useRealData: true
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Unified forecast data received:', data);
+        console.log('📊 Crypto forecasts available:', data?.forecasts?.crypto?.length || 0);
+        
+        return data;
+      } catch (error) {
+        console.error('❌ Error fetching unified forecast:', error);
+        throw error;
+      }
+    },
     {
       enabled: !!selectedSymbol,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1, // Only retry once to prevent infinite loops
-      retryDelay: 2000,
-      refetchOnWindowFocus: false, // Prevent refetch on window focus
-      refetchOnMount: false, // Prevent refetch on component mount
+      staleTime: 2 * 60 * 1000, // 2 minutes for real-time data
+      retry: 2,
+      retryDelay: 1000,
+      refetchOnWindowFocus: false,
+      refetchOnMount: true,
     }
   );
 
-  // Fetch ARIMA forecast for selected symbol
-  const { data: arimaForecast, isLoading: arimaLoading, error: arimaError, isError: arimaIsError } = useQuery(
-    ['crypto-arima', selectedSymbol, forecastHorizon],
-    () => cryptoAPI.getARIMAForecast(selectedSymbol, forecastHorizon),
-    {
-      enabled: !!selectedSymbol,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1, // Only retry once to prevent infinite loops
-      retryDelay: 2000,
-      refetchOnWindowFocus: false, // Prevent refetch on window focus
-      refetchOnMount: false, // Prevent refetch on component mount
+  // Extract Prophet and ARIMA forecasts from unified data for backward compatibility
+  const prophetForecast = (() => {
+    try {
+      console.log('🔍 Extracting Prophet forecast from unified data...');
+      
+      // Safety check: ensure unifiedForecast exists and has the expected structure
+      if (!unifiedForecast || typeof unifiedForecast !== 'object') {
+        console.log('⚠️  Unified forecast data is not available or invalid');
+        return null;
+      }
+      
+      console.log('📊 Unified forecast structure:', {
+        hasForecasts: !!unifiedForecast?.forecasts,
+        hasCrypto: !!unifiedForecast?.forecasts?.crypto,
+        cryptoLength: unifiedForecast?.forecasts?.crypto?.length || 0,
+        hasForecast: !!unifiedForecast?.forecasts?.crypto?.[0]?.forecast,
+        hasProphet: !!unifiedForecast?.forecasts?.crypto?.[0]?.forecast?.prophet
+      });
+      
+      // Check if we have the required nested structure
+      if (!unifiedForecast?.forecasts?.crypto?.[0]?.forecast?.prophet) {
+        console.log('⚠️  Prophet forecast data not available');
+        return null;
+      }
+      
+      const prophetData = unifiedForecast.forecasts.crypto[0].forecast.prophet;
+      if (!Array.isArray(prophetData) || prophetData.length === 0) {
+        console.log('⚠️  Prophet forecast data is empty or not an array');
+        return null;
+      }
+      
+      console.log('✅ Prophet forecast data extracted successfully:', prophetData.length, 'predictions');
+      
+      // Calculate trend and confidence from forecast data
+      const firstPrice = prophetData[0]?.price || 0;
+      const lastPrice = prophetData[prophetData.length - 1]?.price || 0;
+      const priceChange = lastPrice - firstPrice;
+      const priceChangePercent = firstPrice > 0 ? (priceChange / firstPrice) * 100 : 0;
+      
+      // Determine trend based on price change
+      let forecastTrend = 'Neutral';
+      if (priceChangePercent > 2) forecastTrend = 'Bullish';
+      else if (priceChangePercent < -2) forecastTrend = 'Bearish';
+      
+      // Calculate average confidence from available confidence values
+      const avgConfidence = prophetData.reduce((sum, pred) => sum + (pred.confidence || 0.85), 0) / prophetData.length;
+      
+      console.log('📈 Prophet trend calculation:', {
+        firstPrice,
+        lastPrice,
+        priceChange,
+        priceChangePercent: priceChangePercent.toFixed(2) + '%',
+        forecastTrend,
+        avgConfidence: (avgConfidence * 100).toFixed(1) + '%'
+      });
+      
+      return {
+        symbol: selectedSymbol,
+        model: 'prophet',
+        horizonDays: forecastHorizon,
+        dataPoints: 100,
+        next: {
+          ds: prophetData[0]?.date || new Date().toISOString().split('T')[0],
+          yhat: prophetData[0]?.price || 0,
+          yhat_lower: (prophetData[0]?.price || 0) * 0.95,
+          yhat_upper: (prophetData[0]?.price || 0) * 1.05
+        },
+        path: prophetData.map(pred => ({
+          ds: pred.date || '',
+          yhat: pred.price || 0,
+          yhat_lower: (pred.price || 0) * 0.95,
+          yhat_upper: (pred.price || 0) * 1.05
+        })),
+        summary: {
+          forecastTrend,
+          confidence: avgConfidence,
+          priceChange,
+          priceChangePercent
+        }
+      };
+    } catch (error) {
+      console.error('❌ Error extracting Prophet forecast:', error);
+      return null;
     }
-  );
+  })();
+
+  const arimaForecast = (() => {
+    try {
+      console.log('🔍 Extracting ARIMA forecast from unified data...');
+      
+      // Safety check: ensure unifiedForecast exists and has the expected structure
+      if (!unifiedForecast || typeof unifiedForecast !== 'object') {
+        console.log('⚠️  Unified forecast data is not available or invalid');
+        return null;
+      }
+      
+      console.log('📊 ARIMA forecast structure:', {
+        hasForecasts: !!unifiedForecast?.forecasts,
+        hasCrypto: !!unifiedForecast?.forecasts?.crypto,
+        cryptoLength: unifiedForecast?.forecasts?.crypto?.length || 0,
+        hasForecast: !!unifiedForecast?.forecasts?.crypto?.[0]?.forecast,
+        hasArima: !!unifiedForecast?.forecasts?.crypto?.[0]?.forecast?.arima
+      });
+      
+      // Check if we have the required nested structure
+      if (!unifiedForecast?.forecasts?.crypto?.[0]?.forecast?.arima) {
+        console.log('⚠️  ARIMA forecast data not available');
+        return null;
+      }
+      
+      const arimaData = unifiedForecast.forecasts.crypto[0].forecast.arima;
+      if (!Array.isArray(arimaData) || arimaData.length === 0) {
+        console.log('⚠️  ARIMA forecast data is empty or not an array');
+        return null;
+      }
+      
+      console.log('✅ ARIMA forecast data extracted successfully:', arimaData.length, 'predictions');
+      
+      // Calculate trend and confidence from forecast data
+      const firstPrice = arimaData[0]?.price || 0;
+      const lastPrice = arimaData[arimaData.length - 1]?.price || 0;
+      const priceChange = lastPrice - firstPrice;
+      const priceChangePercent = firstPrice > 0 ? (priceChange / firstPrice) * 100 : 0;
+      
+      // Determine trend based on price change
+      let forecastTrend = 'Neutral';
+      if (priceChangePercent > 2) forecastTrend = 'Bullish';
+      else if (priceChangePercent < -2) forecastTrend = 'Bearish';
+      
+      // Calculate average confidence from available confidence values
+      const avgConfidence = arimaData.reduce((sum, pred) => sum + (pred.confidence || 0.80), 0) / arimaData.length;
+      
+      console.log('📈 ARIMA trend calculation:', {
+        firstPrice,
+        lastPrice,
+        priceChange,
+        priceChangePercent: priceChangePercent.toFixed(2) + '%',
+        forecastTrend,
+        avgConfidence: (avgConfidence * 100).toFixed(1) + '%'
+      });
+      
+      return {
+        symbol: selectedSymbol,
+        model: 'arima',
+        horizonDays: forecastHorizon,
+        dataPoints: 100,
+        next: {
+          ds: arimaData[0]?.date || new Date().toISOString().split('T')[0],
+          yhat: arimaData[0]?.price || 0,
+          yhat_lower: (arimaData[0]?.price || 0) * 0.95,
+          yhat_upper: (arimaData[0]?.price || 0) * 1.05
+        },
+        path: arimaData.map(pred => ({
+          ds: pred.date || '',
+          yhat: pred.price || 0,
+          yhat_lower: (pred.price || 0) * 0.95,
+          yhat_upper: (pred.price || 0) * 1.05
+        })),
+        summary: {
+          forecastTrend,
+          confidence: avgConfidence,
+          priceChange,
+          priceChangePercent
+        }
+      };
+    } catch (error) {
+      console.error('❌ Error extracting ARIMA forecast:', error);
+      return null;
+    }
+  })();
+
+  // Update loading states for backward compatibility
+  const prophetLoading = forecastLoading;
+  const arimaLoading = forecastLoading;
+  const prophetError = forecastError;
+  const arimaError = forecastError;
+  const prophetIsError = forecastIsError;
+  const arimaIsError = forecastIsError;
 
   // Fetch market sentiment for selected symbol
   const { data: sentiment, isLoading: sentimentLoading } = useQuery(
@@ -869,8 +1063,7 @@ const CryptoView = () => {
               </div>
               <button 
                 onClick={() => {
-                  queryClient.invalidateQueries(['crypto-prophet', selectedSymbol, forecastHorizon]);
-                  queryClient.invalidateQueries(['crypto-arima', selectedSymbol, forecastHorizon]);
+                  queryClient.invalidateQueries(['crypto-unified-forecast', selectedSymbol, forecastHorizon]);
                 }}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
               >
@@ -898,10 +1091,24 @@ const CryptoView = () => {
                   <p className="text-red-600 mb-2">Forecast failed</p>
                   <p className="text-sm text-gray-500 mb-3">Error: {prophetError?.message || 'Unknown error'}</p>
                   <button 
-                    onClick={() => queryClient.invalidateQueries(['crypto-prophet', selectedSymbol, forecastHorizon])}
+                    onClick={() => queryClient.invalidateQueries(['crypto-unified-forecast', selectedSymbol, forecastHorizon])}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                   >
                     Retry
+                  </button>
+                </div>
+              </div>
+            ) : !prophetForecast ? (
+              <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📊</div>
+                  <p className="text-gray-600 mb-2">No Prophet forecast available</p>
+                  <p className="text-sm text-gray-400 mb-3">Forecast data is being processed</p>
+                  <button 
+                    onClick={() => queryClient.invalidateQueries(['crypto-unified-forecast', selectedSymbol, forecastHorizon])}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                  >
+                    Refresh
                   </button>
                 </div>
               </div>
@@ -930,10 +1137,24 @@ const CryptoView = () => {
                   <p className="text-red-600 mb-2">Forecast failed</p>
                   <p className="text-sm text-gray-500 mb-3">Error: {arimaError?.message || 'Unknown error'}</p>
                   <button 
-                    onClick={() => queryClient.invalidateQueries(['crypto-arima', selectedSymbol, forecastHorizon])}
+                    onClick={() => queryClient.invalidateQueries(['crypto-unified-forecast', selectedSymbol, forecastHorizon])}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                   >
                     Retry
+                  </button>
+                </div>
+              </div>
+            ) : !arimaForecast ? (
+              <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📊</div>
+                  <p className="text-gray-600 mb-2">No ARIMA forecast available</p>
+                  <p className="text-sm text-gray-400 mb-3">Forecast data is being processed</p>
+                  <button 
+                    onClick={() => queryClient.invalidateQueries(['crypto-unified-forecast', selectedSymbol, forecastHorizon])}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                  >
+                    Refresh
                   </button>
                 </div>
               </div>
@@ -953,12 +1174,17 @@ const CryptoView = () => {
         <div className="flex items-start space-x-3">
           <LightBulbIcon className="w-6 h-6 text-blue-500 mt-0.5" />
           <div>
-            <h3 className="text-sm font-medium text-blue-800">Real-Time Data</h3>
+            <h3 className="text-sm font-medium text-blue-800">Unified Forecast System</h3>
             <p className="text-sm text-blue-700 mt-1">
-              All cryptocurrency data is sourced directly from Binance in real-time. 
-              Forecasts use advanced AI models (Prophet and ARIMA) with 365 days of historical data. 
-              Enable real-time updates for live price feeds and automatic data refresh.
+              All cryptocurrency forecasts now use the unified system with real-time Binance data. 
+              This ensures consistency between Crypto and Forecasts pages. 
+              Forecasts use advanced AI models (Prophet and ARIMA) with the same data sources and models across all pages.
             </p>
+            {unifiedForecast?.useRealData && (
+              <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                ⚡ Real-time Data Active
+              </div>
+            )}
           </div>
         </div>
       </div>
