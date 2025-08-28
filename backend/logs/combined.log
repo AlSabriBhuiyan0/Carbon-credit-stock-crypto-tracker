@@ -1804,3 +1804,5 @@
 {"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T07:34:03.989Z"}
 {"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T07:34:03.989Z"}
 {"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T07:34:03.990Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-28T08:00:00.440Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-28T08:00:00.451Z"}

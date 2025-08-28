@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Newspaper, 
@@ -11,27 +11,70 @@ import {
   Search 
 } from 'lucide-react';
 
+import { newsApi } from '../../api/news';
+
 const NewsAndAlertsCard = ({ data }) => {
-  if (!data) {
-    return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const [loading, setLoading] = useState(false);
+  const [serverData, setServerData] = useState(null);
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('all');
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('newsPreferences')) || { categories: ['crypto','stocks','carbon','market'] };
+    } catch { return { categories: ['crypto','stocks','carbon','market'] }; }
+  });
+  const [showPrefs, setShowPrefs] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await newsApi.getLatest({ category });
+        if (!mounted) return;
+        setServerData(res?.data || null);
+      } catch (e) {
+        // noop
+      } finally { setLoading(false); }
+    })();
+    return () => { mounted = false; };
+  }, [category]);
+
+  const live = serverData || data;
 
   const {
     news = [],
     alerts = [],
     marketUpdates = [],
     trendingTopics = []
-  } = data;
+  } = live || {};
+
+  const filteredNews = useMemo(() => {
+    const categories = new Set(preferences.categories || []);
+    return news.filter(n => categories.has((n.category || 'market').toLowerCase()))
+      .filter(n => !query || (n.title?.toLowerCase().includes(query.toLowerCase()) || n.description?.toLowerCase().includes(query.toLowerCase())));
+  }, [news, preferences, query]);
+
+  const handleExport = () => {
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>News Export</title></head><body>` +
+      `<h2>News Export (${new Date().toLocaleString()})</h2>` +
+      `<ol>` + filteredNews.slice(0,80).map(n => `<li><strong>${n.title}</strong> <em>(${n.category})</em><br/><a href="${n.link}" target="_blank" rel="noreferrer">${n.link}</a><br/><small>${n.pubDate || ''}</small></li>`).join('') + `</ol>` +
+      `</body></html>`;
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
+  const toggleCategoryPref = (key) => {
+    const next = new Set(preferences.categories || []);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    const updated = { ...preferences, categories: Array.from(next) };
+    setPreferences(updated);
+    try { localStorage.setItem('newsPreferences', JSON.stringify(updated)); } catch {}
+  };
 
   // Alert priority color mapping
   const getAlertColor = (priority) => {
@@ -93,9 +136,22 @@ const NewsAndAlertsCard = ({ data }) => {
                   type="text"
                   placeholder="Search news..."
                   className="px-3 py-1 text-sm bg-white bg-opacity-20 rounded-lg text-white placeholder-blue-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
                 <Search className="w-4 h-4 text-blue-100 absolute right-2 top-1/2 transform -translate-y-1/2" />
               </div>
+              <select
+                className="px-2 py-1 text-sm bg-white bg-opacity-20 rounded-lg text-white focus:outline-none"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="crypto">Crypto</option>
+                <option value="stocks">Stocks</option>
+                <option value="carbon">Carbon</option>
+                <option value="market">Market</option>
+              </select>
               <button className="p-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all">
                 <Filter className="w-4 h-4 text-white" />
               </button>
@@ -105,6 +161,12 @@ const NewsAndAlertsCard = ({ data }) => {
       </div>
 
       <div className="p-6">
+        {(!live || loading) && (
+          <div className="animate-pulse mb-6">
+            <div className="h-4 bg-gray-200 rounded w-1/3 mb-3"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          </div>
+        )}
         {/* Active Alerts */}
         <div className="mb-6">
           <div className="flex items-center space-x-2 mb-3">
@@ -194,18 +256,18 @@ const NewsAndAlertsCard = ({ data }) => {
           </div>
           
           <div className="space-y-3">
-            {news.slice(0, 4).map((article, index) => (
+            {filteredNews.slice(0, 8).map((article, index) => (
               <motion.div
-                key={article.id || index}
+                key={article.link || index}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className="p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="flex items-start space-x-3">
+                <a className="flex items-start space-x-3" href={article.link} target="_blank" rel="noreferrer">
                   <div className="flex-shrink-0">
-                    <div className={`px-2 py-1 rounded text-xs font-medium ${getNewsColor(article.category)}`}>
-                      {article.category || 'General'}
+                    <div className={`px-2 py-1 rounded text-xs font-medium ${getNewsColor(article.category || 'market')}`}>
+                      {article.category || 'Market'}
                     </div>
                   </div>
                   
@@ -214,14 +276,14 @@ const NewsAndAlertsCard = ({ data }) => {
                       {article.title || `News article title ${index + 1}`}
                     </h5>
                     <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                      {article.summary || 'Article summary goes here with more details about the news story and its impact on the market.'}
+                      {article.description || article.summary || ''}
                     </p>
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2 text-xs text-gray-500">
                         <Clock className="w-3 h-3" />
                         <span>
-                          {article.publishedAt ? new Date(article.publishedAt).toLocaleTimeString() : '1 hour ago'}
+                          {article.pubDate ? new Date(article.pubDate).toLocaleString() : (article.publishedAt ? new Date(article.publishedAt).toLocaleString() : '')}
                         </span>
                       </div>
                       
@@ -231,7 +293,7 @@ const NewsAndAlertsCard = ({ data }) => {
                       </button>
                     </div>
                   </div>
-                </div>
+                </a>
               </motion.div>
             ))}
           </div>
@@ -245,16 +307,17 @@ const NewsAndAlertsCard = ({ data }) => {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {trendingTopics.slice(0, 8).map((topic, index) => (
-              <motion.span
-                key={topic.name || index}
-                initial={{ opacity: 0, scale: 0.8 }}
+            {(trendingTopics || []).slice(0, 12).map((topic, index) => (
+              <motion.button
+                key={topic.topic || topic.name || index}
+                onClick={() => setQuery(topic.topic || topic.name)}
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
                 className="px-3 py-1 bg-white rounded-full text-xs font-medium text-purple-700 border border-purple-200 hover:bg-purple-100 cursor-pointer transition-colors"
               >
-                #{topic.name || `Topic${index + 1}`}
-              </motion.span>
+                #{topic.topic || topic.name || `Topic${index + 1}`}
+              </motion.button>
             ))}
           </div>
         </div>
@@ -267,16 +330,16 @@ const NewsAndAlertsCard = ({ data }) => {
           </div>
           
           <div className="grid grid-cols-2 gap-3">
-            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700">
+            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={() => (window.location.href = '/app/forecasts')}>
               Set Price Alert
             </button>
-            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700">
+            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={() => setShowPrefs(true)}>
               News Preferences
             </button>
-            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700">
+            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={() => setCategory('market')}>
               Market Watch
             </button>
-            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700">
+            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={handleExport}>
               Export Data
             </button>
           </div>
@@ -288,6 +351,29 @@ const NewsAndAlertsCard = ({ data }) => {
             Last updated: {new Date().toLocaleTimeString()}
           </div>
         </div>
+
+        {/* Preferences Modal */}
+        {showPrefs && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-gray-900">News Preferences</h4>
+                <button className="text-gray-500" onClick={() => setShowPrefs(false)}>Close</button>
+              </div>
+              <div className="space-y-3">
+                {['crypto','stocks','carbon','market'].map((c) => (
+                  <label key={c} className="flex items-center space-x-2">
+                    <input type="checkbox" checked={(preferences.categories || []).includes(c)} onChange={() => toggleCategoryPref(c)} />
+                    <span className="capitalize">{c}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="mt-4 text-right">
+                <button className="px-4 py-2 bg-indigo-600 text-white rounded" onClick={() => setShowPrefs(false)}>Done</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

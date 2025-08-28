@@ -29,6 +29,7 @@ const portfolioRoutes = require('./routes/portfolios');
 const notificationRoutes = require('./routes/notifications');
 const reportRoutes = require('./routes/reports');
 const dashboardRoutes = require('./routes/dashboard');
+const newsRoutes = require('./routes/news');
 const subscriptionRoutes = require('./routes/subscriptions');
 const adminRoutes = require('./routes/admin');
 const unifiedRoutes = require('./routes/unified');
@@ -156,6 +157,7 @@ app.use('/api/portfolios', authenticateToken, portfolioRoutes);
 app.use('/api/notifications', authenticateToken, notificationRoutes);
 app.use('/api/reports', authenticateToken, reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/news', newsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/crypto', require('./routes/crypto')); // Temporarily disabled auth for testing
