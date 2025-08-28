@@ -212,5 +212,16 @@ export const dashboardApi = {
       console.error('Error searching carbon projects:', error);
       throw error;
     }
+  },
+
+  // Get combined metrics
+  getCombinedMetrics: async (timeRange = '1d') => {
+    try {
+      const response = await http.get(`/api/dashboard/combined?timeRange=${timeRange}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching combined metrics:', error);
+      throw error;
+    }
   }
 };

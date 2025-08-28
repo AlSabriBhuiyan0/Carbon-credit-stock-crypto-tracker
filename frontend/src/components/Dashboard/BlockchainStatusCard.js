@@ -37,9 +37,9 @@ const BlockchainStatusCard = ({ data }) => {
   } = data;
 
   const {
-    status = 'healthy',
+    status = 'unknown',
     network = 'testnet',
-    latestBlock = 0
+    latestBlock = null
   } = health;
 
   const {
@@ -48,6 +48,12 @@ const BlockchainStatusCard = ({ data }) => {
     networkUtilization = 0,
     activeAddresses = 0
   } = networkStats;
+
+  // Use network stats data as fallback for health data - ONLY real data, no estimates
+  const displayLatestBlock = latestBlock || totalBlocks;
+  const displayTotalBlocks = totalBlocks || 0;
+  const displayActiveAddresses = activeAddresses; // No fallback - show null if not available
+  const displayAverageBlockTime = averageBlockTime;
 
   // Status color mapping
   const getStatusColor = (status) => {
@@ -123,28 +129,28 @@ const BlockchainStatusCard = ({ data }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-900">
-              {latestBlock.toLocaleString()}
+              {displayLatestBlock ? displayLatestBlock.toLocaleString() : 'N/A'}
             </div>
             <div className="text-sm text-gray-600">Latest Block</div>
           </div>
           
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {totalBlocks.toLocaleString()}
+              {displayTotalBlocks ? displayTotalBlocks.toLocaleString() : 'N/A'}
             </div>
             <div className="text-sm text-gray-600">Total Blocks</div>
           </div>
           
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">
-              {activeAddresses}
+              {displayActiveAddresses ? displayActiveAddresses.toLocaleString() : 'N/A'}
             </div>
             <div className="text-sm text-gray-600">Active Addresses</div>
           </div>
           
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">
-              {averageBlockTime.toFixed(1)}s
+              {displayAverageBlockTime ? displayAverageBlockTime.toFixed(1) + 's' : 'N/A'}
             </div>
             <div className="text-sm text-gray-600">Avg Block Time</div>
           </div>
@@ -176,7 +182,7 @@ const BlockchainStatusCard = ({ data }) => {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Block Time:</span>
                 <span className="text-sm font-semibold text-blue-600">
-                  {averageBlockTime.toFixed(1)} seconds
+                  {displayAverageBlockTime ? displayAverageBlockTime.toFixed(1) + ' seconds' : 'N/A'}
                 </span>
               </div>
             </div>
@@ -214,7 +220,7 @@ const BlockchainStatusCard = ({ data }) => {
           </div>
           
           <div className="space-y-3">
-            {marketData.slice(0, 5).map((asset, index) => (
+            {Array.isArray(marketData) && marketData.length > 0 ? marketData.slice(0, 5).map((asset, index) => (
               <motion.div
                 key={asset.asset_id || index}
                 initial={{ opacity: 0, y: 10 }}
@@ -245,7 +251,11 @@ const BlockchainStatusCard = ({ data }) => {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+              <div className="text-center text-gray-500 py-4">
+                No carbon credit assets available
+              </div>
+            )}
           </div>
         </div>
 
@@ -259,21 +269,21 @@ const BlockchainStatusCard = ({ data }) => {
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {verificationHistory.filter(v => v.status === 'verified').length}
+                {Array.isArray(verificationHistory) ? verificationHistory.filter(v => v?.status === 'verified').length : 0}
               </div>
               <div className="text-xs text-gray-600">Verified</div>
             </div>
             
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">
-                {verificationHistory.filter(v => v.status === 'pending').length}
+                {Array.isArray(verificationHistory) ? verificationHistory.filter(v => v?.status === 'pending').length : 0}
               </div>
               <div className="text-xs text-gray-600">Pending</div>
             </div>
             
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">
-                {verificationHistory.filter(v => v.status === 'failed').length}
+                {Array.isArray(verificationHistory) ? verificationHistory.filter(v => v?.status === 'failed').length : 0}
               </div>
               <div className="text-xs text-gray-600">Failed</div>
             </div>
@@ -288,7 +298,7 @@ const BlockchainStatusCard = ({ data }) => {
           </div>
           
           <div className="space-y-2">
-            {recentTransactions.slice(0, 5).map((tx, index) => (
+            {Array.isArray(recentTransactions) && recentTransactions.length > 0 ? recentTransactions.slice(0, 5).map((tx, index) => (
               <motion.div
                 key={tx.tx_hash || index}
                 initial={{ opacity: 0, x: -20 }}
@@ -312,7 +322,11 @@ const BlockchainStatusCard = ({ data }) => {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+              <div className="text-center text-gray-500 py-4">
+                No recent transactions available
+              </div>
+            )}
           </div>
         </div>
 
@@ -324,7 +338,7 @@ const BlockchainStatusCard = ({ data }) => {
           </div>
           
           <div className="space-y-2">
-            {verificationHistory.slice(0, 5).map((verification, index) => (
+            {Array.isArray(verificationHistory) && verificationHistory.length > 0 ? verificationHistory.slice(0, 5).map((verification, index) => (
               <motion.div
                 key={verification.id || index}
                 initial={{ opacity: 0, x: -20 }}
@@ -354,7 +368,11 @@ const BlockchainStatusCard = ({ data }) => {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+              <div className="text-center text-gray-500 py-4">
+                No verification history available
+              </div>
+            )}
           </div>
         </div>
 
@@ -366,7 +384,7 @@ const BlockchainStatusCard = ({ data }) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {marketData.slice(0, 4).map((balance, index) => (
+            {Array.isArray(marketData) && marketData.length > 0 ? marketData.slice(0, 4).map((balance, index) => (
               <div key={index} className="bg-white p-3 rounded-lg border">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">
@@ -380,7 +398,11 @@ const BlockchainStatusCard = ({ data }) => {
                   {formatNumberWithUnit(balance.value || Math.random() * 10000, 'K')} total value
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="text-center text-gray-500 py-4 col-span-2">
+                No carbon credit balances available
+              </div>
+            )}
           </div>
         </div>
 

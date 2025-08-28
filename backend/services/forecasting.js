@@ -676,18 +676,118 @@ class ForecastingService {
       
       console.log(`Sentiment analysis complete: Score=${score}, Change=${avgChange.toFixed(2)}%, Volatility=${vol.toFixed(4)}`);
       
+      // Calculate carbon sentiment based on carbon credit data
+      let carbonSentiment = { score: 0, confidence: 0, change: 0, volume: 0 };
+      try {
+        const CarbonCreditPostgreSQL = require('../models/CarbonCreditPostgreSQL');
+        const carbonProjects = await CarbonCreditPostgreSQL.getAllProjects();
+        
+        if (carbonProjects && carbonProjects.length > 0) {
+          const totalCredits = carbonProjects.reduce((sum, p) => sum + (parseFloat(p.current_credits_issued) || 0), 0);
+          const totalRetired = carbonProjects.reduce((sum, p) => sum + (parseFloat(p.current_credits_retired) || 0), 0);
+          const availableCredits = totalCredits - totalRetired;
+          
+          // Carbon sentiment based on credit availability and project status
+          const activeProjects = carbonProjects.filter(p => p.status === 'active').length;
+          const projectSuccessRate = activeProjects / Math.max(carbonProjects.length, 1);
+          
+          // Calculate change based on available vs retired credits
+          const changePercent = totalCredits > 0 ? ((availableCredits - totalRetired) / totalCredits) * 100 : 0;
+          
+          carbonSentiment = {
+            score: Math.round(projectSuccessRate * 100),
+            confidence: Math.round(Math.min(100, carbonProjects.length * 10)),
+            change: Math.round(changePercent * 100) / 100,
+            volume: Math.round(totalCredits / 1000000) // Convert to millions
+          };
+          
+          console.log('Carbon sentiment calculated:', {
+            totalCredits,
+            totalRetired,
+            availableCredits,
+            activeProjects,
+            projectSuccessRate,
+            changePercent,
+            carbonSentiment
+          });
+        }
+      } catch (carbonError) {
+        console.log('Carbon sentiment calculation failed:', carbonError.message);
+        console.error('Carbon sentiment error details:', carbonError);
+      }
+      
+      // Calculate crypto sentiment based on crypto data
+      let cryptoSentiment = { score: 0, confidence: 0, change: 0, volume: 0 };
+      try {
+        const cryptoService = require('./cryptoForecastingService');
+        
+        // Get crypto data by fetching prices for major cryptocurrencies
+        const majorCryptos = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
+        const cryptoPrices = [];
+        
+        for (const symbol of majorCryptos) {
+          try {
+            const priceData = await cryptoService.getRealTimePrice(symbol);
+            if (priceData && priceData.priceChange !== undefined) {
+              cryptoPrices.push({
+                symbol,
+                price: priceData.price || priceData.lastPrice,
+                change: priceData.priceChange || 0,
+                volume: priceData.volume || 0
+              });
+            }
+          } catch (e) {
+            console.log(`Failed to get price for ${symbol}:`, e.message);
+          }
+        }
+        
+        if (cryptoPrices.length > 0) {
+          const totalChange = cryptoPrices.reduce((sum, crypto) => sum + crypto.change, 0);
+          const avgChange = totalChange / cryptoPrices.length;
+          const totalVolume = cryptoPrices.reduce((sum, crypto) => sum + crypto.volume, 0);
+          const totalValue = cryptoPrices.reduce((sum, crypto) => sum + crypto.price, 0);
+          
+          cryptoSentiment = {
+            score: Math.round(Math.max(0, Math.min(100, 50 + avgChange * 2))),
+            confidence: Math.round(Math.min(100, 70 + Math.abs(avgChange) * 3)),
+            change: Math.round(avgChange * 100) / 100,
+            volume: Math.round(totalValue / 1000000) // Convert to millions
+          };
+          
+          console.log('Crypto sentiment calculated:', {
+            cryptoPricesCount: cryptoPrices.length,
+            avgChange,
+            totalVolume,
+            totalValue,
+            cryptoSentiment
+          });
+        }
+      } catch (cryptoError) {
+        console.log('Crypto sentiment calculation failed:', cryptoError.message);
+        console.error('Crypto sentiment error details:', cryptoError);
+      }
+      
       return {
         overallScore: Math.round(score),
-        stockMarket: { 
+        stockSentiment: { 
           score: Math.round(score), 
           confidence: Math.round(Math.max(0, Math.min(100, 100 - normalizedVol * 100))), 
           change: avgChange, 
           volume: totalVolume 
         },
-        indicators: { 
-          volatility: normalizedVol, 
-          momentum: avgChange,
-          ...modelAnalysis
+        carbonSentiment,
+        cryptoSentiment,
+        marketIndicators: { 
+          volatility: Math.round(normalizedVol * 100),
+          correlation: Math.round(Math.random() * 100), // Mock correlation
+          momentum: Math.round(avgChange * 10),
+          fearGreedIndex: Math.round(50 + avgChange * 20)
+        },
+        riskMetrics: {
+          riskLevel: normalizedVol > 0.7 ? 'high' : normalizedVol > 0.4 ? 'medium' : 'low',
+          riskScore: Math.round(normalizedVol * 100),
+          maxDrawdown: Math.round(Math.abs(Math.min(0, avgChange)) * 100),
+          sharpeRatio: Math.round((avgChange / Math.max(normalizedVol, 0.01)) * 100) / 100
         }
       };
     } catch (error) {
@@ -695,17 +795,25 @@ class ForecastingService {
       // Return fallback sentiment data
       return {
         overallScore: 50,
-        stockMarket: { 
+        stockSentiment: { 
           score: 50, 
           confidence: 70, 
           change: 0, 
           volume: 1000000 
         },
-        indicators: { 
-          volatility: 0.02, 
+        carbonSentiment: { score: 0, confidence: 0, change: 0, volume: 0 },
+        cryptoSentiment: { score: 0, confidence: 0, change: 0, volume: 0 },
+        marketIndicators: { 
+          volatility: 2, 
+          correlation: 0,
           momentum: 0,
-          trendStrength: 40,
-          seasonality: 30
+          fearGreedIndex: 50
+        },
+        riskMetrics: {
+          riskLevel: 'medium',
+          riskScore: 50,
+          maxDrawdown: 0,
+          sharpeRatio: 0
         }
       };
     }

@@ -44,7 +44,16 @@ const StockView = () => {
   const [showRealTime, setShowRealTime] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const sectors = ['all', 'technology', 'healthcare', 'finance', 'energy', 'consumer', 'industrial'];
+  const sectors = [
+    'all', 
+    'Technology', 
+    'Healthcare', 
+    'Financial Services', 
+    'Consumer Discretionary', 
+    'Communication Services', 
+    'Energy', 
+    'Industrial'
+  ];
 
   // Fetch stock service status
   const { data: serviceStatus, isLoading: statusLoading, error: statusError } = useQuery(
@@ -84,6 +93,15 @@ const StockView = () => {
     }
   );
 
+  // Fetch stock symbols with categories
+  const { data: stockSymbols } = useQuery(
+    'stock-symbols',
+    () => stockAPI.getSymbols(),
+    {
+      staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    }
+  );
+
   // Fetch real-time prices for all default symbols
   const { data: pricesData, isLoading: pricesLoading, error: pricesError } = useQuery(
     ['stock-prices', DEFAULT_STOCK_SYMBOLS],
@@ -102,10 +120,20 @@ const StockView = () => {
             console.log(`🔍 Fetching price for ${symbol}...`);
             const result = await stockAPI.getPrice(symbol);
             console.log(`✅ ${symbol} price:`, result);
-            return result;
+            
+            // Get symbol info from stockSymbols data
+            const symbolInfo = stockSymbols?.data?.find(s => s.symbol === symbol);
+            
+            return {
+              ...result,
+              name: symbolInfo?.name || getStockDisplayName(symbol),
+              category: symbolInfo?.category || 'Technology',
+              sector: symbolInfo?.category || 'Technology'
+            };
           } catch (error) {
             console.error(`❌ Error fetching price for ${symbol}:`, error);
             // Return fallback data instead of null
+            const symbolInfo = stockSymbols?.data?.find(s => s.symbol === symbol);
             return {
               symbol: symbol,
               price: getFallbackPrice(symbol),
@@ -116,6 +144,9 @@ const StockView = () => {
               lowPrice: getFallbackPrice(symbol) * 0.98,
               openPrice: getFallbackPrice(symbol) * 0.99,
               lastPrice: getFallbackPrice(symbol),
+              name: symbolInfo?.name || getStockDisplayName(symbol),
+              category: symbolInfo?.category || 'Technology',
+              sector: symbolInfo?.category || 'Technology',
               timestamp: new Date().toISOString()
             };
           }
@@ -127,18 +158,24 @@ const StockView = () => {
       } catch (error) {
         console.error('❌ Stock API test failed:', error);
         // Return fallback data for all symbols
-        const fallbackData = DEFAULT_STOCK_SYMBOLS.map(symbol => ({
-          symbol: symbol,
-          price: getFallbackPrice(symbol),
-          change: (Math.random() - 0.5) * 10,
-          changePercent: (Math.random() - 0.5) * 4,
-          volume: Math.floor(Math.random() * 10000000) + 1000000,
-          highPrice: getFallbackPrice(symbol) * 1.02,
-          lowPrice: getFallbackPrice(symbol) * 0.98,
-          openPrice: getFallbackPrice(symbol) * 0.99,
-          lastPrice: getFallbackPrice(symbol),
-          timestamp: new Date().toISOString()
-        }));
+        const fallbackData = DEFAULT_STOCK_SYMBOLS.map(symbol => {
+          const symbolInfo = stockSymbols?.data?.find(s => s.symbol === symbol);
+          return {
+            symbol: symbol,
+            price: getFallbackPrice(symbol),
+            change: (Math.random() - 0.5) * 10,
+            changePercent: (Math.random() - 0.5) * 4,
+            volume: Math.floor(Math.random() * 10000000) + 1000000,
+            highPrice: getFallbackPrice(symbol) * 1.02,
+            lowPrice: getFallbackPrice(symbol) * 0.98,
+            openPrice: getFallbackPrice(symbol) * 0.99,
+            lastPrice: getFallbackPrice(symbol),
+            name: symbolInfo?.name || getStockDisplayName(symbol),
+            category: symbolInfo?.category || 'Technology',
+            sector: symbolInfo?.category || 'Technology',
+            timestamp: new Date().toISOString()
+          };
+        });
         console.log('📊 Using fallback data:', fallbackData);
         return fallbackData;
       }
@@ -159,6 +196,13 @@ const StockView = () => {
     {
       enabled: !!selectedStock?.symbol,
       staleTime: 5 * 60 * 1000, // 5 minutes
+      onSuccess: (data) => {
+        console.log('[STOCK VIEW] Historical data received:', data);
+        console.log('[STOCK VIEW] Data type:', typeof data, 'Length:', data?.length);
+      },
+      onError: (error) => {
+        console.error('[STOCK VIEW] Historical data error:', error);
+      }
     }
   );
 
@@ -175,7 +219,10 @@ const StockView = () => {
   // WebSocket management
   const startWebSocketMutation = useMutation(stockAPI.startWebSocket, {
     onSuccess: () => {
-      toast.success('Real-time updates started');
+      // Only show toast if this is a user-initiated action, not automatic
+      if (showRealTime) {
+        console.log('✅ Real-time updates started');
+      }
     },
     onError: (error) => {
       toast.error('Failed to start real-time updates');
@@ -185,7 +232,10 @@ const StockView = () => {
 
   const stopWebSocketMutation = useMutation(stockAPI.stopWebSocket, {
     onSuccess: () => {
-      toast.success('Real-time updates stopped');
+      // Only show toast if this is a user-initiated action, not automatic
+      if (!showRealTime) {
+        console.log('✅ Real-time updates stopped');
+      }
     },
     onError: (error) => {
       toast.error('Failed to stop real-time updates');
@@ -199,18 +249,24 @@ const StockView = () => {
     
     let filtered = pricesData;
     
+    // Search filter
     if (searchTerm) {
       filtered = filtered.filter(stock => 
         stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (stock.name && stock.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         getStockDisplayName(stock.symbol).toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
-    // Note: Sector filtering would require additional data from the API
-    // For now, we'll show all stocks
+    // Sector filter
+    if (selectedSector && selectedSector !== 'all') {
+      filtered = filtered.filter(stock => 
+        stock.category === selectedSector || stock.sector === selectedSector
+      );
+    }
     
     return filtered;
-  }, [pricesData, searchTerm]);
+  }, [pricesData, searchTerm, selectedSector]);
 
 
 
@@ -263,22 +319,88 @@ const StockView = () => {
     setSelectedStock(stock);
   };
 
-  const handleExport = () => {
-    if (!filteredStocks || filteredStocks.length === 0) return;
+  const handleExport = async () => {
+    if (!filteredStocks || filteredStocks.length === 0) {
+      toast.error('No data to export');
+      return;
+    }
     
-    const csvContent = "data:text/csv;charset=utf-8," + 
-      "Symbol,Name,Price,Change,Change%,Volume,Market Cap,Sector\n" +
-      filteredStocks.map(stock => 
-        `${stock?.symbol || 'N/A'},${stock?.name || 'N/A'},${stock?.price || 0},${stock?.change || 0},${stock?.changePercent || 0}%,${formatNumber(stock?.volume || 0)},${formatNumber(stock?.marketCap || 0)},${stock?.sector || 'N/A'}`
-      ).join("\n");
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "stock_data.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      toast.loading('Generating report...', { id: 'export' });
+      
+      // Create comprehensive report data
+      const reportData = [];
+      
+      for (const stock of filteredStocks) {
+        let historicalData = null;
+        let sentiment = null;
+        
+        // Fetch additional data for each stock
+        try {
+          if (timeRange !== '1d') {
+            historicalData = await stockAPI.getHistoricalData(stock.symbol, timeRange, 30);
+          }
+          sentiment = await stockAPI.getSentiment(stock.symbol, 7);
+        } catch (error) {
+          console.warn(`Could not fetch additional data for ${stock.symbol}`);
+        }
+        
+        // Calculate some metrics
+        const priceChange7d = historicalData && historicalData.length >= 7 
+          ? ((stock.price - historicalData[historicalData.length - 7]?.close) / historicalData[historicalData.length - 7]?.close * 100).toFixed(2)
+          : 'N/A';
+        
+        const avgVolume = historicalData && historicalData.length > 0
+          ? (historicalData.reduce((sum, d) => sum + (d.volume || 0), 0) / historicalData.length).toFixed(0)
+          : stock.volume || 0;
+        
+        reportData.push({
+          Symbol: stock.symbol || 'N/A',
+          Name: stock.name || getStockDisplayName(stock.symbol) || 'N/A',
+          Sector: stock.category || stock.sector || 'N/A',
+          'Current Price': `$${(stock.price || 0).toFixed(2)}`,
+          'Daily Change': `$${(stock.change || 0).toFixed(2)}`,
+          'Daily Change %': `${(stock.changePercent || 0).toFixed(2)}%`,
+          '7-Day Change %': `${priceChange7d}%`,
+          'Current Volume': formatNumber(stock.volume || 0),
+          'Average Volume': formatNumber(avgVolume),
+          'High Price': `$${(stock.highPrice || stock.price || 0).toFixed(2)}`,
+          'Low Price': `$${(stock.lowPrice || stock.price || 0).toFixed(2)}`,
+          'Open Price': `$${(stock.openPrice || stock.price || 0).toFixed(2)}`,
+          'Market Sentiment': sentiment?.sentiment || 'N/A',
+          'Sentiment Confidence': sentiment?.confidence ? `${(sentiment.confidence * 100).toFixed(1)}%` : 'N/A',
+          'Last Update': stock.timestamp ? new Date(stock.timestamp).toLocaleString() : 'N/A',
+          'Time Range': timeRange.toUpperCase(),
+          'Export Date': new Date().toLocaleString()
+        });
+      }
+      
+      // Convert to CSV
+      const headers = Object.keys(reportData[0]);
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        headers.join(",") + "\n" +
+        reportData.map(row => 
+          headers.map(header => `"${row[header]}"`).join(",")
+        ).join("\n");
+      
+      // Generate filename with filters
+      const filterSuffix = selectedSector !== 'all' ? `_${selectedSector.replace(/\s+/g, '_')}` : '';
+      const searchSuffix = searchTerm ? `_search_${searchTerm.replace(/\s+/g, '_')}` : '';
+      const filename = `stock_report_${timeRange}${filterSuffix}${searchSuffix}_${new Date().toISOString().split('T')[0]}.csv`;
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success(`Report exported: ${reportData.length} stocks`, { id: 'export' });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export report', { id: 'export' });
+    }
   };
 
   const toggleRealTime = useCallback(() => {
@@ -289,18 +411,6 @@ const StockView = () => {
     setAutoRefresh(prev => !prev);
   }, []);
 
-  // Start WebSocket on component mount - only once
-  useEffect(() => {
-    if (showRealTime) {
-      startWebSocketMutation.mutate(DEFAULT_STOCK_SYMBOLS);
-    }
-
-    return () => {
-      stopWebSocketMutation.mutate();
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array - only run once on mount
-
   // Handle WebSocket start/stop when showRealTime changes
   useEffect(() => {
     if (showRealTime && !startWebSocketMutation.isLoading) {
@@ -308,7 +418,14 @@ const StockView = () => {
     } else if (!showRealTime && !stopWebSocketMutation.isLoading) {
       stopWebSocketMutation.mutate();
     }
-  }, [showRealTime, startWebSocketMutation.isLoading, stopWebSocketMutation.isLoading, startWebSocketMutation, stopWebSocketMutation]);
+
+    // Cleanup on unmount
+    return () => {
+      if (!stopWebSocketMutation.isLoading) {
+        stopWebSocketMutation.mutate();
+      }
+    };
+  }, [showRealTime]);
 
   const handleManualRefresh = useCallback(() => {
     queryClient.invalidateQueries(['stock-prices', 'stock-historical', 'stock-sentiment']);
@@ -363,7 +480,7 @@ const StockView = () => {
     );
   }
 
-  if (!serviceStatus?.available) {
+  if (!serviceStatus?.data?.available) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md">
@@ -529,12 +646,12 @@ const StockView = () => {
                    <p className="text-2xl font-bold text-gray-900">
                      {startWebSocketMutation.isLoading ? 'Starting...' : 
                       stopWebSocketMutation.isLoading ? 'Stopping...' :
-                      serviceStatus?.connected ? 'Connected' : 'Disconnected'}
+                      serviceStatus?.data?.connected ? 'Connected' : 'Disconnected'}
                    </p>
                  </div>
                  <div className={`w-3 h-3 rounded-full ${
                    startWebSocketMutation.isLoading || stopWebSocketMutation.isLoading ? 'bg-yellow-500' :
-                   serviceStatus?.connected ? 'bg-green-500' : 'bg-red-400'
+                   serviceStatus?.data?.connected ? 'bg-green-500' : 'bg-red-400'
                  }`}></div>
                </div>
              </div>
@@ -565,7 +682,7 @@ const StockView = () => {
               >
                 {sectors && sectors.map(sector => (
                   <option key={sector} value={sector}>
-                    {sector === 'all' ? 'All Sectors' : sector.charAt(0).toUpperCase() + sector.slice(1)}
+                    {sector === 'all' ? 'All Sectors' : sector}
                   </option>
                 ))}
               </select>
@@ -822,17 +939,11 @@ const StockView = () => {
                  </div>
                ) : (
                  <div className="h-64">
-                   {historicalData?.data ? (
-                     <StockPriceChart 
-                       data={historicalData.data} 
-                       symbol={selectedStock.symbol}
-                       timeRange={timeRange}
-                     />
-                   ) : (
-                     <div className="h-64 flex items-center justify-center text-gray-500">
-                       <p>No historical data available</p>
-                     </div>
-                   )}
+                   <StockPriceChart 
+                     data={historicalData} 
+                     symbol={selectedStock.symbol}
+                     timeRange={timeRange}
+                   />
                  </div>
                )}
              </div>
@@ -885,9 +996,9 @@ const StockView = () => {
                {/* Connection Status */}
                <div className="mt-3 flex items-center space-x-4 text-xs">
                  <div className="flex items-center space-x-2">
-                   <div className={`w-2 h-2 rounded-full ${serviceStatus?.connected ? 'bg-green-500' : 'bg-red-400'}`}></div>
-                   <span className={serviceStatus?.connected ? 'text-green-700' : 'text-red-700'}>
-                     WebSocket: {serviceStatus?.connected ? 'Connected' : 'Disconnected'}
+                   <div className={`w-2 h-2 rounded-full ${serviceStatus?.data?.connected ? 'bg-green-500' : 'bg-red-400'}`}></div>
+                   <span className={serviceStatus?.data?.connected ? 'text-green-700' : 'text-red-700'}>
+                     WebSocket: {serviceStatus?.data?.connected ? 'Connected' : 'Disconnected'}
                    </span>
                  </div>
                  

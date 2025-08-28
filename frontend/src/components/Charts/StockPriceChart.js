@@ -39,7 +39,32 @@ const StockPriceChart = ({
   });
 
   useEffect(() => {
+    console.log('[CHART] StockPriceChart received data:', data);
+    
+    // Test with hardcoded data first
+    if (!data || data.length === 0) {
+      console.log('[CHART] No data provided, using test data');
+      const testData = [
+        { timestamp: '2025-08-26T13:30:00.000Z', close: 207.14 },
+        { timestamp: '2025-08-27T20:00:01.000Z', close: 207.48 }
+      ];
+      
+      setChartData({
+        labels: ['Aug 26', 'Aug 27'],
+        datasets: [{
+          label: 'Test Stock Price',
+          data: [207.14, 207.48],
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          fill: true,
+          tension: 0.4,
+        }]
+      });
+      return;
+    }
+    
     if (data && data.length > 0) {
+      console.log('[CHART] Processing', data.length, 'data points');
       // Process stock data with time range aware formatting
       const labels = data.map(item => {
         if (item.timestamp) {

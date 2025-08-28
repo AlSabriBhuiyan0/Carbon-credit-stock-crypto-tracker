@@ -3,6 +3,9 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const unifiedWebSocketService = require('../services/unifiedWebSocketService');
 
+// Fetch polyfill for older Node.js versions
+const fetch = globalThis.fetch || require('node-fetch');
+
 // Root route for basic stock service
 router.get('/', (req, res) => {
   res.json({ 
@@ -131,11 +134,16 @@ router.get('/historical/:symbol', async (req, res) => {
     const { symbol } = req.params;
     const { interval = '1d', limit = 500 } = req.query;
     
-    // Generate mock historical data based on interval
-    const data = generateMockHistoricalData(symbol, interval, parseInt(limit));
+    console.log(`[STOCKS API] Fetching historical data for ${symbol}, interval: ${interval}, limit: ${limit}`);
+    
+    // Fetch real historical data from Yahoo Finance
+    const data = await fetchRealHistoricalData(symbol, interval, parseInt(limit));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(`[STOCKS API] Error fetching historical data for ${symbol}:`, error);
+    // Fallback to mock data if API fails
+    const data = generateMockHistoricalData(symbol, interval, parseInt(limit));
+    res.json({ success: true, data });
   }
 });
 
@@ -173,10 +181,16 @@ router.get('/sentiment/:symbol', async (req, res) => {
     const { symbol } = req.params;
     const { days = 7 } = req.query;
     
-    const sentiment = generateMockSentiment(symbol, parseInt(days));
+    console.log(`[STOCKS API] Fetching sentiment analysis for ${symbol}, days: ${days}`);
+    
+    // Fetch real sentiment analysis based on price movements and volume
+    const sentiment = await generateRealSentimentAnalysis(symbol, parseInt(days));
     res.json({ success: true, data: sentiment });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(`[STOCKS API] Error fetching sentiment for ${symbol}:`, error);
+    // Fallback to mock sentiment if analysis fails
+    const sentiment = generateMockSentiment(symbol, parseInt(days));
+    res.json({ success: true, data: sentiment });
   }
 });
 
@@ -443,6 +457,163 @@ function generateMockPortfolioData(symbols, horizonDays) {
   portfolio.totalChangePercent = parseFloat(portfolio.totalChangePercent.toFixed(2));
   
   return portfolio;
+}
+
+// Real data fetching functions
+async function fetchRealHistoricalData(symbol, interval, limit) {
+  try {
+    console.log(`[YAHOO API] Fetching historical data for ${symbol}`);
+    
+    // Map interval to Yahoo Finance range
+    let range = '1mo';
+    if (limit <= 30) range = '1mo';
+    else if (limit <= 90) range = '3mo';
+    else if (limit <= 180) range = '6mo';
+    else if (limit <= 365) range = '1y';
+    else range = '2y';
+    
+    const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=1d`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const quote = data.chart.result[0];
+    
+    if (!quote || !quote.timestamp || !quote.indicators?.quote?.[0]) {
+      throw new Error('Invalid data structure from Yahoo Finance');
+    }
+    
+    const timestamps = quote.timestamp;
+    const prices = quote.indicators.quote[0];
+    const volumes = quote.indicators.quote[0].volume;
+    
+    const historicalData = [];
+    const maxPoints = Math.min(limit, timestamps.length);
+    
+    for (let i = Math.max(0, timestamps.length - maxPoints); i < timestamps.length; i++) {
+      if (prices.close[i] && prices.open[i] && prices.high[i] && prices.low[i]) {
+        historicalData.push({
+          timestamp: new Date(timestamps[i] * 1000),
+          open: parseFloat(prices.open[i].toFixed(2)),
+          high: parseFloat(prices.high[i].toFixed(2)),
+          low: parseFloat(prices.low[i].toFixed(2)),
+          close: parseFloat(prices.close[i].toFixed(2)),
+          volume: volumes[i] || 0
+        });
+      }
+    }
+    
+    console.log(`[YAHOO API] Successfully fetched ${historicalData.length} historical data points for ${symbol}`);
+    return historicalData;
+    
+  } catch (error) {
+    console.error(`[YAHOO API] Error fetching historical data for ${symbol}:`, error.message);
+    throw error;
+  }
+}
+
+async function generateRealSentimentAnalysis(symbol, days) {
+  try {
+    console.log(`[SENTIMENT] Analyzing ${symbol} for ${days} days`);
+    
+    // Get recent historical data for sentiment analysis
+    const historicalData = await fetchRealHistoricalData(symbol, '1d', days);
+    
+    if (historicalData.length < 2) {
+      throw new Error('Insufficient data for sentiment analysis');
+    }
+    
+    // Calculate technical indicators for sentiment
+    const prices = historicalData.map(d => d.close);
+    const volumes = historicalData.map(d => d.volume);
+    
+    // Price trend analysis
+    const firstPrice = prices[0];
+    const lastPrice = prices[prices.length - 1];
+    const priceChange = ((lastPrice - firstPrice) / firstPrice) * 100;
+    
+    // Volatility analysis (standard deviation of price changes)
+    const priceChanges = [];
+    for (let i = 1; i < prices.length; i++) {
+      priceChanges.push(((prices[i] - prices[i-1]) / prices[i-1]) * 100);
+    }
+    const avgChange = priceChanges.reduce((a, b) => a + b, 0) / priceChanges.length;
+    const volatility = Math.sqrt(priceChanges.reduce((sum, change) => sum + Math.pow(change - avgChange, 2), 0) / priceChanges.length);
+    
+    // Volume trend analysis
+    const avgVolume = volumes.reduce((a, b) => a + b, 0) / volumes.length;
+    const recentVolume = volumes.slice(-3).reduce((a, b) => a + b, 0) / 3; // Last 3 days average
+    const volumeTrend = ((recentVolume - avgVolume) / avgVolume) * 100;
+    
+    // Determine sentiment based on technical analysis
+    let sentiment = 'neutral';
+    let confidence = 0.5;
+    
+    if (priceChange > 2 && volumeTrend > 10) {
+      sentiment = 'bullish';
+      confidence = Math.min(0.9, 0.6 + (priceChange / 10) + (volumeTrend / 100));
+    } else if (priceChange < -2 && volumeTrend > 10) {
+      sentiment = 'bearish';
+      confidence = Math.min(0.9, 0.6 + Math.abs(priceChange / 10) + (volumeTrend / 100));
+    } else if (Math.abs(priceChange) < 1 && volatility < 2) {
+      sentiment = 'neutral';
+      confidence = 0.7;
+    } else if (priceChange > 0) {
+      sentiment = 'bullish';
+      confidence = 0.6 + (priceChange / 20);
+    } else {
+      sentiment = 'bearish';
+      confidence = 0.6 + Math.abs(priceChange / 20);
+    }
+    
+    confidence = Math.max(0.5, Math.min(0.95, confidence));
+    
+    const result = {
+      symbol,
+      sentiment,
+      confidence: parseFloat(confidence.toFixed(2)),
+      metrics: {
+        momentum: parseFloat(priceChange.toFixed(2)),
+        volatility: parseFloat(volatility.toFixed(2)),
+        volume: Math.round(avgVolume),
+        volumeTrend: parseFloat(volumeTrend.toFixed(2)),
+        priceChange: parseFloat(priceChange.toFixed(2))
+      },
+      analysis: {
+        summary: generateSentimentSummary(sentiment, priceChange, volatility, volumeTrend),
+        period: `${days} days`,
+        dataPoints: historicalData.length
+      },
+      timestamp: new Date()
+    };
+    
+    console.log(`[SENTIMENT] ${symbol}: ${sentiment} (${(confidence*100).toFixed(1)}% confidence)`);
+    return result;
+    
+  } catch (error) {
+    console.error(`[SENTIMENT] Error analyzing ${symbol}:`, error.message);
+    throw error;
+  }
+}
+
+function generateSentimentSummary(sentiment, priceChange, volatility, volumeTrend) {
+  const absChange = Math.abs(priceChange);
+  
+  if (sentiment === 'bullish') {
+    if (absChange > 5) return `Strong upward momentum with ${priceChange.toFixed(1)}% gain. ${volumeTrend > 20 ? 'High volume confirms bullish sentiment.' : 'Moderate volume activity.'}`;
+    else return `Positive price action with ${priceChange.toFixed(1)}% gain. ${volatility > 3 ? 'Higher volatility suggests caution.' : 'Stable upward movement.'}`;
+  } else if (sentiment === 'bearish') {
+    if (absChange > 5) return `Strong downward pressure with ${priceChange.toFixed(1)}% decline. ${volumeTrend > 20 ? 'High volume confirms bearish sentiment.' : 'Moderate volume activity.'}`;
+    else return `Negative price action with ${priceChange.toFixed(1)}% decline. ${volatility > 3 ? 'Higher volatility suggests uncertainty.' : 'Gradual downward movement.'}`;
+  } else {
+    return `Sideways movement with ${priceChange.toFixed(1)}% change. ${volatility > 2 ? 'Increased volatility suggests potential breakout.' : 'Low volatility indicates consolidation.'}`;
+  }
 }
 
 module.exports = router;

@@ -139,7 +139,21 @@ const Dashboard = () => {
   const { data: blockchainData } = useQuery(
     ['blockchain'],
     () => dashboardApi.getBlockchainStatus(),
-    { enabled: activeView === 'overview' || activeView === 'blockchain' }
+    { 
+      enabled: activeView === 'overview' || activeView === 'blockchain',
+      onSuccess: (data) => {
+        console.log('🔗 Dashboard received blockchain data:', data);
+      },
+      onError: (error) => {
+        console.error('🔗 Dashboard blockchain query error:', error);
+      }
+    }
+  );
+
+  const { data: combinedData } = useQuery(
+    ['combined', timeRange],
+    () => dashboardApi.getCombinedMetrics(timeRange),
+    { enabled: activeView === 'combined' }
   );
 
   const { data: forecastData, isLoading: forecastLoading, error: forecastError } = useQuery(
@@ -943,14 +957,14 @@ const Dashboard = () => {
                 <div className="space-y-8">
                   <BlockchainStatusCard data={blockchainData?.data} />
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <CarbonCreditsCard data={data.carbon} />
+                    <CarbonCreditsCard data={carbonData?.data} />
                     <CryptoMarketCard data={finalCryptoData} onCryptoSelect={handleCryptoSelect} />
                     <SystemHealthCard data={{
-                      overallStatus: 'healthy',
+                      overallStatus: blockchainData?.data?.health?.status || 'healthy',
                       services: [
-                        { name: 'Blockchain Node', status: 'healthy' },
-                        { name: 'Smart Contracts', status: 'healthy' },
-                        { name: 'Verification Engine', status: 'healthy' }
+                        { name: 'Blockchain Node', status: blockchainData?.data?.health?.status || 'healthy' },
+                        { name: 'Smart Contracts', status: blockchainData?.data?.health?.status || 'healthy' },
+                        { name: 'Verification Engine', status: blockchainData?.data?.health?.status || 'healthy' }
                       ]
                     }} />
                   </div>
@@ -978,11 +992,14 @@ const Dashboard = () => {
 
               {activeView === 'combined' && (
                 <div className="space-y-8">
-                  <CombinedMetricsCard data={data.combinedMetrics} timeRange={timeRange} />
+                  <CombinedMetricsCard 
+                    data={combinedData?.data} 
+                    timeRange={timeRange} 
+                  />
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <StockMarketCard data={data.stock} timeRange={timeRange} />
-                    <CarbonCreditsCard data={data.carbon} timeRange={timeRange} />
-                    <CryptoMarketCard data={cryptoData} timeRange={timeRange} onCryptoSelect={handleCryptoSelect} />
+                    <StockMarketCard data={stockData?.data} timeRange={timeRange} />
+                    <CarbonCreditsCard data={carbonData?.data} timeRange={timeRange} />
+                    <CryptoMarketCard data={finalCryptoData} timeRange={timeRange} onCryptoSelect={handleCryptoSelect} />
                   </div>
                 </div>
               )}
