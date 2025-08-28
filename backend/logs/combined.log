@@ -1742,3 +1742,55 @@
 {"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T05:41:48.126Z"}
 {"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T05:41:48.127Z"}
 {"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T05:41:48.128Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-28T05:49:42.492Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-28T05:49:42.497Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-28T05:49:42.498Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-28T05:49:42.573Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-28T05:49:42.613Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-28T05:49:49.680Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-28T05:49:49.688Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T05:49:49.690Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T05:49:49.695Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T05:49:49.696Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-28T05:56:26.887Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-28T05:56:26.890Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-28T05:56:26.891Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-28T05:56:26.985Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-28T05:56:27.098Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-28T05:56:30.498Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-28T05:56:30.499Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T05:56:30.500Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T05:56:30.501Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T05:56:30.502Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-28T05:57:27.773Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-28T05:57:27.776Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-28T05:57:27.777Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-28T05:57:27.855Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-28T05:57:27.893Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-28T05:57:30.989Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-28T05:57:30.990Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T05:57:30.991Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T05:57:30.991Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T05:57:30.992Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-28T06:00:00.118Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-28T06:00:00.123Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-28T06:06:19.031Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-28T06:06:19.034Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-28T06:06:19.035Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-28T06:06:19.148Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-28T06:06:19.226Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-28T06:06:23.986Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-28T06:06:23.988Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T06:06:23.989Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T06:06:23.990Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T06:06:23.991Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-28T06:27:58.026Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-28T06:27:58.031Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-28T06:27:58.038Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-28T06:27:58.097Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-28T06:27:58.141Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-28T06:28:01.063Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-28T06:28:01.065Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T06:28:01.066Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T06:28:01.067Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T06:28:01.068Z"}

@@ -12,7 +12,7 @@ import { formatCurrency, formatPercentage, formatNumber } from '../../utils/form
 import { PortfolioChart, StockPriceChart } from '../Charts';
 import { generatePortfolioData } from '../../utils/timeSeriesData';
 
-const PortfolioSummaryCard = ({ data, timeRange = '1W' }) => {
+const PortfolioSummaryCard = ({ data, timeRange = '1W', onAction }) => {
   if (!data) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -74,6 +74,23 @@ const PortfolioSummaryCard = ({ data, timeRange = '1W' }) => {
   const getReturnColor = (value) => {
     if (value >= 0) return 'text-green-600';
     return 'text-red-600';
+  };
+
+  // Handle action clicks
+  const handleAction = (action, data) => {
+    if (onAction) {
+      onAction(action, data);
+    }
+  };
+
+  // Handle goal click
+  const handleGoalClick = (goal) => {
+    handleAction('viewGoal', goal);
+  };
+
+  // Handle transaction click
+  const handleTransactionClick = (transaction) => {
+    handleAction('viewTransaction', transaction);
   };
 
   // Allocation color mapping
@@ -305,7 +322,8 @@ const PortfolioSummaryCard = ({ data, timeRange = '1W' }) => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center justify-between p-2 bg-white rounded text-sm"
+                className="flex items-center justify-between p-2 bg-white rounded text-sm hover:bg-gray-50 cursor-pointer transition-colors"
+                onClick={() => handleTransactionClick(tx)}
               >
                 <div className="flex items-center space-x-2">
                   <div className={`w-2 h-2 rounded-full ${
@@ -345,7 +363,8 @@ const PortfolioSummaryCard = ({ data, timeRange = '1W' }) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm"
+                className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm hover:bg-indigo-50 cursor-pointer transition-colors"
+                onClick={() => handleGoalClick(goal)}
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">

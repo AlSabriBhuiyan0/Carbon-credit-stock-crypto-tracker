@@ -24,7 +24,7 @@ import {
   Clock
 } from 'lucide-react';
 
-const QuickActionsCard = ({ data }) => {
+const QuickActionsCard = ({ data, onAction }) => {
   if (!data) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -41,8 +41,26 @@ const QuickActionsCard = ({ data }) => {
 
   const {
     recentActions = [],
-    quickAccess = []
+    quickAccess = [],
+    marketAlerts = []
   } = data;
+
+  // Handle action clicks
+  const handleAction = (action, data) => {
+    if (onAction) {
+      onAction(action, data);
+    }
+  };
+
+  // Handle quick access click
+  const handleQuickAccess = (item) => {
+    handleAction('navigate', item);
+  };
+
+  // Handle recent action click
+  const handleRecentAction = (action) => {
+    handleAction('viewAction', action);
+  };
 
   // Action category color mapping
   const getActionColor = (category) => {
@@ -167,7 +185,8 @@ const QuickActionsCard = ({ data }) => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className={`p-4 rounded-lg border-2 border-transparent hover:border-current transition-all duration-200 ${getActionColor(action.category)}`}
+                className={`p-4 rounded-lg border-2 border-transparent hover:border-current transition-all duration-200 ${getActionColor(action.category)} cursor-pointer`}
+                onClick={() => handleQuickAccess(action)}
               >
                 <div className="flex flex-col items-center space-y-2">
                   {getActionIcon(action.name)}
@@ -188,27 +207,45 @@ const QuickActionsCard = ({ data }) => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <button className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2">
+            <button 
+              className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2"
+              onClick={() => handleAction('buyStock', { type: 'stock' })}
+            >
               <Plus className="w-4 h-4" />
               <span>Buy Stock</span>
             </button>
-            <button className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2">
+            <button 
+              className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2"
+              onClick={() => handleAction('sellStock', { type: 'stock' })}
+            >
               <TrendingUp className="w-4 h-4" />
               <span>Sell Stock</span>
             </button>
-            <button className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2">
+            <button 
+              className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2"
+              onClick={() => handleAction('viewPortfolio', { type: 'portfolio' })}
+            >
               <Wallet className="w-4 h-4" />
               <span>Portfolio</span>
             </button>
-            <button className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2">
+            <button 
+              className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2"
+              onClick={() => handleAction('analyzeStocks', { type: 'analysis' })}
+            >
               <BarChart3 className="w-4 h-4" />
               <span>Analysis</span>
             </button>
-            <button className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2">
+            <button 
+              className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2"
+              onClick={() => handleAction('setAlerts', { type: 'alerts' })}
+            >
               <Target className="w-4 h-4" />
               <span>Set Alerts</span>
             </button>
-            <button className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2">
+            <button 
+              className="p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium text-blue-700 flex items-center space-x-2"
+              onClick={() => handleAction('generateReports', { type: 'reports' })}
+            >
               <FileText className="w-4 h-4" />
               <span>Reports</span>
             </button>

@@ -374,42 +374,91 @@ const Dashboard = () => {
   };
 
   // Handle quick actions
-  const handleQuickAction = (action) => {
-    switch (action.type) {
+  const handleQuickAction = (action, data) => {
+    console.log('Quick action:', action, data);
+    
+    switch (action) {
+      case 'buyStock':
+        toast.success('Opening stock purchase form...');
+        // TODO: Open stock purchase modal
+        break;
+      case 'sellStock':
+        toast.success('Opening stock sale form...');
+        // TODO: Open stock sale modal
+        break;
+      case 'viewPortfolio':
+        toast.success('Navigating to portfolio...');
+        // TODO: Navigate to portfolio page
+        break;
+      case 'analyzeStocks':
+        toast.success('Opening stock analysis...');
+        setActiveView('stock');
+        break;
+      case 'setAlerts':
+        toast.success('Opening alert settings...');
+        // TODO: Open alert settings modal
+        break;
+      case 'generateReports':
+        toast.success('Generating reports...');
+        // TODO: Open report generation modal
+        break;
+      case 'navigate':
+        if (data.route) {
+          toast.success(`Navigating to ${data.name}...`);
+          // TODO: Navigate to route
+        }
+        break;
+      case 'viewAction':
+        toast.success(`Viewing action: ${data.action}`);
+        // TODO: Show action details
+        break;
       case 'buy_stock':
-        toast.success(`Opening buy order for ${action.symbol}`);
+        toast.success(`Opening buy order for ${data.symbol}`);
         break;
       case 'sell_stock':
-        toast.success(`Opening sell order for ${action.symbol}`);
+        toast.success(`Opening sell order for ${data.symbol}`);
         break;
-             case 'buy_carbon':
-         toast.success(`Opening carbon credit purchase for ${action.project}`);
-         break;
-       case 'buy_crypto':
-         toast.success('Opening cryptocurrency purchase...');
-         break;
-       case 'set_alert':
-         toast.success(`Setting price alert for ${action.asset}`);
-         break;
-       case 'export_data':
-         toast.success('Exporting dashboard data...');
-         break;
+      case 'buy_carbon':
+        toast.success(`Opening carbon credit purchase for ${data.project}`);
+        break;
+      case 'buy_crypto':
+        toast.success('Opening cryptocurrency purchase...');
+        break;
+      case 'set_alert':
+        toast.success(`Setting price alert for ${data.asset}`);
+        break;
+      case 'export_data':
+        toast.success('Exporting dashboard data...');
+        break;
       default:
-        toast.success(`Executing ${action.name}`);
+        toast.success(`Action: ${action}`);
     }
   };
 
   // Handle portfolio actions
   const handlePortfolioAction = (action, data) => {
+    console.log('Portfolio action:', action, data);
+    
     switch (action) {
       case 'rebalance':
         toast.success('Portfolio rebalancing initiated');
+        // TODO: Implement portfolio rebalancing
         break;
       case 'optimize':
         toast.success('Portfolio optimization analysis started');
+        // TODO: Implement portfolio optimization
         break;
       case 'risk_assessment':
         toast.success('Risk assessment updated');
+        // TODO: Update risk assessment
+        break;
+      case 'viewGoal':
+        toast.success(`Viewing goal: ${data.name}`);
+        // TODO: Show goal details modal
+        break;
+      case 'viewTransaction':
+        toast.success(`Viewing transaction: ${data.type} ${data.asset}`);
+        // TODO: Show transaction details modal
         break;
       default:
         toast.success(`Portfolio action: ${action}`);
@@ -450,9 +499,28 @@ const Dashboard = () => {
       totalValue: 0,
       totalChange: 0,
       totalChangePercent: 0,
-      stocks: [],
-      carbonCredits: [],
-      lastUpdated: new Date().toISOString()
+      allocation: {
+        stocks: 0,
+        carbonCredits: 0,
+        crypto: 0,
+        cash: 100
+      },
+      performance: {
+        dailyReturn: 0,
+        weeklyReturn: 0,
+        monthlyReturn: 0,
+        yearlyReturn: 0,
+        sharpeRatio: 0,
+        maxDrawdown: 0
+      },
+      recentTransactions: [],
+      riskMetrics: {
+        riskLevel: 'medium',
+        riskScore: 50,
+        volatility: 0,
+        beta: 1
+      },
+      goals: []
     },
     stock: {
       stocks: [],
@@ -587,14 +655,6 @@ const Dashboard = () => {
                     />
                   </ErrorBoundary>
 
-                  {/* Quick Actions */}
-                  <ErrorBoundary fallback={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">Quick Actions failed to load</div>}>
-                    <QuickActionsCard 
-                      data={data.quickActions}
-                      onAction={handleQuickAction}
-                    />
-                  </ErrorBoundary>
-
                   {/* Market Overview */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <ErrorBoundary fallback={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">Stock Market failed to load</div>}>
@@ -666,6 +726,14 @@ const Dashboard = () => {
                       }} />
                     </ErrorBoundary>
                   </div>
+
+                  {/* Quick Actions */}
+                  <ErrorBoundary fallback={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">Quick Actions failed to load</div>}>
+                    <QuickActionsCard 
+                      data={data.quickActions}
+                      onAction={handleQuickAction}
+                    />
+                  </ErrorBoundary>
 
                   {/* News & Alerts */}
                   <ErrorBoundary fallback={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">News & Alerts failed to load</div>}>
