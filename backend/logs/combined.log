@@ -1806,3 +1806,13 @@
 {"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T07:34:03.990Z"}
 {"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-28T08:00:00.440Z"}
 {"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-28T08:00:00.451Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-28T08:26:18.363Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-28T08:26:18.367Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-28T08:26:18.368Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-28T08:26:18.421Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-28T08:26:18.464Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-28T08:26:22.320Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-28T08:26:22.320Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-28T08:26:22.321Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-28T08:26:22.322Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-28T08:26:22.322Z"}

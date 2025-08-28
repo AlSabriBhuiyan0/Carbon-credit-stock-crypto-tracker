@@ -737,12 +737,7 @@ const Dashboard = () => {
 
                   {/* News & Alerts */}
                   <ErrorBoundary fallback={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">News & Alerts failed to load</div>}>
-                    <NewsAndAlertsCard data={{
-                      news: data.news || [],
-                      alerts: data.alerts || [],
-                      marketUpdates: data.marketUpdates || [],
-                      trendingTopics: data.trendingTopics || []
-                    }} />
+                    <NewsAndAlertsCard />
                   </ErrorBoundary>
                 </div>
               )}

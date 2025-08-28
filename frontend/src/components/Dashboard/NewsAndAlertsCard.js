@@ -16,6 +16,7 @@ import { newsApi } from '../../api/news';
 const NewsAndAlertsCard = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [serverData, setServerData] = useState(null);
+  const [serverTrending, setServerTrending] = useState([]);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [preferences, setPreferences] = useState(() => {
@@ -25,17 +26,38 @@ const NewsAndAlertsCard = ({ data }) => {
   });
   const [showPrefs, setShowPrefs] = useState(false);
 
+  const fetchNews = async (cat) => {
+    setLoading(true);
+    try {
+      const res = await newsApi.getLatest({ category: cat });
+      // Fallback: if a category returns empty, try 'all'
+      const payload = res?.data;
+      if (!payload || !Array.isArray(payload.news) || payload.news.length === 0) {
+        const fb = await newsApi.getLatest({ category: 'all' });
+        setServerData(fb?.data || null);
+        setServerTrending((fb?.data?.trending) || []);
+      } else {
+        setServerData(payload);
+        setServerTrending((payload?.trending) || []);
+      }
+    } catch (e) {
+      setServerData({ news: [], alerts: [] });
+      setServerTrending([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     (async () => {
+      await fetchNews(category);
+      if (!mounted) return;
+      // Also fetch dedicated trending to ensure we populate chips
       try {
-        setLoading(true);
-        const res = await newsApi.getLatest({ category });
-        if (!mounted) return;
-        setServerData(res?.data || null);
-      } catch (e) {
-        // noop
-      } finally { setLoading(false); }
+        const t = await newsApi.getTrending({ category });
+        if (t?.data && Array.isArray(t.data)) setServerTrending(t.data);
+      } catch {}
     })();
     return () => { mounted = false; };
   }, [category]);
@@ -43,11 +65,34 @@ const NewsAndAlertsCard = ({ data }) => {
   const live = serverData || data;
 
   const {
-    news = [],
+    news: rawNews = [],
     alerts = [],
-    marketUpdates = [],
-    trendingTopics = []
   } = live || {};
+
+  // Normalize and enrich news
+  const news = (rawNews || []).map((n) => ({
+    title: n.title || n.headline || '',
+    link: n.link || n.url || '#',
+    description: n.description || n.summary || '',
+    pubDate: n.pubDate || n.publishedAt || n.date || null,
+    category: (n.category || n.section || 'market').toString().toLowerCase(),
+  }));
+
+  // Trending topics: prefer server; fallback to client-side frequency extraction
+  const trendingTopics = (serverTrending && serverTrending.length > 0)
+    ? serverTrending
+    : (() => {
+        const freq = new Map();
+        const stop = new Set('the a an and or for from of to in on with by is are be as at this that it its into over about new says amid after before during market crypto stock stocks carbon credit credits price prices rally plunge surge regulation ban emission energy project projects climate'.split(/\s+/));
+        (news || []).forEach((n) => {
+          const text = `${n.title} ${n.description}`.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+          text.split(/\s+/).forEach((w) => {
+            if (!w || w.length < 4 || stop.has(w)) return;
+            freq.set(w, (freq.get(w) || 0) + 1);
+          });
+        });
+        return Array.from(freq.entries()).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([topic,count])=>({ topic, count }));
+      })();
 
   const filteredNews = useMemo(() => {
     const categories = new Set(preferences.categories || []);
@@ -112,6 +157,14 @@ const NewsAndAlertsCard = ({ data }) => {
     return 'text-red-600';
   };
 
+  // Derive simple market updates from latest filtered news (for live feel)
+  const liveMarketUpdates = (filteredNews || []).slice(0, 6).map((n) => ({
+    title: n.title,
+    link: n.link,
+    category: n.category || 'market',
+    pubDate: n.pubDate || n.publishedAt,
+  }));
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
@@ -137,7 +190,16 @@ const NewsAndAlertsCard = ({ data }) => {
                   placeholder="Search news..."
                   className="px-3 py-1 text-sm bg-white bg-opacity-20 rounded-lg text-white placeholder-blue-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setQuery(val);
+                    const v = val.trim().toLowerCase();
+                    if (['crypto','cryptocurrency'].includes(v)) setCategory('crypto');
+                    if (['stock','stocks','equity','equities'].includes(v)) setCategory('stocks');
+                    if (['carbon','carbon credits','credits'].includes(v)) setCategory('carbon');
+                    if (['market','all'].includes(v)) setCategory('all');
+                  }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') fetchNews(category); }}
                 />
                 <Search className="w-4 h-4 text-blue-100 absolute right-2 top-1/2 transform -translate-y-1/2" />
               </div>
@@ -161,11 +223,14 @@ const NewsAndAlertsCard = ({ data }) => {
       </div>
 
       <div className="p-6">
-        {(!live || loading) && (
+        {loading && (
           <div className="animate-pulse mb-6">
             <div className="h-4 bg-gray-200 rounded w-1/3 mb-3"></div>
             <div className="h-4 bg-gray-200 rounded w-2/3"></div>
           </div>
+        )}
+        {!loading && (filteredNews.length === 0) && (
+          <div className="mb-4 text-sm text-gray-500">No news found for this filter. Try switching category or clearing search.</div>
         )}
         {/* Active Alerts */}
         <div className="mb-6">
@@ -218,32 +283,27 @@ const NewsAndAlertsCard = ({ data }) => {
           </div>
           
           <div className="space-y-2">
-            {marketUpdates.slice(0, 5).map((update, index) => (
-              <motion.div
-                key={update.id || index}
+            {liveMarketUpdates.map((u, index) => (
+              <motion.a
+                key={u.link || index}
+                href={u.link}
+                target="_blank"
+                rel="noreferrer"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center justify-between p-2 bg-white rounded text-sm"
+                transition={{ delay: index * 0.05 }}
+                className="flex items-center justify-between p-2 bg-white rounded text-sm hover:shadow"
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    update.change >= 0 ? 'bg-green-500' : 'bg-red-500'
-                  }`} />
-                  <span className="text-gray-700 font-medium">
-                    {update.symbol || `ASSET${index + 1}`}
+                  <div className={`px-2 py-0.5 rounded ${getNewsColor(u.category)}`}>{u.category}</div>
+                  <span className="text-gray-700 font-medium line-clamp-1">
+                    {u.title}
                   </span>
                 </div>
-                
-                <div className="text-right">
-                  <div className={`text-sm font-medium ${getMarketUpdateColor(update.change)}`}>
-                    {update.change >= 0 ? '+' : ''}{update.change}%
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {update.price ? `$${update.price}` : '$0.00'}
-                  </div>
+                <div className="text-xs text-gray-500">
+                  {u.pubDate ? new Date(u.pubDate).toLocaleTimeString() : ''}
                 </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
         </div>
@@ -336,7 +396,7 @@ const NewsAndAlertsCard = ({ data }) => {
             <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={() => setShowPrefs(true)}>
               News Preferences
             </button>
-            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={() => setCategory('market')}>
+            <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={() => { setCategory('market'); setQuery(''); }}>
               Market Watch
             </button>
             <button className="p-3 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium text-indigo-700" onClick={handleExport}>

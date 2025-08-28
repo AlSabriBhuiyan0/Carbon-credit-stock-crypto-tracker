@@ -14,8 +14,8 @@ const SOURCES = {
     'https://cointelegraph.com/rss'
   ],
   stocks: [
-    'https://feeds.finance.yahoo.com/rss/2.0/headline?s=AAPL,MSFT,GOOGL,AMZN,TSLA&region=US&lang=en-US',
-    'https://www.marketwatch.com/feeds/topstories'
+    'https://feeds.reuters.com/reuters/businessNews',
+    'https://feeds.finance.yahoo.com/rss/2.0/headline?s=AAPL,MSFT,GOOGL,AMZN,TSLA&region=US&lang=en-US'
   ],
   carbon: [
     'https://unfccc.int/rss.xml',
@@ -41,9 +41,10 @@ function sanitize(str) {
 // Minimal RSS parser (no external deps)
 function parseRss(xml) {
   const items = [];
+  // RSS <item>
   const itemRegex = /<item[\s\S]*?<\/item>/gi;
-  const matches = xml.match(itemRegex) || [];
-  for (const raw of matches) {
+  const itemMatches = xml.match(itemRegex) || [];
+  for (const raw of itemMatches) {
     const pick = (tag) => {
       const re = new RegExp(`<${tag}[^>]*>([\s\S]*?)<\/${tag}>`, 'i');
       const m = raw.match(re);
@@ -54,7 +55,28 @@ function parseRss(xml) {
     const description = pick('description') || pick('content:encoded');
     const pubDate = pick('pubDate') || pick('updated') || pick('dc:date');
     const category = pick('category');
-    items.push({ title, link, description, pubDate, category });
+    if (title || link) items.push({ title, link, description, pubDate, category });
+  }
+  // Atom <entry>
+  if (items.length === 0) {
+    const entryRegex = /<entry[\s\S]*?<\/entry>/gi;
+    const entryMatches = xml.match(entryRegex) || [];
+    for (const raw of entryMatches) {
+      const pick = (tag) => {
+        const re = new RegExp(`<${tag}[^>]*>([\s\S]*?)<\/${tag}>`, 'i');
+        const m = raw.match(re);
+        return m ? sanitize(m[1]) : '';
+      };
+      const title = pick('title');
+      // Atom links are often <link href="..."/>
+      let link = '';
+      const linkHref = raw.match(/<link[^>]*href=["']([^"']+)["'][^>]*\/?>(?:<\/link>)?/i);
+      if (linkHref) link = sanitize(linkHref[1]);
+      const description = pick('summary') || pick('content');
+      const pubDate = pick('updated') || pick('published');
+      const category = pick('category');
+      if (title || link) items.push({ title, link, description, pubDate, category });
+    }
   }
   return items;
 }
@@ -97,17 +119,26 @@ function extractTrendingTopics(items) {
     .map(([word, count]) => ({ topic: word, count }));
 }
 
+function withTimeout(promise, ms) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  return Promise.race([
+    promise(controller.signal),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms + 10))
+  ]).finally(() => clearTimeout(id));
+}
+
 async function fetchCategory(category, limit = 50) {
   const urls = SOURCES[category] || [];
   const all = [];
   for (const url of urls) {
     try {
-      const res = await fetchFn(url, { headers: { 'User-Agent': 'CarbonTrackerBot/1.0' } });
+      const res = await withTimeout((signal) => fetchFn(url, { headers: { 'User-Agent': 'CarbonTrackerBot/1.0' }, signal }), 2500);
       const xml = await res.text();
       const items = parseRss(xml).map(x => ({ ...x, source: url, category }));
       all.push(...items);
     } catch (err) {
-      // continue
+      // skip timeouts/network errors and continue
     }
   }
   // Sort by pubDate if present
@@ -121,9 +152,11 @@ router.get('/latest', asyncHandler(async (req, res) => {
   const categories = category === 'all' ? Object.keys(SOURCES) : [category];
   const results = [];
   for (const c of categories) {
-    // eslint-disable-next-line no-await-in-loop
-    const items = await fetchCategory(c, n);
-    results.push(...items);
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const items = await fetchCategory(c, n);
+      results.push(...items);
+    } catch {}
   }
   const alerts = deriveAlertsFromNews(results);
   const trending = extractTrendingTopics(results);
