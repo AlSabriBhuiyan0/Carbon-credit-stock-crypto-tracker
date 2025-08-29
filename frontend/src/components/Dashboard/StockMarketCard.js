@@ -40,6 +40,16 @@ const StockMarketCard = ({ data, timeRange = '1W' }) => {
     totalVolume = 0
   } = marketOverview;
 
+  const formatMarketCapDynamic = (value) => {
+    const n = Number(value);
+    if (!isFinite(n) || isNaN(n)) return '0.00';
+    if (n >= 1e12) return `${(n / 1e12).toFixed(2)}T`;
+    if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
+    if (n >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+    if (n >= 1e3) return `${(n / 1e3).toFixed(2)}K`;
+    return n.toFixed(2);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
@@ -59,7 +69,7 @@ const StockMarketCard = ({ data, timeRange = '1W' }) => {
           
           <div className="text-right">
             <div className="text-2xl font-bold text-white">
-              {formatNumberWithUnit(totalMarketCap / 1e12, 'T', 2)}
+              {formatMarketCapDynamic(totalMarketCap)}
             </div>
             <div className="text-blue-100 text-sm">Total Market Cap</div>
           </div>
@@ -71,7 +81,7 @@ const StockMarketCard = ({ data, timeRange = '1W' }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-900">
-              {formatNumberWithUnit(totalMarketCap / 1e12, 'T', 2)}
+              {formatMarketCapDynamic(totalMarketCap)}
             </div>
             <div className="text-sm text-gray-600">Market Cap</div>
           </div>

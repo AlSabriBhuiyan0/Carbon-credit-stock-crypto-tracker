@@ -360,7 +360,7 @@ class UnifiedWebSocketService extends EventEmitter {
           if (service.isActive) {
             this.fetchRealStockData();
           }
-        }, 30000); // Fetch every 30 seconds to respect API limits
+        }, 10000); // Fetch every 10 seconds for fresher data
         
         resolve();
       } catch (error) {

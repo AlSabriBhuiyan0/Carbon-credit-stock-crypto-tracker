@@ -39,19 +39,47 @@ router.get('/', asyncHandler(async (req, res) => {
     
     console.log('📊 Fetching dashboard data for timeRange:', timeRange, 'days:', days);
     
-    // Try to get real data from database first, fallback to mock data
+    // Prefer real-time stock data from unified service, fall back to DB/mock
     let stocks, topGainers, topLosers, mostActive;
     try {
-      stocks = await StockPostgreSQL.getAllStocks();
-      if (stocks && stocks.length > 0) {
-        topGainers = stocks.filter(s => s.current_change > 0).sort((a, b) => b.current_change - a.current_change).slice(0, 15);
-        topLosers = stocks.filter(s => s.current_change < 0).sort((a, b) => a.current_change - b.current_change).slice(0, 15);
-        mostActive = stocks.sort((a, b) => (b.current_volume || 0) - (a.current_volume || 0)).slice(0, 15);
+      const realtimeStocks = unifiedWebSocketService.getAllData('stocks') || [];
+      if (Array.isArray(realtimeStocks) && realtimeStocks.length > 0) {
+        console.log(`📈 Using real-time stock data (${realtimeStocks.length} symbols)`);
+        // Normalize to DB-like structure expected by downstream calculations
+        const normalized = realtimeStocks.map(s => ({
+          symbol: s.symbol,
+          current_price: Number(s.price) || 0,
+          current_change: Number(s.changePercent) || 0,
+          current_volume: parseInt(s.volume) || 0,
+          // Estimate market cap as price * volume as a proxy when shares outstanding are unknown
+          calculated_market_cap: ((Number(s.price) || 0) * (parseInt(s.volume) || 0))
+        }));
+        stocks = normalized;
+        topGainers = normalized
+          .filter(s => (s.current_change || 0) > 0)
+          .sort((a, b) => (b.current_change || 0) - (a.current_change || 0))
+          .slice(0, 15);
+        topLosers = normalized
+          .filter(s => (s.current_change || 0) < 0)
+          .sort((a, b) => (a.current_change || 0) - (b.current_change || 0))
+          .slice(0, 15);
+        mostActive = normalized
+          .slice()
+          .sort((a, b) => (b.current_volume || 0) - (a.current_volume || 0))
+          .slice(0, 15);
       } else {
-        throw new Error('No stock data available');
+        // Fall back to DB
+        stocks = await StockPostgreSQL.getAllStocks();
+        if (stocks && stocks.length > 0) {
+          topGainers = stocks.filter(s => s.current_change > 0).sort((a, b) => b.current_change - a.current_change).slice(0, 15);
+          topLosers = stocks.filter(s => s.current_change < 0).sort((a, b) => a.current_change - b.current_change).slice(0, 15);
+          mostActive = stocks.sort((a, b) => (b.current_volume || 0) - (a.current_volume || 0)).slice(0, 15);
+        } else {
+          throw new Error('No stock data available');
+        }
       }
     } catch (error) {
-      console.warn('Using mock stock data due to database error:', error.message);
+      console.warn('Using mock stock data due to error:', error.message);
       stocks = generateMockStockData();
       topGainers = stocks.filter(s => s.change > 0).sort((a, b) => b.change - a.change).slice(0, 15);
       topLosers = stocks.filter(s => s.change < 0).sort((a, b) => a.change - b.change).slice(0, 15);
@@ -317,6 +345,38 @@ router.get('/', asyncHandler(async (req, res) => {
       },
       crypto: await (async () => {
         console.log('🔍 Including crypto data in main dashboard...');
+        // Prefer realtime crypto data from unified service
+        const wsCryptos = unifiedWebSocketService.getAllData('binance') || [];
+        if (Array.isArray(wsCryptos) && wsCryptos.length > 0) {
+          const cryptos = wsCryptos.map(c => ({
+            symbol: c.symbol,
+            price: Number(c.price) || 0,
+            priceChange: Number(c.priceChange || c.change || 0),
+            priceChangePercent: Number(c.priceChangePercent || c.changePercent || 0),
+            volume: Number(c.volume) || 0,
+            lastPrice: Number(c.lastPrice || c.price) || 0,
+            timestamp: c.timestamp || new Date()
+          }));
+          const totalValue = cryptos.reduce((s, x) => s + (x.price || x.lastPrice || 0), 0);
+          const totalChange = cryptos.reduce((s, x) => s + (x.priceChange || 0), 0);
+          const totalChangePercent = cryptos.length ? totalChange / cryptos.length : 0;
+          const volume = cryptos.reduce((s, x) => s + (x.volume || 0), 0);
+          const sorted = [...cryptos].sort((a,b)=> (b.priceChange||0) - (a.priceChange||0));
+          const topGainers = sorted.filter(x => (x.priceChange||0) > 0).slice(0,5);
+          const topLosers = sorted.filter(x => (x.priceChange||0) < 0).slice(0,5);
+          return {
+            cryptos,
+            totalValue: Math.round(totalValue * 100) / 100,
+            totalChange: Math.round(totalChange * 100) / 100,
+            totalChangePercent: Math.round(totalChangePercent * 100) / 100,
+            topGainers,
+            topLosers,
+            volume: Math.round(volume),
+            marketCap: totalValue * 1000000,
+            active: cryptos.length,
+            lastUpdated: new Date()
+          };
+        }
         const cryptoData = await getCryptoMarketOverview();
         console.log('📊 Crypto data included in dashboard:', {
           hasData: !!cryptoData,
@@ -869,19 +929,48 @@ router.get('/combined', asyncHandler(async (req, res) => {
  *       401:
  *         description: Unauthorized
  */
-router.get('/stocks', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/stocks', asyncHandler(async (req, res) => {
   try {
     const { timeRange = '1d' } = req.query;
     const rangeToDays = { '1d': 1, '1w': 7, '1m': 30, '3m': 90, '6m': 180, '1y': 365 };
     const days = rangeToDays[String(timeRange).toLowerCase()] || 1;
     
-    // Fetch stock market data
-    const stocks = await StockPostgreSQL.getAllStocks();
-    const rangeSnapshot = await StockPostgreSQL.getRangeSnapshot(days);
-    const symbolToRange = new Map(rangeSnapshot.map(r => [r.symbol, r]));
-    const topGainers = await StockPostgreSQL.getTopGainers(15);
-    const topLosers = await StockPostgreSQL.getTopLosers(15);
-    const mostActive = await StockPostgreSQL.getMostActive(15);
+    // Prefer real-time data; fall back to DB if unavailable
+    let stocks = [];
+    let topGainers = [];
+    let topLosers = [];
+    let mostActive = [];
+    const realtime = unifiedWebSocketService.getAllData('stocks') || [];
+    if (Array.isArray(realtime) && realtime.length > 0) {
+      const normalized = realtime.map(s => ({
+        symbol: s.symbol,
+        current_price: Number(s.price) || 0,
+        current_change: Number(s.changePercent) || 0,
+        current_volume: parseInt(s.volume) || 0,
+        calculated_market_cap: 0
+      }));
+      stocks = normalized;
+      topGainers = normalized
+        .filter(s => (s.current_change || 0) > 0)
+        .sort((a, b) => (b.current_change || 0) - (a.current_change || 0))
+        .slice(0, 15);
+      topLosers = normalized
+        .filter(s => (s.current_change || 0) < 0)
+        .sort((a, b) => (a.current_change || 0) - (b.current_change || 0))
+        .slice(0, 15);
+      mostActive = normalized
+        .slice()
+        .sort((a, b) => (b.current_volume || 0) - (a.current_volume || 0))
+        .slice(0, 15);
+    } else {
+      // DB fallback
+      stocks = await StockPostgreSQL.getAllStocks();
+      const rangeSnapshot = await StockPostgreSQL.getRangeSnapshot(days);
+      const symbolToRange = new Map(rangeSnapshot.map(r => [r.symbol, r]));
+      topGainers = await StockPostgreSQL.getTopGainers(15);
+      topLosers = await StockPostgreSQL.getTopLosers(15);
+      mostActive = await StockPostgreSQL.getMostActive(15);
+    }
     
     const stockData = {
       total: stocks.length,
@@ -894,14 +983,12 @@ router.get('/stocks', authenticateToken, asyncHandler(async (req, res) => {
           return sum + cap;
         }, 0),
         averageChange: stocks.reduce((sum, s) => {
-          const snap = symbolToRange.get(s.symbol);
-          const change = snap ? parseFloat(snap.range_change_percent) : (parseFloat(s.current_change) || 0);
+          const change = parseFloat(s.current_change) || 0;
           return sum + (isNaN(change) ? 0 : change);
         }, 0) / Math.max(stocks.length, 1),
         activeStocks: stocks.filter(s => s.current_price).length,
         totalVolume: stocks.reduce((sum, s) => {
-          const snap = symbolToRange.get(s.symbol);
-          const vol = snap ? parseInt(snap.last_volume) : parseInt(s.current_volume);
+          const vol = parseInt(s.current_volume);
           return sum + (isNaN(vol) ? 0 : vol || 0);
         }, 0)
       },

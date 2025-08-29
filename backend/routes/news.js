@@ -10,20 +10,20 @@ const router = express.Router();
 // Public RSS sources without API keys
 const SOURCES = {
   crypto: [
-    'https://www.coindesk.com/arc/outboundfeeds/rss/',
-    'https://cointelegraph.com/rss'
+    'https://cointelegraph.com/rss',
+    'https://cryptonews.com/news/feed'
   ],
   stocks: [
     'https://feeds.reuters.com/reuters/businessNews',
-    'https://feeds.finance.yahoo.com/rss/2.0/headline?s=AAPL,MSFT,GOOGL,AMZN,TSLA&region=US&lang=en-US'
+    'https://www.marketwatch.com/feeds/topstories'
   ],
   carbon: [
     'https://unfccc.int/rss.xml',
     'https://verra.org/feed/'
   ],
   market: [
-    'https://www.ft.com/markets?format=rss',
-    'https://www.reuters.com/markets/rss'
+    'https://www.reuters.com/markets/rss',
+    'https://feeds.bloomberg.com/markets/news.rss'
   ]
 };
 
@@ -41,12 +41,15 @@ function sanitize(str) {
 // Minimal RSS parser (no external deps)
 function parseRss(xml) {
   const items = [];
-  // RSS <item>
-  const itemRegex = /<item[\s\S]*?<\/item>/gi;
+  
+  // RSS <item> - handle multiline and whitespace
+  const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>/gi;
   const itemMatches = xml.match(itemRegex) || [];
+  
   for (const raw of itemMatches) {
     const pick = (tag) => {
-      const re = new RegExp(`<${tag}[^>]*>([\s\S]*?)<\/${tag}>`, 'i');
+      // More flexible regex to handle whitespace and multiline
+      const re = new RegExp(`<${tag}[^>]*>\\s*([\\s\\S]*?)\\s*<\\/${tag}>`, 'i');
       const m = raw.match(re);
       return m ? sanitize(m[1]) : '';
     };
@@ -55,15 +58,19 @@ function parseRss(xml) {
     const description = pick('description') || pick('content:encoded');
     const pubDate = pick('pubDate') || pick('updated') || pick('dc:date');
     const category = pick('category');
-    if (title || link) items.push({ title, link, description, pubDate, category });
+    if (title || link) {
+      items.push({ title, link, description, pubDate, category });
+    }
   }
+  
   // Atom <entry>
   if (items.length === 0) {
-    const entryRegex = /<entry[\s\S]*?<\/entry>/gi;
+    const entryRegex = /<entry[^>]*>([\s\S]*?)<\/entry>/gi;
     const entryMatches = xml.match(entryRegex) || [];
+    
     for (const raw of entryMatches) {
       const pick = (tag) => {
-        const re = new RegExp(`<${tag}[^>]*>([\s\S]*?)<\/${tag}>`, 'i');
+        const re = new RegExp(`<${tag}[^>]*>\\s*([\\s\\S]*?)\\s*<\\/${tag}>`, 'i');
         const m = raw.match(re);
         return m ? sanitize(m[1]) : '';
       };
@@ -75,9 +82,29 @@ function parseRss(xml) {
       const description = pick('summary') || pick('content');
       const pubDate = pick('updated') || pick('published');
       const category = pick('category');
-      if (title || link) items.push({ title, link, description, pubDate, category });
+      if (title || link) {
+        items.push({ title, link, description, pubDate, category });
+      }
     }
   }
+  
+  // Try alternative RSS formats
+  if (items.length === 0) {
+    // Look for any tag that might contain news items
+    const altRegex = /<(?:article|div|li)[^>]*class=["'][^"']*(?:news|item|story)[^"']*["'][^>]*>([\s\S]*?)<\/(?:article|div|li)>/gi;
+    const altMatches = xml.match(altRegex) || [];
+    
+    for (const raw of altMatches.slice(0, 10)) { // Limit to first 10
+      const titleMatch = raw.match(/<h[1-6][^>]*>([^<]+)<\/h[1-6]>/i);
+      const linkMatch = raw.match(/href=["']([^"']+)["']/i);
+      const title = titleMatch ? sanitize(titleMatch[1]) : '';
+      const link = linkMatch ? sanitize(linkMatch[1]) : '';
+      if (title && link) {
+        items.push({ title, link, description: '', pubDate: '', category: '' });
+      }
+    }
+  }
+  
   return items;
 }
 
