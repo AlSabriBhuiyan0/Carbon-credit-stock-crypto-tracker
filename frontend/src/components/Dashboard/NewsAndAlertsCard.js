@@ -14,7 +14,19 @@ import {
 import { newsApi } from '../../api/news';
 
 const NewsAndAlertsCard = ({ data }) => {
+  // Debug logging
+  console.log('📰 NewsAndAlertsCard received data:', data);
+  console.log('📰 Data structure:', {
+    hasData: !!data,
+    hasNews: !!data?.news,
+    newsLength: data?.news?.length || 0,
+    hasAlerts: !!data?.alerts,
+    alertsLength: data?.alerts?.length || 0,
+    hasTrending: !!data?.trending,
+    trendingLength: data?.trending?.length || 0
+  });
   const [loading, setLoading] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(false);
   const [serverData, setServerData] = useState(null);
   const [serverTrending, setServerTrending] = useState([]);
   const [query, setQuery] = useState('');
@@ -27,12 +39,22 @@ const NewsAndAlertsCard = ({ data }) => {
   const [showPrefs, setShowPrefs] = useState(false);
 
   const fetchNews = async (cat) => {
-    setLoading(true);
+    // Set appropriate loading state
+    if (cat !== category) {
+      setCategoryLoading(true);
+    } else {
+      setLoading(true);
+    }
+    
     try {
+      console.log(`📰 Fetching news for category: ${cat}`);
       const res = await newsApi.getLatest({ category: cat });
+      console.log(`📰 News API response for ${cat}:`, res);
+      
       // Fallback: if a category returns empty, try 'all'
       const payload = res?.data;
       if (!payload || !Array.isArray(payload.news) || payload.news.length === 0) {
+        console.log(`📰 Category ${cat} returned empty, trying 'all' category`);
         const fb = await newsApi.getLatest({ category: 'all' });
         setServerData(fb?.data || null);
         setServerTrending((fb?.data?.trending) || []);
@@ -41,16 +63,19 @@ const NewsAndAlertsCard = ({ data }) => {
         setServerTrending((payload?.trending) || []);
       }
     } catch (e) {
+      console.error(`📰 Error fetching news for category ${cat}:`, e);
       setServerData({ news: [], alerts: [] });
       setServerTrending([]);
     } finally {
       setLoading(false);
+      setCategoryLoading(false);
     }
   };
 
   useEffect(() => {
     let mounted = true;
     (async () => {
+      // Always fetch news for the selected category, regardless of props data
       await fetchNews(category);
       if (!mounted) return;
       // Also fetch dedicated trending to ensure we populate chips
@@ -62,7 +87,15 @@ const NewsAndAlertsCard = ({ data }) => {
     return () => { mounted = false; };
   }, [category]);
 
-  const live = serverData || data;
+  // Also fetch news when component mounts or when data changes
+  useEffect(() => {
+    if (!data && !serverData) {
+      fetchNews(category);
+    }
+  }, [data, serverData, category]);
+
+  // Use data from props if available, otherwise fall back to server data
+  const live = data || serverData;
 
   const {
     news: rawNews = [],
@@ -190,31 +223,62 @@ const NewsAndAlertsCard = ({ data }) => {
                   placeholder="Search news..."
                   className="px-3 py-1 text-sm bg-white bg-opacity-20 rounded-lg text-white placeholder-blue-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                   value={query}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setQuery(val);
-                    const v = val.trim().toLowerCase();
-                    if (['crypto','cryptocurrency'].includes(v)) setCategory('crypto');
-                    if (['stock','stocks','equity','equities'].includes(v)) setCategory('stocks');
-                    if (['carbon','carbon credits','credits'].includes(v)) setCategory('carbon');
-                    if (['market','all'].includes(v)) setCategory('all');
-                  }}
+                                     onChange={(e) => {
+                     const val = e.target.value;
+                     setQuery(val);
+                     const v = val.trim().toLowerCase();
+                     let newCategory = category;
+                     if (['crypto','cryptocurrency'].includes(v)) newCategory = 'crypto';
+                     if (['stock','stocks','equity','equities'].includes(v)) newCategory = 'stocks';
+                     if (['carbon','carbon credits','credits'].includes(v)) newCategory = 'carbon';
+                     if (['market','all'].includes(v)) newCategory = 'all';
+                     
+                     if (newCategory !== category) {
+                       setCategory(newCategory);
+                       // Fetch news for the new category
+                       fetchNews(newCategory);
+                     }
+                   }}
                   onKeyDown={(e) => { if (e.key === 'Enter') fetchNews(category); }}
                 />
                 <Search className="w-4 h-4 text-blue-100 absolute right-2 top-1/2 transform -translate-y-1/2" />
+                {query && (
+                  <button
+                    onClick={() => {
+                      setQuery('');
+                      setCategory('all');
+                      fetchNews('all');
+                    }}
+                    className="absolute right-8 top-1/2 transform -translate-y-1 text-blue-100 hover:text-white text-sm"
+                    title="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
-              <select
-                className="px-2 py-1 text-sm bg-white bg-opacity-20 rounded-lg text-white focus:outline-none"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                                            <select
+                 className={`px-2 py-1 text-sm bg-white bg-opacity-20 rounded-lg text-white focus:outline-none ${categoryLoading ? 'opacity-75' : ''}`}
+                 value={category}
+                 disabled={categoryLoading}
+                 onChange={(e) => {
+                   const newCategory = e.target.value;
+                   setCategory(newCategory);
+                   // Immediately fetch news for the new category
+                   fetchNews(newCategory);
+                 }}
+               >
+                 <option value="all">All News</option>
+                 <option value="crypto">Crypto News</option>
+                 <option value="stocks">Stock News</option>
+                 <option value="carbon">Carbon News</option>
+                 <option value="market">Market News</option>
+               </select>
+              <button 
+                onClick={() => fetchNews(category)}
+                disabled={categoryLoading}
+                className={`p-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all ${categoryLoading ? 'opacity-50' : ''}`}
+                title="Refresh news"
               >
-                <option value="all">All</option>
-                <option value="crypto">Crypto</option>
-                <option value="stocks">Stocks</option>
-                <option value="carbon">Carbon</option>
-                <option value="market">Market</option>
-              </select>
-              <button className="p-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all">
                 <Filter className="w-4 h-4 text-white" />
               </button>
             </div>
@@ -223,14 +287,28 @@ const NewsAndAlertsCard = ({ data }) => {
       </div>
 
       <div className="p-6">
-        {loading && (
+        {(loading || !data) && (
           <div className="animate-pulse mb-6">
             <div className="h-4 bg-gray-200 rounded w-1/3 mb-3"></div>
             <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          </div>
+        )}
+        
+        {/* Category loading indicator */}
+        {categoryLoading && (
+          <div className="mb-4 text-center">
+            <div className="inline-flex items-center space-x-2 text-blue-600">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span className="text-sm">Loading {category} news...</span>
+            </div>
           </div>
         )}
         {!loading && (filteredNews.length === 0) && (
-          <div className="mb-4 text-sm text-gray-500">No news found for this filter. Try switching category or clearing search.</div>
+          <div className="mb-4 text-sm text-gray-500">
+            {data ? 'No news found for this filter. Try switching category or clearing search.' : 'Loading news data...'}
+          </div>
         )}
         {/* Active Alerts */}
         <div className="mb-6">

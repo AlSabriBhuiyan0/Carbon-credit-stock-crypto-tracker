@@ -38,7 +38,7 @@ const ForecastView = () => {
     async () => {
       try {
         console.log('🔍 Fetching stock symbols from /api/dashboard/stock-symbols...');
-        const response = await axios.get('http://localhost:5001/api/dashboard/stock-symbols');
+        const response = await axios.get('http://localhost:5002/api/dashboard/stock-symbols');
         console.log('📊 Stock symbols response:', response.data);
         if (response.data && response.data.success) {
           return response.data.data || [];
@@ -77,7 +77,7 @@ const ForecastView = () => {
     async () => {
       try {
         console.log('🔍 Fetching crypto symbols from /api/dashboard/crypto-symbols...');
-        const response = await axios.get('http://localhost:5001/api/dashboard/crypto-symbols');
+        const response = await axios.get('http://localhost:5002/api/dashboard/crypto-symbols');
         console.log('🪙 Crypto symbols response:', response.data);
         if (response.data && response.data.success) {
           return response.data.data || [];
@@ -120,7 +120,7 @@ const ForecastView = () => {
           throw new Error('No authentication token');
         }
         
-        const response = await axios.get('http://localhost:5001/api/portfolios', {
+        const response = await axios.get('http://localhost:5002/api/portfolios', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -161,7 +161,7 @@ const ForecastView = () => {
       const types = {};
       for (const asset of selectedAssets) {
         try {
-          const response = await axios.get(`http://localhost:5001/api/assets/${asset}/type`);
+          const response = await axios.get(`http://localhost:5002/api/assets/${asset}/type`);
           types[asset] = response.data.type;
         } catch (error) {
           // Use asset type service logic as fallback
@@ -189,7 +189,7 @@ const ForecastView = () => {
       if (selectedAssets.length === 0) return null;
       
       try {
-        const response = await axios.post('http://localhost:5001/api/forecast/mixed', {
+        const response = await axios.post('http://localhost:5002/api/forecast/mixed', {
           assets: selectedAssets,
           horizon: forecastHorizon,
           userId: user?.id,
@@ -247,7 +247,7 @@ const ForecastView = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5001/api/forecast/download', {
+      const response = await axios.post('http://localhost:5002/api/forecast/download', {
         assets: selectedAssets,
         horizon: forecastHorizon,
         format: format

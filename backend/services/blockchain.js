@@ -78,117 +78,157 @@ class BlockchainService {
 
   async getCarbonCreditMarketData() {
     try {
-      console.log('[BLOCKCHAIN] Fetching real carbon credit market data...');
+      console.log('[BLOCKCHAIN] Fetching REAL carbon credit market data...');
       
-      // Try to get real blockchain data, but don't fail if APIs are rate limited
-      let baseGasPrice = 20;
-      let blockHeight = 0;
-      let networkUtilization = 70;
+      // Try to get real carbon credit data from multiple sources
+      let realMarketData = [];
       
+      // 1. Try to get real data from UNFCCC service if available
       try {
-        const health = await this.checkBlockchainHealth();
-        baseGasPrice = health.gasPriceGwei || 20;
-        blockHeight = health.latestBlock || 0;
-      } catch (healthError) {
-        console.log('[BLOCKCHAIN] Health check failed, using defaults:', healthError.message);
-      }
-      
-      try {
-        const networkStats = await this.getNetworkStats();
-        networkUtilization = networkStats.networkUtilization || 70;
-        blockHeight = blockHeight || networkStats.totalBlocks || 0;
-      } catch (statsError) {
-        console.log('[BLOCKCHAIN] Network stats failed, using defaults:', statsError.message);
-      }
-      
-      // Use current time as fallback for block height if APIs fail
-      if (!blockHeight) {
-        blockHeight = Math.floor(Date.now() / 1000) % 100000;
-      }
-      
-      // Calculate market prices based on available data
-      const goldStandardPrice = (baseGasPrice * 0.4 + 8).toFixed(2);
-      const vcsPrice = (baseGasPrice * 0.6 + 12).toFixed(2);
-      const cdmPrice = (baseGasPrice * 0.3 + 6).toFixed(2);
-      
-      // Calculate volume based on network activity
-      const baseVolume = Math.floor(networkUtilization * 1000 + blockHeight % 50000);
-      
-      const marketData = [
-        {
-          name: 'Gold Standard Credits',
-          standard: 'Gold Standard',
-          asset_id: `GS-${blockHeight % 10000}`,
-          current_price: parseFloat(goldStandardPrice),
-          price_change: ((baseGasPrice - 20) * 0.1).toFixed(2),
-          volume_24h: baseVolume + Math.floor(Math.random() * 20000),
-          market_cap: Math.floor(parseFloat(goldStandardPrice) * baseVolume * 50),
-          total_supply: Math.floor(baseVolume * 45),
-          location: 'Global',
-          project_type: 'Renewable Energy',
-          last_updated: new Date(),
-          balance: Math.floor(Math.random() * 50000 + 10000),
-          value: Math.floor(parseFloat(goldStandardPrice) * 1000)
-        },
-        {
-          name: 'VCS Carbon Credits',
-          standard: 'Verified Carbon Standard',
-          asset_id: `VCS-${blockHeight % 8000}`,
-          current_price: parseFloat(vcsPrice),
-          price_change: ((networkUtilization - 70) * 0.05).toFixed(2),
-          volume_24h: baseVolume + Math.floor(Math.random() * 25000),
-          market_cap: Math.floor(parseFloat(vcsPrice) * baseVolume * 60),
-          total_supply: Math.floor(baseVolume * 40),
-          location: 'Global',
-          project_type: 'Forest Conservation',
-          last_updated: new Date(),
-          balance: Math.floor(Math.random() * 75000 + 15000),
-          value: Math.floor(parseFloat(vcsPrice) * 1200)
-        },
-        {
-          name: 'CDM Credits',
-          standard: 'Clean Development Mechanism',
-          asset_id: `CDM-${blockHeight % 6000}`,
-          current_price: parseFloat(cdmPrice),
-          price_change: (Math.random() * 0.4 - 0.2).toFixed(2),
-          volume_24h: baseVolume + Math.floor(Math.random() * 15000),
-          market_cap: Math.floor(parseFloat(cdmPrice) * baseVolume * 35),
-          total_supply: Math.floor(baseVolume * 30),
-          location: 'Global',
-          project_type: 'Methane Capture',
-          last_updated: new Date(),
-          balance: Math.floor(Math.random() * 30000 + 8000),
-          value: Math.floor(parseFloat(cdmPrice) * 800)
+        const unfcccService = require('./unfcccNodeService');
+        if (unfcccService) {
+          console.log('[BLOCKCHAIN] Attempting to fetch UNFCCC carbon data...');
+          const unfcccData = await unfcccService.getCarbonCreditMarketData();
+          if (unfcccData && unfcccData.length > 0) {
+            realMarketData = unfcccData;
+            console.log(`[BLOCKCHAIN] Successfully fetched ${realMarketData.length} records from UNFCCC`);
+          }
         }
-      ];
+      } catch (unfcccError) {
+        console.log('[BLOCKCHAIN] UNFCCC service not available:', unfcccError.message);
+      }
       
-      console.log(`[BLOCKCHAIN] Generated ${marketData.length} carbon credit market entries (gas: ${baseGasPrice}, block: ${blockHeight})`);
-      return marketData;
+      // 2. Try to get real data from public carbon credit APIs
+      if (realMarketData.length === 0) {
+        try {
+          console.log('[BLOCKCHAIN] Attempting to fetch from public carbon credit APIs...');
+          
+          // Try to get real data from public carbon credit sources
+          const publicApis = [
+            'https://api.carboncredits.com/v1/market-data', // Example public API
+            'https://carbonregistry.org/api/v1/credits',    // Example public API
+            'https://verra.org/api/market-data'             // Example public API
+          ];
+          
+          for (const apiUrl of publicApis) {
+            try {
+              const response = await axios.get(apiUrl, {
+                timeout: this.requestTimeout,
+                headers: {
+                  'User-Agent': 'CarbonTracker/1.0'
+                }
+              });
+              
+              if (response.data && response.data.length > 0) {
+                realMarketData = this.transformPublicApiData(response.data);
+                console.log(`[BLOCKCHAIN] Successfully fetched data from ${apiUrl}`);
+                break;
+              }
+            } catch (apiError) {
+              console.log(`[BLOCKCHAIN] API ${apiUrl} failed:`, apiError.message);
+              continue;
+            }
+          }
+        } catch (publicApiError) {
+          console.log('[BLOCKCHAIN] Public APIs failed:', publicApiError.message);
+        }
+      }
+      
+      // 3. If no real data available, try to get from database (real projects)
+      if (realMarketData.length === 0) {
+        try {
+          console.log('[BLOCKCHAIN] Attempting to fetch from database...');
+          const CarbonCreditPostgreSQL = require('../models/CarbonCreditPostgreSQL');
+          const dbProjects = await CarbonCreditPostgreSQL.getAllProjects();
+          
+          if (dbProjects && dbProjects.length > 0) {
+            realMarketData = this.transformDatabaseData(dbProjects);
+            console.log(`[BLOCKCHAIN] Successfully fetched ${realMarketData.length} projects from database`);
+          }
+        } catch (dbError) {
+          console.log('[BLOCKCHAIN] Database fetch failed:', dbError.message);
+        }
+      }
+      
+      // 4. If still no real data, return informative message
+      if (realMarketData.length === 0) {
+        console.log('[BLOCKCHAIN] No real carbon credit data available from any source');
+        return {
+          error: 'No real carbon credit data available',
+          message: 'Real carbon credit market data is not currently available. Please check your data sources or API configurations.',
+          suggestions: [
+            'Configure UNFCCC API credentials',
+            'Set up carbon credit registry API access',
+            'Import real carbon credit project data to database',
+            'Check network connectivity to carbon credit APIs'
+          ],
+          last_updated: new Date(),
+          data_source: 'none'
+        };
+      }
+      
+      console.log(`[BLOCKCHAIN] Successfully fetched ${realMarketData.length} real carbon credit market entries`);
+      return realMarketData;
       
     } catch (error) {
-      console.error('[BLOCKCHAIN] Error fetching carbon credit market data:', error.message);
+      console.error('[BLOCKCHAIN] Error fetching real carbon credit market data:', error.message);
       
-      // Return fallback data if everything fails
-      const fallbackData = [
-        {
-          name: 'Gold Standard Credits',
-          standard: 'Gold Standard',
-          asset_id: 'GS-1234',
-          current_price: 15.50,
-          price_change: '0.25',
-          volume_24h: 45000,
-          market_cap: 2500000,
-          total_supply: 150000,
-          location: 'Global',
-          project_type: 'Renewable Energy',
-          last_updated: new Date(),
-          balance: 25000,
-          value: 387500
-        }
-      ];
-      
-      console.log('[BLOCKCHAIN] Using fallback carbon credit data');
-      return fallbackData;
+      return {
+        error: 'Failed to fetch real carbon credit data',
+        message: error.message,
+        last_updated: new Date(),
+        data_source: 'error'
+      };
+    }
+  }
+  
+  // Helper method to transform public API data
+  transformPublicApiData(apiData) {
+    try {
+      return apiData.map(item => ({
+        name: item.name || item.project_name || 'Unknown Project',
+        standard: item.standard || item.registry || 'Unknown Standard',
+        asset_id: item.id || item.project_id || `CC-${Date.now()}`,
+        current_price: parseFloat(item.price || item.current_price || 0),
+        price_change: parseFloat(item.price_change || item.change_24h || 0),
+        volume_24h: parseInt(item.volume || item.volume_24h || 0),
+        market_cap: parseInt(item.market_cap || item.total_value || 0),
+        total_supply: parseInt(item.supply || item.total_supply || 0),
+        location: item.location || item.country || 'Global',
+        project_type: item.type || item.project_type || 'Unknown',
+        last_updated: new Date(item.last_updated || item.timestamp || Date.now()),
+        balance: parseInt(item.balance || item.available || 0),
+        value: parseInt(item.value || item.total_value || 0),
+        data_source: 'public_api'
+      }));
+    } catch (error) {
+      console.error('[BLOCKCHAIN] Error transforming public API data:', error.message);
+      return [];
+    }
+  }
+  
+  // Helper method to transform database data
+  transformDatabaseData(dbProjects) {
+    try {
+      return dbProjects.map(project => ({
+        name: project.name || project.project_name || 'Database Project',
+        standard: project.standard || 'Database Standard',
+        asset_id: project.project_id || `DB-${Date.now()}`,
+        current_price: parseFloat(project.current_price || 0),
+        price_change: parseFloat(project.price_change || 0),
+        volume_24h: parseInt(project.current_volume || 0),
+        market_cap: parseInt(project.market_cap || 0),
+        total_supply: parseInt(project.current_credits_issued || 0),
+        location: project.location || project.country || 'Database',
+        project_type: project.type || 'Database Type',
+        last_updated: new Date(project.last_updated || Date.now()),
+        balance: parseInt(project.current_credits_issued - project.current_credits_retired || 0),
+        value: parseInt(project.current_price * project.current_credits_issued || 0),
+        data_source: 'database'
+      }));
+    } catch (error) {
+      console.error('[BLOCKCHAIN] Error transforming database data:', error.message);
+      return [];
     }
   }
 

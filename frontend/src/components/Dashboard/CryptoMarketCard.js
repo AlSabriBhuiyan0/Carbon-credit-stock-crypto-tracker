@@ -67,7 +67,7 @@ const CryptoMarketCard = ({ data, timeRange, expanded = false, onCryptoSelect })
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
       >
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4" data-testid="crypto-overview">
           <div className="flex items-center space-x-3">
             <BarChart3 className="w-6 h-6 text-white" />
             <div>
@@ -135,9 +135,7 @@ const CryptoMarketCard = ({ data, timeRange, expanded = false, onCryptoSelect })
           </div>
         </div>
 
-
-
-                {/* Top Performers */}
+        {/* Top Performers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Top Losers */}
           <div>
@@ -174,13 +172,49 @@ const CryptoMarketCard = ({ data, timeRange, expanded = false, onCryptoSelect })
             </div>
           </div>
 
-          {/* Top Gainers */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-              <TrendingUp className="w-4 h-4 text-green-500 mr-2" />
-              Top Gainers
-            </h4>
-            <div className="space-y-2">
+          {/* Crypto List */}
+          <div className="mb-6">
+          <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+            <BarChart3 className="w-4 h-4 text-blue-500 mr-2" />
+            Crypto Assets ({cryptos.length})
+          </h4>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {cryptos && cryptos.length > 0 ? (
+              cryptos.slice(0, 10).map((crypto, index) => (
+                <div
+                  key={crypto.symbol || index}
+                  data-testid="crypto-card"
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => onCryptoSelect && onCryptoSelect(crypto)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-900">
+                      {getCryptoDisplayName(crypto.symbol) || crypto.symbol || `Crypto ${index + 1}`}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-sm font-medium ${(crypto.priceChangePercent || crypto.change || crypto.priceChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {(crypto.priceChangePercent || crypto.change || crypto.priceChange || 0) >= 0 ? '+' : ''}{formatPercentageChange(crypto.priceChangePercent || crypto.change || crypto.priceChange || 0)}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {formatCryptoPrice(crypto.price || crypto.lastPrice || crypto.currentPrice || 0)}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-sm text-gray-500 text-center py-4">No crypto data available</div>
+            )}
+          </div>
+        </div>
+
+        {/* Top Gainers */}
+        <div>
+          <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+            <TrendingUp className="w-4 h-4 text-green-500 mr-2" />
+            Top Gainers
+          </h4>
+          <div className="space-y-2">
               {topGainers && topGainers.length > 0 ? (
                 topGainers.slice(0, 3).map((crypto, index) => (
                   <div
@@ -241,22 +275,22 @@ const CryptoMarketCard = ({ data, timeRange, expanded = false, onCryptoSelect })
                     fill="url(#cryptoGradient)"
                   />
                 </g>
-               
-               {/* Chart labels */}
-               <text x="5" y="15" fill="#6B7280" fontSize="8" fontWeight="500">
-                 {isPositive ? '+' : ''}{formatPercentageChange(totalChangePercent)}
-               </text>
-               <text x="5" y="75" fill="#6B7280" fontSize="6">
-                 {timeRange || '24h'} • {active || cryptos.length} assets
-               </text>
-             </svg>
-           ) : (
-             <div className="flex items-center justify-center h-full text-gray-400 text-xs">
-               No chart data
-             </div>
-           )}
-         </div>
-       </div>
+                
+                {/* Chart labels */}
+                <text x="5" y="15" fill="#6B7280" fontSize="8" fontWeight="500">
+                  {isPositive ? '+' : ''}{formatPercentageChange(totalChangePercent)}
+                </text>
+                <text x="5" y="75" fill="#6B7280" fontSize="6">
+                  {timeRange || '24h'} • {active || cryptos.length} assets
+                </text>
+              </svg>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-xs">
+                No chart data
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Footer */}
         <div className="mt-4 pt-4 border-t border-gray-200">

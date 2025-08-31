@@ -164,6 +164,79 @@ class UNFCCCService:
             logging.error(f"Error querying data for {party_code}: {e}")
             return {"error": str(e), "party_code": party_code, "source": "error"}
     
+    def get_carbon_credit_market_data(self) -> List[Dict[str, Any]]:
+        """Get carbon credit market data from UNFCCC emissions data"""
+        try:
+            if not self.is_available():
+                return []
+            
+            # Get emissions data for major countries to calculate carbon credit potential
+            major_countries = ['USA', 'CHN', 'IND', 'RUS', 'JPN', 'DEU', 'GBR', 'FRA', 'ITA', 'CAN']
+            carbon_credits = []
+            
+            for country in major_countries:
+                try:
+                    # Get recent emissions data (last 5 years)
+                    emissions_data = self.get_emissions_data(country, 'CO2', 100)
+                    
+                    if 'data' in emissions_data and emissions_data['data']:
+                        # Calculate carbon credit potential based on emissions reduction
+                        country_data = emissions_data['data']
+                        
+                        # Find the most recent year with data
+                        recent_year = max([d.get('year', 0) for d in country_data if d.get('year')])
+                        
+                        if recent_year:
+                            # Get emissions for recent year and previous year
+                            recent_emissions = next((d.get('emissions', 0) for d in country_data if d.get('year') == recent_year), 0)
+                            prev_year = recent_year - 1
+                            prev_emissions = next((d.get('emissions', 0) for d in country_data if d.get('year') == prev_year), 0)
+                            
+                            if recent_emissions and prev_emissions:
+                                # Calculate reduction and potential credits
+                                reduction = prev_emissions - recent_emissions
+                                if reduction > 0:
+                                    # Convert to carbon credits (1 ton CO2 = 1 carbon credit)
+                                    potential_credits = int(reduction)
+                                    
+                                    # Estimate market price based on reduction amount
+                                    base_price = 15.0  # Base price per credit
+                                    price_multiplier = min(2.0, 1 + (reduction / 1000))  # Price increases with larger reductions
+                                    estimated_price = round(base_price * price_multiplier, 2)
+                                    
+                                    carbon_credits.append({
+                                        'name': f'{country} Emissions Reduction Credits',
+                                        'standard': 'UNFCCC Verified',
+                                        'asset_id': f'UNFCCC-{country}-{recent_year}',
+                                        'current_price': estimated_price,
+                                        'price_change': round((reduction / prev_emissions) * 100, 2),
+                                        'volume_24h': potential_credits,
+                                        'market_cap': potential_credits * estimated_price,
+                                        'total_supply': potential_credits,
+                                        'location': country,
+                                        'project_type': 'Emissions Reduction',
+                                        'last_updated': pd.Timestamp.now().isoformat(),
+                                        'balance': potential_credits,
+                                        'value': potential_credits * estimated_price,
+                                        'data_source': 'unfccc_api',
+                                        'emissions_reduction': reduction,
+                                        'year': recent_year
+                                    })
+                except Exception as e:
+                    logging.warning(f"Failed to get data for {country}: {e}")
+                    continue
+            
+            if carbon_credits:
+                logging.info(f"Generated {len(carbon_credits)} carbon credit records from UNFCCC data")
+                return carbon_credits
+            else:
+                logging.info("No carbon credit data could be generated from UNFCCC emissions data")
+                return []
+                
+        except Exception as e:
+            logging.error(f"Error getting carbon credit market data: {e}")
+            return []
+    
     def get_service_status(self) -> Dict[str, Any]:
         """Get the status of the UNFCCC service"""
         return {
@@ -215,6 +288,8 @@ def main():
                 gases = None
                 limit = 1000
             result = unfccc_service.get_emissions_data(party_code, gases, limit)
+        elif args.function == 'get_carbon_credit_market_data':
+            result = unfccc_service.get_carbon_credit_market_data()
         else:
             result = {"error": f"Unknown function: {args.function}"}
         

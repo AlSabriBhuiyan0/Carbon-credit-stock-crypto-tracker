@@ -103,7 +103,7 @@ const CombinedMetricsCard = ({ data, timeRange = '1W' }) => {
           </div>
           
           <div className="text-right">
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-white" data-testid="portfolio-value">
               {formatCurrency(totalPortfolioValue)}
             </div>
             <div className="text-emerald-100 text-sm">Total Portfolio Value</div>
@@ -124,8 +124,8 @@ const CombinedMetricsCard = ({ data, timeRange = '1W' }) => {
             <div className="flex items-center justify-center mb-2">
               <Leaf className="w-6 h-6 text-green-600" />
             </div>
-            <div className={`text-2xl font-bold ${getESGColor(esgScore)}`}>
-              {esgScore}
+            <div className={`text-2xl font-bold ${getESGColor(esgScore)}`} data-testid="esg-score">
+              {esgScore || 0}
             </div>
             <div className="text-sm text-green-800">ESG Score</div>
             <div className="text-xs text-green-600 mt-1">Out of 100</div>

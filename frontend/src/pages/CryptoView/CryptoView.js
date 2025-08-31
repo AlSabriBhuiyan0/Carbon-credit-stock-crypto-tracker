@@ -90,7 +90,7 @@ const CryptoView = () => {
       try {
         console.log('🔄 Fetching unified forecast for:', selectedSymbol, 'horizon:', forecastHorizon);
         
-        const response = await fetch(`http://localhost:5001/api/forecast/mixed`, {
+        const response = await fetch(`http://localhost:5002/api/forecast/mixed`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

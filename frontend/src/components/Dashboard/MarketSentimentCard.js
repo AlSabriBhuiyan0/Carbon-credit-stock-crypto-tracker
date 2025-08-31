@@ -122,6 +122,7 @@ const MarketSentimentCard = ({ data, timeRange = '1W' }) => {
   };
 
   const displayScore = Number(apiOverallScore ?? stockScore ?? 0);
+  const overallScore = apiOverallScore || stockScore || 0;
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -158,7 +159,7 @@ const MarketSentimentCard = ({ data, timeRange = '1W' }) => {
         {/* Overall Sentiment Score */}
         <div className="mb-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-bold text-gray-900 mb-2" data-testid="overall-sentiment">
               {formatPercentage(displayScore)}
             </div>
             <div className="text-sm text-gray-600 mb-4">Overall Sentiment Score</div>
@@ -192,7 +193,7 @@ const MarketSentimentCard = ({ data, timeRange = '1W' }) => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Sentiment Score:</span>
-                <span className="text-sm font-semibold text-blue-600">
+                <span className="text-sm font-semibold text-blue-600" data-testid="stock-sentiment">
                   {formatPercentage(stockScore || 0)}
                 </span>
               </div>
@@ -214,7 +215,7 @@ const MarketSentimentCard = ({ data, timeRange = '1W' }) => {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Volume:</span>
                 <span className="text-sm font-semibold text-blue-600">
-                  {formatNumberWithUnit(volume, 'M')}
+                  {formatNumberWithUnit(volume, 'M', 2)}
                 </span>
               </div>
             </div>
@@ -252,7 +253,7 @@ const MarketSentimentCard = ({ data, timeRange = '1W' }) => {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Volume:</span>
                 <span className="text-sm font-semibold text-green-600">
-                  {formatNumberWithUnit(carbonVolume, 'M')}
+                  {formatNumberWithUnit(carbonVolume, 'M', 3)}
                 </span>
               </div>
             </div>
@@ -290,7 +291,7 @@ const MarketSentimentCard = ({ data, timeRange = '1W' }) => {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Volume:</span>
                 <span className="text-sm font-semibold text-purple-600">
-                  {formatNumberWithUnit(cryptoVolume || 0, 'M')}
+                  {formatNumberWithUnit(cryptoVolume || 0, 'M', 2)}
                 </span>
               </div>
             </div>

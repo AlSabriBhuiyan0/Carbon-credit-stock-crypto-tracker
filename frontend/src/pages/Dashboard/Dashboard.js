@@ -21,7 +21,7 @@ import ForecastingCard from '../../components/Dashboard/ForecastingCard';
 import CombinedMetricsCard from '../../components/Dashboard/CombinedMetricsCard';
 import NewsAndAlertsCard from '../../components/Dashboard/NewsAndAlertsCard';
 import SystemHealthCard from '../../components/Dashboard/SystemHealthCard';
-import QuickActionsCard from '../../components/Dashboard/QuickActionsCard';
+
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import ErrorBoundary from '../../components/UI/ErrorBoundary';
 
@@ -155,6 +155,33 @@ const Dashboard = () => {
     () => dashboardApi.getCombinedMetrics(timeRange),
     { enabled: activeView === 'combined' }
   );
+
+  // Fetch news data for the overview
+  const { data: newsData, isLoading: newsLoading, error: newsError } = useQuery(
+    ['news', activeView],
+    async () => {
+      try {
+        console.log('📰 Dashboard fetching news data...');
+        const response = await fetch('http://localhost:5002/api/news/latest?category=all&limit=20');
+        const data = await response.json();
+        console.log('📰 News API response:', data);
+        return data.success ? data.data : null;
+      } catch (error) {
+        console.error('❌ Error fetching news:', error);
+        return null;
+      }
+    },
+    { 
+      enabled: activeView === 'overview',
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchInterval: 10 * 60 * 1000 // 10 minutes
+    }
+  );
+
+  // Debug news data
+  console.log('📰 Dashboard news data:', newsData);
+  console.log('📰 News loading:', newsLoading);
+  console.log('📰 News error:', newsError);
 
   const { data: forecastData, isLoading: forecastLoading, error: forecastError } = useQuery(
     ['forecasts', timeRange, forecastModel, forecastSymbols.join(',')],
@@ -373,67 +400,7 @@ const Dashboard = () => {
     toast.success(`Selected ${crypto.symbol} for detailed analysis`);
   };
 
-  // Handle quick actions
-  const handleQuickAction = (action, data) => {
-    console.log('Quick action:', action, data);
-    
-    switch (action) {
-      case 'buyStock':
-        toast.success('Opening stock purchase form...');
-        // TODO: Open stock purchase modal
-        break;
-      case 'sellStock':
-        toast.success('Opening stock sale form...');
-        // TODO: Open stock sale modal
-        break;
-      case 'viewPortfolio':
-        toast.success('Navigating to portfolio...');
-        // TODO: Navigate to portfolio page
-        break;
-      case 'analyzeStocks':
-        toast.success('Opening stock analysis...');
-        setActiveView('stock');
-        break;
-      case 'setAlerts':
-        toast.success('Opening alert settings...');
-        // TODO: Open alert settings modal
-        break;
-      case 'generateReports':
-        toast.success('Generating reports...');
-        // TODO: Open report generation modal
-        break;
-      case 'navigate':
-        if (data.route) {
-          toast.success(`Navigating to ${data.name}...`);
-          // TODO: Navigate to route
-        }
-        break;
-      case 'viewAction':
-        toast.success(`Viewing action: ${data.action}`);
-        // TODO: Show action details
-        break;
-      case 'buy_stock':
-        toast.success(`Opening buy order for ${data.symbol}`);
-        break;
-      case 'sell_stock':
-        toast.success(`Opening sell order for ${data.symbol}`);
-        break;
-      case 'buy_carbon':
-        toast.success(`Opening carbon credit purchase for ${data.project}`);
-        break;
-      case 'buy_crypto':
-        toast.success('Opening cryptocurrency purchase...');
-        break;
-      case 'set_alert':
-        toast.success(`Setting price alert for ${data.asset}`);
-        break;
-      case 'export_data':
-        toast.success('Exporting dashboard data...');
-        break;
-      default:
-        toast.success(`Action: ${action}`);
-    }
-  };
+
 
   // Handle portfolio actions
   const handlePortfolioAction = (action, data) => {
@@ -567,7 +534,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" data-testid="dashboard">
       {/* Status Bar */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -727,17 +694,11 @@ const Dashboard = () => {
                     </ErrorBoundary>
                   </div>
 
-                  {/* Quick Actions */}
-                  <ErrorBoundary fallback={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">Quick Actions failed to load</div>}>
-                    <QuickActionsCard 
-                      data={data.quickActions}
-                      onAction={handleQuickAction}
-                    />
-                  </ErrorBoundary>
+
 
                   {/* News & Alerts */}
                   <ErrorBoundary fallback={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">News & Alerts failed to load</div>}>
-                    <NewsAndAlertsCard />
+                    <NewsAndAlertsCard data={newsData} />
                   </ErrorBoundary>
                 </div>
               )}

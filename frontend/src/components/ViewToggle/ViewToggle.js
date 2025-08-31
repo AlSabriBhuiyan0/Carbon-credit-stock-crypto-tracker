@@ -52,6 +52,7 @@ const ViewToggle = ({ activeView, timeRange, forecastModel, onViewChange, onTime
           return (
             <motion.button
               key={option.id}
+              data-testid={`${option.id}-tab`}
               onClick={() => onViewChange(option.id)}
               className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                 isActive

@@ -171,6 +171,30 @@ class UNFCCCNodeService {
             throw error;
         }
     }
+
+    /**
+     * Get carbon credit market data from UNFCCC
+     */
+    async getCarbonCreditMarketData() {
+        try {
+            console.log('[UNFCCC] Attempting to fetch carbon credit market data...');
+            
+            // Try to get real carbon credit data from UNFCCC
+            const carbonData = await this.executePythonFunction('get_carbon_credit_market_data');
+            
+            if (carbonData && carbonData.length > 0) {
+                console.log(`[UNFCCC] Successfully fetched ${carbonData.length} carbon credit records`);
+                return carbonData;
+            } else {
+                console.log('[UNFCCC] No carbon credit data available from UNFCCC');
+                return [];
+            }
+        } catch (error) {
+            logger.error('Failed to get carbon credit market data:', error.message);
+            console.log('[UNFCCC] Falling back to database data');
+            return [];
+        }
+    }
 }
 
 module.exports = new UNFCCCNodeService();

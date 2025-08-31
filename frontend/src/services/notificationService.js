@@ -1,7 +1,7 @@
 // Notification Service for Frontend
 // Handles all notification-related API calls and state management
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002/api';
 
 class NotificationService {
   constructor() {

@@ -345,7 +345,7 @@ router.post('/download', async (req, res) => {
     }
     
     // Call the mixed forecast endpoint internally to get the correct structure
-    const mixedForecastResponse = await axios.post(`http://localhost:5001/api/forecast/mixed`, {
+            const mixedForecastResponse = await axios.post(`http://localhost:5002/api/forecast/mixed`, {
       assets,
       horizon,
       useRealData: true
@@ -551,7 +551,7 @@ function generateSimplePredictions(horizon, type, symbol, currentPrice = null) {
 async function getRealStockData(symbol) {
   try {
     // Try to get real-time data from our stock data endpoint
-    const response = await axios.get(`http://localhost:5001/api/dashboard?timeRange=1d`);
+            const response = await axios.get(`http://localhost:5002/api/dashboard?timeRange=1d`);
     console.log(`🔍 Dashboard response structure:`, JSON.stringify(response.data?.data?.stock ? 'Has stock data' : 'No stock data'));
     
     if (response.data && response.data.success && response.data.data && response.data.data.stock) {
@@ -653,7 +653,7 @@ async function getRealCryptoData(symbol) {
     
     // Fallback to our crypto symbols endpoint
     try {
-      const response = await axios.get(`http://localhost:5001/api/crypto/symbols`);
+              const response = await axios.get(`http://localhost:5002/api/crypto/symbols`);
       if (response.data && response.data.symbols) {
         const crypto = response.data.symbols.find(s => s.symbol === symbol);
         if (crypto && crypto.price) {

@@ -17,8 +17,8 @@ if (util && typeof util._extend === 'function') {
   util._extend = Object.assign;
 }
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from parent directory
+dotenv.config({ path: '../.env' });
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -68,7 +68,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.API_URL || 'http://localhost:5001',
+        url: process.env.API_URL || 'http://localhost:5002',
         description: 'Development server',
       },
     ],
@@ -161,6 +161,7 @@ app.use('/api/news', newsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/crypto', require('./routes/crypto')); // Temporarily disabled auth for testing
+app.use('/api/sentiment', require('./routes/sentiment')); // Sentiment analysis endpoint
 app.use('/api/unified', unifiedRoutes); // New unified service routes
 app.use('/api/assets', assetsRoutes); // Asset type detection and validation
 app.use('/api/forecast', forecastRoutes); // Forecast categorization and mixed asset handling

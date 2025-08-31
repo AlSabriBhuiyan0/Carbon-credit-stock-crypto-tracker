@@ -3,6 +3,84 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const cryptoForecastingService = require('../services/cryptoForecastingService');
 const unifiedWebSocketService = require('../services/unifiedWebSocketService');
+const axios = require('axios');
+
+/**
+ * @swagger
+ * /api/crypto:
+ *   get:
+ *     summary: Get all crypto data
+ *     tags: [Crypto]
+ *     responses:
+ *       200:
+ *         description: Complete crypto market data
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', async (req, res) => {
+  try {
+    // First try to get data from unified websocket service
+    let cryptoData = null;
+    try {
+      const wsData = unifiedWebSocketService.getAllData('binance');
+      if (wsData && wsData.length > 0) {
+        cryptoData = wsData;
+        console.log(`✅ Using WebSocket data: ${cryptoData.length} cryptos`);
+      }
+    } catch (wsError) {
+      console.log(`⚠️  WebSocket data not available: ${wsError.message}`);
+    }
+
+    // If no WebSocket data, fetch from Binance API
+    if (!cryptoData || cryptoData.length === 0) {
+      const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'DOTUSDT', 'LINKUSDT', 'MATICUSDT', 'AVAXUSDT', 'UNIUSDT'];
+      cryptoData = [];
+      
+      for (const symbol of symbols) {
+        try {
+          const binanceResponse = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`, {
+            timeout: 5000
+          });
+          
+          if (binanceResponse.data) {
+            cryptoData.push({
+              symbol,
+              price: parseFloat(binanceResponse.data.lastPrice),
+              priceChange: parseFloat(binanceResponse.data.priceChange),
+              priceChangePercent: parseFloat(binanceResponse.data.priceChangePercent),
+              volume: parseFloat(binanceResponse.data.volume),
+              lastPrice: parseFloat(binanceResponse.data.lastPrice),
+              timestamp: new Date().toISOString()
+            });
+          }
+        } catch (error) {
+          console.log(`⚠️  Could not fetch ${symbol}: ${error.message}`);
+        }
+      }
+    }
+
+    // Calculate totals
+    const totalValue = cryptoData.reduce((sum, crypto) => sum + (crypto.price || 0), 0);
+    const totalChange = cryptoData.reduce((sum, crypto) => sum + (crypto.priceChange || 0), 0);
+    const totalVolume = cryptoData.reduce((sum, crypto) => sum + (crypto.volume || 0), 0);
+
+    const response = {
+      cryptos: cryptoData,
+      totalValue,
+      totalChange,
+      totalChangePercent: totalChange > 0 ? (totalChange / totalValue) * 100 : 0,
+      volume: totalVolume,
+      marketCap: totalValue * 1000000, // Approximate market cap
+      active: cryptoData.length,
+      lastUpdated: new Date().toISOString()
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('Crypto endpoint error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 /**
  * @swagger

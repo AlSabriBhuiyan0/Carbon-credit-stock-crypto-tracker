@@ -12,7 +12,7 @@ export const useWebSocket = () => {
     try {
       // Add a small delay to ensure backend is ready
       setTimeout(() => {
-        const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:5001';
+        const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:5002';
         console.log('🔌 Attempting WebSocket connection to:', wsUrl);
         
         const ws = new WebSocket(wsUrl);

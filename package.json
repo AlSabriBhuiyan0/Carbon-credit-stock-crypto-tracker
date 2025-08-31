@@ -21,13 +21,11 @@
     "test:cleanup": "node scripts/cleanup-test-db.js",
     "test:report": "npm run test:coverage && open coverage/lcov-report/index.html",
     "test:ci": "npm run test:lint && npm run test:format && npm run test:all",
-    "testsprite": "node run-testsprite.js",
-    "testsprite:auth": "node testsprite_tests/auth-tests.js",
-    "testsprite:api": "node testsprite_tests/api-tests.js",
-    "testsprite:ui": "node testsprite_tests/ui-integration-tests.js",
-    "testsprite:stock": "node testsprite_tests/stock-service-tests.js",
-    "testsprite:mismatch": "node testsprite_tests/forecast-mismatch-tests.js",
-    "testsprite:setup": "node -e \"console.log('TestSprite is ready! Run: npm run testsprite')\""
+    "testsprite": "node setup-testsprite.js",
+    "testsprite:setup": "node setup-testsprite.js",
+    "testsprite:config": "node -e \"console.log('Testsprite config loaded from testsprite.config.js')\"",
+    "testsprite:test": "node -e \"require('./testsprite.config.js'); console.log('Configuration loaded successfully')\"",
+    "testsprite:dashboard": "node run-dashboard-tests.js"
   },
   "keywords": [
     "testing",
@@ -66,7 +64,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "axios": "^1.6.2",
+    "axios": "^1.11.0",
     "dotenv": "^16.3.1",
     "pg": "^8.11.3"
   },

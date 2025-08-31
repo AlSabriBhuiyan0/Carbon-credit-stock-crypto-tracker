@@ -68,7 +68,7 @@ const StockMarketCard = ({ data, timeRange = '1W' }) => {
           </div>
           
           <div className="text-right">
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-white" data-testid="stock-market-cap">
               {formatMarketCapDynamic(totalMarketCap)}
             </div>
             <div className="text-blue-100 text-sm">Total Market Cap</div>
@@ -80,8 +80,8 @@ const StockMarketCard = ({ data, timeRange = '1W' }) => {
       <div className="p-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
-              {formatMarketCapDynamic(totalMarketCap)}
+            <div className="text-2xl font-bold text-gray-900" data-testid="stock-market-cap-stats">
+                              {formatMarketCapDynamic(totalMarketCap)}
             </div>
             <div className="text-sm text-gray-600">Market Cap</div>
           </div>

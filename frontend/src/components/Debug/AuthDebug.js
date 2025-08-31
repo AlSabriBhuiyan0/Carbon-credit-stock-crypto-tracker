@@ -6,7 +6,7 @@ const AuthDebug = () => {
 
   const testStockAPI = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/stocks/status', {
+      const response = await fetch('http://localhost:5002/api/stocks/status', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

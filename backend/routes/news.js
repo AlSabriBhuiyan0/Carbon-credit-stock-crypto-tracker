@@ -30,10 +30,12 @@ const SOURCES = {
 function sanitize(str) {
   if (!str) return '';
   return String(str)
+    .replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1') // Extract CDATA content
     .replace(/<[^>]*>/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -48,7 +50,7 @@ function parseRss(xml) {
   
   for (const raw of itemMatches) {
     const pick = (tag) => {
-      // More flexible regex to handle whitespace and multiline
+      // More flexible regex to handle whitespace, multiline, and CDATA
       const re = new RegExp(`<${tag}[^>]*>\\s*([\\s\\S]*?)\\s*<\\/${tag}>`, 'i');
       const m = raw.match(re);
       return m ? sanitize(m[1]) : '';
@@ -160,11 +162,16 @@ async function fetchCategory(category, limit = 50) {
   const all = [];
   for (const url of urls) {
     try {
+      console.log(`📰 Fetching news from: ${url}`);
       const res = await withTimeout((signal) => fetchFn(url, { headers: { 'User-Agent': 'CarbonTrackerBot/1.0' }, signal }), 2500);
       const xml = await res.text();
-      const items = parseRss(xml).map(x => ({ ...x, source: url, category }));
-      all.push(...items);
+      console.log(`📰 XML length: ${xml.length}`);
+      const items = parseRss(xml);
+      console.log(`📰 Parsed ${items.length} items from ${url}`);
+      const itemsWithSource = items.map(x => ({ ...x, source: url, category }));
+      all.push(...itemsWithSource);
     } catch (err) {
+      console.log(`📰 Error fetching ${url}: ${err.message}`);
       // skip timeouts/network errors and continue
     }
   }
