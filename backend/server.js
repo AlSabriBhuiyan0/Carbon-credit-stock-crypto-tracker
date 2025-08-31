@@ -62,7 +62,7 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Stock Market + Carbon Credits Tracker API',
+      title: 'Carbon credit tracker and stock,crypto asset prediction platform API',
       version: '1.0.0',
       description: 'Comprehensive API for tracking stocks and carbon credits',
     },
@@ -226,7 +226,7 @@ app.use('*', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 
 // Initialize services and start server
 async function startServer() {

@@ -1,0 +1,23 @@
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-08-31T02:00:26.116Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-08-31T02:00:26.120Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-08-31T02:00:26.121Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-08-31T02:00:26.173Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-08-31T02:00:26.233Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-08-31T02:00:28.963Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-08-31T02:00:28.965Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-08-31T02:00:28.966Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-08-31T02:00:28.967Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-08-31T02:00:28.968Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:00:38.620Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:14:25.793Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:14:31.427Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:15:07.061Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:16:16.207Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:16:25.003Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:16:34.959Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:18:42.827Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:18:52.935Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:19:49.931Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:19:54.447Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:35:21.377Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T02:35:39.404Z"}

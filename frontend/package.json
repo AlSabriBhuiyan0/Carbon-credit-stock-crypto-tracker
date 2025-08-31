@@ -1,7 +1,7 @@
 {
-  "name": "stock-carbon-tracker-frontend",
+  "name": "carbon-credit-tracker-stock-crypto-prediction-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Stock Market + Carbon Credits Tracker",
+  "description": "Frontend for Carbon credit tracker and stock,crypto asset prediction platform",
   "private": true,
   "dependencies": {
     "@faker-js/faker": "^9.9.0",

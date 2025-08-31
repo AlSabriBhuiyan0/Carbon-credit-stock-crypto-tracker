@@ -200,7 +200,7 @@ const ProtectedRoute = ({ children, allowedRoles = null }) => {
 
 ## 📋 **Conclusion**
 
-The Role-Based Access Control system is **fully implemented and working correctly**. All security requirements have been met, and the system provides:
+The Role-Based Access Control system is **fully implemented and working correctly** for the Carbon credit tracker and stock,crypto asset prediction platform. All security requirements have been met, and the system provides:
 
 - ✅ **Secure authentication** with JWT tokens
 - ✅ **Role-based authorization** for all routes and API endpoints

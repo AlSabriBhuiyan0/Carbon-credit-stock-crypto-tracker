@@ -573,7 +573,7 @@ router.delete('/plans/:id', asyncHandler(async (req, res) => {
 router.get('/settings', asyncHandler(async (req, res) => {
   // Mock system settings - in a real app, these would come from a database
   const settings = {
-    systemName: process.env.SYSTEM_NAME || 'Carbon Credit & Stock Tracker',
+            systemName: process.env.SYSTEM_NAME || 'Carbon credit tracker and stock,crypto asset prediction platform',
     maintenanceMode: process.env.MAINTENANCE_MODE === 'true' || false,
     maxUsers: parseInt(process.env.MAX_USERS) || 1000,
     dataRetention: parseInt(process.env.DATA_RETENTION_DAYS) || 365,

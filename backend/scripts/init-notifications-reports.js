@@ -41,7 +41,7 @@ async function initializeTables() {
     console.log('\n3. Creating sample notifications for demo users...');
     const sampleNotifications = [
       {
-        title: 'Welcome to Carbon Credit & Stock Tracker!',
+        title: 'Welcome to Carbon credit tracker and stock,crypto asset prediction platform!',
         message: 'Thank you for joining our platform. Explore your dashboard to get started.',
         type: 'info',
         priority: 'normal',
@@ -92,7 +92,7 @@ async function initializeTables() {
       const sampleReports = [
         {
           title: 'Portfolio Performance Summary',
-          description: 'Monthly portfolio performance analysis with carbon credit impact',
+          description: 'Monthly portfolio performance analysis with carbon credit and crypto asset impact',
           type: 'portfolio',
           category: 'investment',
           status: 'completed',

@@ -1,6 +1,6 @@
-# 🚀 Carbon Credit & Stock & Crypto Tracker
+# 🚀 Carbon credit tracker and stock,crypto asset prediction platform
 
-A comprehensive full-stack analytics platform for tracking and visualizing both stock market data and carbon credit transactions with AI-powered forecasting capabilities.
+A comprehensive full-stack analytics platform for tracking and visualizing stock market data, crypto assets, and carbon credit transactions with AI-powered forecasting capabilities.
 
 ## 🎯 **Project Status: PRODUCTION READY** ✅
 
@@ -19,7 +19,7 @@ A comprehensive full-stack analytics platform for tracking and visualizing both 
 - **Frontend**: React.js + TailwindCSS + Chart.js
 - **Backend**: Node.js/Express + PostgreSQL
 - **AI Models**: Prophet (Facebook) + ARIMA (Statistical)
-- **Data Sources**: Yahoo Finance + UNFCCC + Mock fallback
+- **Data Sources**: Yahoo Finance + UNFCCC + Crypto APIs + Mock fallback
 - **Authentication**: JWT-based with Role-Based Access Control (RBAC)
 - **Real-time**: WebSocket integration for live updates
 
@@ -225,11 +225,12 @@ npm install
 ## 🎯 **What You Can Do Now**
 
 1. **✅ View Real-time Stock Data** - Live prices from Yahoo Finance
-2. **✅ AI Forecasting** - Prophet + ARIMA predictions
-3. **✅ Carbon Credit Tracking** - UN/UNFCCC data integration
-4. **✅ Portfolio Management** - Add/remove stocks and carbon credits
-5. **✅ Role-based Access** - Different dashboards for different user types
-6. **✅ Real-time Updates** - WebSocket-powered live data
+2. **✅ View Real-time Crypto Data** - Live prices and volumes from crypto APIs
+3. **✅ AI Forecasting** - Prophet + ARIMA predictions for stocks and crypto
+4. **✅ Carbon Credit Tracking** - UN/UNFCCC data integration with real market data
+5. **✅ Portfolio Management** - Add/remove stocks, crypto, and carbon credits
+6. **✅ Role-based Access** - Different dashboards for different user types
+7. **✅ Real-time Updates** - WebSocket-powered live data
 
 ---
 
@@ -244,5 +245,5 @@ If you encounter any issues:
 
 ---
 
-**🎉 Welcome to the Carbon Credit & Stock Tracker! The system is production-ready and fully functional.**
+**🎉 Welcome to the Carbon credit tracker and stock,crypto asset prediction platform! The system is production-ready and fully functional.**
 

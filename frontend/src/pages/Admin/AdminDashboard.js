@@ -73,7 +73,7 @@ const AdminDashboard = () => {
   });
   
   const [settingsForm, setSettingsForm] = useState({
-    site_name: 'Carbon Credit & Stock Tracker',
+            site_name: 'Carbon credit tracker and stock,crypto asset prediction platform',
     maintenance_mode: false,
     max_file_size: '10MB',
     email_notifications: true,

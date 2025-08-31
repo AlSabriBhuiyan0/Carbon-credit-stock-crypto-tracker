@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔧 Database Setup Script for Carbon Credit & Stock Tracker');
+console.log('🔧 Database Setup Script for Carbon credit tracker and stock,crypto asset prediction platform');
 console.log('========================================================\n');
 
 // Check if we're on Windows
@@ -119,8 +119,8 @@ function createEnvFile() {
   const envPath = path.join(__dirname, '.env');
   const envContent = `# Server Configuration
 NODE_ENV=development
-PORT=5001
-API_URL=http://localhost:5001
+PORT=5002
+API_URL=http://localhost:5002
 FRONTEND_URL=http://localhost:3000
 
 # Database Configuration - UPDATE THESE VALUES

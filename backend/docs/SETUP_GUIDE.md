@@ -1,14 +1,14 @@
 # 🚀 Complete Setup Guide for New System Members
 
 ## 📋 **Overview**
-This guide will walk you through setting up the Carbon Credit & Stock Tracker system from scratch on a new system. Follow these steps in order to get everything working.
+This guide will walk you through setting up the Carbon credit tracker and stock,crypto asset prediction platform system from scratch on a new system. Follow these steps in order to get everything working.
 
 ## 🎯 **What You'll Have After Setup**
-- ✅ **Backend API Server** running on port 5001
+- ✅ **Backend API Server** running on port 5002
 - ✅ **Frontend React App** running on port 3000
 - ✅ **PostgreSQL Database** with all tables created
 - ✅ **AI Forecasting Services** (Prophet + ARIMA) working
-- ✅ **Real-time Data** from Yahoo Finance and UNFCCC
+- ✅ **Real-time Data** from Yahoo Finance, Crypto APIs, and UNFCCC
 - ✅ **Portfolio Management** system fully functional
 - ✅ **Role-Based Access Control** with demo users
 
@@ -119,8 +119,8 @@ nano .env  # or use your preferred editor
 ```env
 # Server Configuration
 NODE_ENV=development
-PORT=5001
-API_URL=http://localhost:5001
+PORT=5002
+API_URL=http://localhost:5002
 FRONTEND_URL=http://localhost:3000
 
 # Database Configuration
@@ -147,8 +147,9 @@ npm start
 # 🔐 JWT middleware initialized
 # 🌐 WebSocket service initialized
 # 📈 Stock data ingestion scheduled
+# 🪙 Crypto data ingestion scheduled
 # 🌱 Carbon credit data ingestion scheduled
-# ✅ Server running on port 5001
+# ✅ Server running on port 5002
 ```
 
 ### **Step 6: Frontend Setup**
@@ -160,7 +161,7 @@ cd ../frontend
 npm install
 
 # Create environment file
-echo "REACT_APP_API_URL=http://localhost:5001" > .env
+echo "REACT_APP_API_URL=http://localhost:5002" > .env
 ```
 
 ### **Step 7: Start Frontend**
@@ -181,7 +182,7 @@ npm start
 ### **1. Test Backend Health**
 ```bash
 # Test server health
-curl http://localhost:5001/health
+curl http://localhost:5002/health
 # Expected: {"status":"healthy","timestamp":"..."}
 ```
 
@@ -202,11 +203,11 @@ psql -U postgres -d stock_carbon_tracker -c "SELECT COUNT(*) FROM users;"
 ### **4. Test AI Forecasting**
 ```bash
 # Test Prophet forecasting
-curl -X GET "http://localhost:5001/api/dashboard/forecasts?symbols=AAPL&model=prophet&timeRange=1w" \
+curl -X GET "http://localhost:5002/api/dashboard/forecasts?symbols=AAPL&model=prophet&timeRange=1w" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 
 # Test ARIMA forecasting
-curl -X GET "http://localhost:5001/api/dashboard/forecasts?symbols=AAPL&model=arima&timeRange=1w" \
+curl -X GET "http://localhost:5002/api/dashboard/forecasts?symbols=AAPL&model=arima&timeRange=1w" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -293,9 +294,9 @@ curl -X POST http://localhost:5001/api/auth/register \
 - **Reports**: http://localhost:3000/app/reports
 
 ### **Backend API**
-- **API Base**: http://localhost:5001/api
-- **Health Check**: http://localhost:5001/health
-- **Documentation**: http://localhost:5001/api-docs
+- **API Base**: http://localhost:5002/api
+- **Health Check**: http://localhost:5002/health
+- **Documentation**: http://localhost:5002/api-docs
 
 ### **Demo User Credentials**
 - **Admin**: admin@example.com / Admin123!@#
@@ -376,11 +377,12 @@ npm run build
 ## 🎯 **What You Can Do Now**
 
 1. **✅ View Real-time Stock Data** - Live prices from Yahoo Finance
-2. **✅ AI Forecasting** - Prophet + ARIMA predictions
-3. **✅ Carbon Credit Tracking** - UN/UNFCCC data integration
-4. **✅ Portfolio Management** - Add/remove stocks and carbon credits
-5. **✅ Role-based Access** - Different dashboards for different user types
-6. **✅ Real-time Updates** - WebSocket-powered live data
+2. **✅ View Real-time Crypto Data** - Live prices and volumes from crypto APIs
+3. **✅ AI Forecasting** - Prophet + ARIMA predictions for stocks and crypto
+4. **✅ Carbon Credit Tracking** - UN/UNFCCC data integration with real market data
+5. **✅ Portfolio Management** - Add/remove stocks, crypto, and carbon credits
+6. **✅ Role-based Access** - Different dashboards for different user types
+7. **✅ Real-time Updates** - WebSocket-powered live data
 
 ---
 
@@ -396,4 +398,4 @@ If you encounter any issues:
 
 ---
 
-**🎉 Congratulations! Your Carbon Credit & Stock Tracker system is now fully set up and ready to use. The system is production-ready and fully functional with AI forecasting, real-time data, and comprehensive portfolio management.**
+**🎉 Congratulations! Your Carbon credit tracker and stock,crypto asset prediction platform system is now fully set up and ready to use. The system is production-ready and fully functional with AI forecasting, real-time data, and comprehensive portfolio management.**

@@ -1,7 +1,7 @@
-# 🚀 Backend Setup Guide - Carbon Credit & Stock Tracker
+# 🚀 Backend Setup Guide - Carbon credit tracker and stock,crypto asset prediction platform
 
 ## 📋 **Overview**
-This backend provides a comprehensive API for carbon credit and stock tracking, including AI forecasting capabilities (Prophet + ARIMA) and UNFCCC emissions data integration.
+This backend provides a comprehensive API for carbon credit, stock, and crypto asset tracking, including AI forecasting capabilities (Prophet + ARIMA) and UNFCCC emissions data integration.
 
 ## 🎯 **Current Status: PRODUCTION READY** ✅
 
@@ -30,7 +30,7 @@ Backend Architecture
 ```
 
 ### **Core Services**
-- **Data Ingestion**: Stock and carbon credit data collection
+- **Data Ingestion**: Stock, crypto, and carbon credit data collection
 - **Forecasting**: ML-powered price predictions using ARIMA and Prophet models
 - **UNFCCC**: Greenhouse gas emissions data from UNFCCC DI API
 - **Authentication**: JWT-based user authentication and authorization
@@ -178,6 +178,7 @@ npm run dev
 ### **Dashboard**
 - `GET /api/dashboard/` - Main dashboard data
 - `GET /api/dashboard/stocks` - Stock market data
+- `GET /api/dashboard/crypto` - Crypto asset data
 - `GET /api/dashboard/carbon` - Carbon credit data
 - `GET /api/dashboard/forecasts` - AI predictions
 - `GET /api/dashboard/sentiment` - Market sentiment
@@ -186,14 +187,22 @@ npm run dev
 ### **Portfolio Management**
 - `GET /api/portfolios/summary` - User portfolio summary
 - `POST /api/portfolios/stocks` - Add stock to portfolio
+- `POST /api/portfolios/crypto` - Add crypto asset to portfolio
 - `POST /api/portfolios/carbon` - Add carbon credit to portfolio
 - `PUT /api/portfolios/stocks/:symbol` - Update stock quantity
+- `PUT /api/portfolios/crypto/:symbol` - Update crypto quantity
 - `DELETE /api/portfolios/stocks/:symbol` - Remove stock from portfolio
+- `DELETE /api/portfolios/crypto/:symbol` - Remove crypto asset from portfolio
 
 ### **Stocks**
 - `GET /api/stocks` - Get all stocks
 - `GET /api/stocks/:symbol` - Get stock by symbol
 - `GET /api/stocks/:symbol/history` - Get stock price history
+
+### **Crypto Assets**
+- `GET /api/crypto` - Get all crypto assets
+- `GET /api/crypto/:symbol` - Get crypto asset by symbol
+- `GET /api/crypto/:symbol/history` - Get crypto price history
 
 ### **Carbon Credits**
 - `GET /api/carbon` - Get carbon credit data

@@ -1,7 +1,7 @@
-# 🚀 Frontend Setup Guide - Carbon Credit & Stock Tracker
+# 🚀 Frontend Setup Guide - Carbon credit tracker and stock,crypto asset prediction platform
 
 ## 📋 **Overview**
-This is the React frontend for the Carbon Credit & Stock Tracker application. It provides a comprehensive dashboard with real-time data visualization, AI forecasting, portfolio management, and role-based access control.
+This is the React frontend for the Carbon credit tracker and stock,crypto asset prediction platform application. It provides a comprehensive dashboard with real-time data visualization, AI forecasting, portfolio management, and role-based access control.
 
 ## 🎯 **Current Status: PRODUCTION READY** ✅
 
@@ -90,7 +90,7 @@ REACT_APP_API_URL=http://localhost:5001
 REACT_APP_WS_URL=ws://localhost:5001
 
 # Application Configuration
-REACT_APP_APP_NAME="Carbon Credit & Stock Tracker"
+REACT_APP_APP_NAME="Carbon credit tracker and stock,crypto asset prediction platform"
 REACT_APP_APP_VERSION=1.0.0
 REACT_APP_ENVIRONMENT=development
 

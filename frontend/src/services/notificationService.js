@@ -218,7 +218,7 @@ class NotificationService {
     return [
       {
         id: 1,
-        title: 'Welcome to Carbon Credit & Stock Tracker!',
+        title: 'Welcome to Carbon credit tracker and stock,crypto asset prediction platform!',
         message: 'Thank you for joining our platform. Explore your dashboard to get started.',
         type: 'info',
         priority: 'normal',

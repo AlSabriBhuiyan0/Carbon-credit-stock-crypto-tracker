@@ -1,7 +1,7 @@
 {
-  "name": "carbon-credit-stock-tracker-testspire",
+  "name": "carbon-credit-tracker-stock-crypto-prediction",
   "version": "1.0.0",
-  "description": "TestSpire testing suite for Carbon Credit & Stock Tracker",
+  "description": "Carbon credit tracker and stock,crypto asset prediction platform",
   "main": "testspire.config.js",
   "scripts": {
     "test": "jest",

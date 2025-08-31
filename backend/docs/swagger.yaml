@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: Carbon Credit & Stock Tracker API
-  description: Comprehensive API for tracking carbon credits, stocks, and generating ML-powered forecasts
+  title: Carbon credit tracker and stock,crypto asset prediction platform API
+  description: Comprehensive API for tracking carbon credits, stocks, crypto assets, and generating ML-powered forecasts
   version: 1.0.0
   contact:
     name: API Support
@@ -11,7 +11,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:5002/api
     description: Development server
   - url: https://api.example.com/api
     description: Production server

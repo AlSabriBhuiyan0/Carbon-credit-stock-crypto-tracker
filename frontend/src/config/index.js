@@ -3,7 +3,7 @@ export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5
 
 // App Configuration
 export const APP_CONFIG = {
-  name: 'Carbon Credit & Stock Tracker',
+  name: 'Carbon credit tracker and stock,crypto asset prediction platform',
   version: '1.0.0',
   description: 'Comprehensive platform for tracking stocks and carbon credits',
   defaultCurrency: 'USD',

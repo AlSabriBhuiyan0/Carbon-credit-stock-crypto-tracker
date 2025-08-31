@@ -21,7 +21,7 @@ const Home = () => {
       <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
           <motion.h1 className="text-5xl md:text-6xl font-bold mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            Carbon Credit & Stock Tracker
+            Carbon credit tracker and stock,crypto asset prediction platform
           </motion.h1>
           <motion.p className="text-xl md:text-2xl mb-8 text-primary-100" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
             AI-powered insights for sustainable investing

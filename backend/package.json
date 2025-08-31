@@ -1,7 +1,7 @@
 {
-  "name": "stock-carbon-tracker-backend",
+  "name": "carbon-credit-tracker-stock-crypto-prediction-backend",
   "version": "1.0.0",
-  "description": "Backend API for Stock Market + Carbon Credits Tracker",
+  "description": "Backend API for Carbon credit tracker and stock,crypto asset prediction platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
