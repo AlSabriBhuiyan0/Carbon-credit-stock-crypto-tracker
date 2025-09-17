@@ -1,4 +1,4 @@
-# 🚀 Carbon credit tracker and stock,crypto asset prediction platform
+# 🚀 Carbon credit tracker and stock,crypto asset prediction app
 
 A comprehensive full-stack analytics platform for tracking and visualizing stock market data, crypto assets, and carbon credit transactions with AI-powered forecasting capabilities.
 
@@ -246,4 +246,5 @@ If you encounter any issues:
 ---
 
 **🎉 Welcome to the Carbon credit tracker and stock,crypto asset prediction platform! The system is production-ready and fully functional.**
+
 
