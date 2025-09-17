@@ -62,7 +62,11 @@ function AppRoutes() {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/app/dashboard" replace />} />
+      <Route path="/login" element={
+        !isAuthenticated ? <Login /> : 
+        user?.role === 'admin' ? <Navigate to="/admin/dashboard" replace /> :
+        <Navigate to="/app/dashboard" replace />
+      } />
       <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/app/dashboard" replace />} />
       <Route path="/plans" element={!isAuthenticated ? <PlanSelection /> : <Navigate to="/app/dashboard" replace />} />
 
@@ -70,7 +74,7 @@ function AppRoutes() {
       <Route path="/admin/login" element={
         !isAuthenticated ? <AdminLogin /> : 
         user?.role === 'admin' ? <Navigate to="/admin/dashboard" replace /> : 
-        <Navigate to="/admin/login" replace />
+        <Navigate to="/login" replace />
       } />
       <Route path="/admin/dashboard" element={
         isAuthenticated && user?.role === 'admin' ? <AdminDashboard /> : 

@@ -19,10 +19,10 @@ const Login = () => {
     
     try {
       // Always use real backend API for authentication
-      await login({ email, password });
+      const loginResponse = await login({ email, password });
       
-      // Navigate based on user role
-      const userRole = localStorage.getItem('userRole') || 'investor';
+      // Navigate based on user role - get from response
+      const userRole = loginResponse.user?.role || 'investor';
       if (userRole === 'admin') {
         navigate('/admin/dashboard', { replace: true });
       } else {

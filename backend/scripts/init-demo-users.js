@@ -14,7 +14,7 @@ const DEMO_USERS = [
   {
     username: 'demo_investor',
     email: 'investor@demo.com',
-    password: 'demo123',
+    password: 'Demo123!@#',
     role: 'investor',
     first_name: 'John',
     last_name: 'Greenfield',
@@ -24,7 +24,7 @@ const DEMO_USERS = [
   {
     username: 'demo_company',
     email: 'company@demo.com',
-    password: 'demo123',
+    password: 'Demo123!@#',
     role: 'company',
     first_name: 'Sarah',
     last_name: 'Corporation',
@@ -34,7 +34,7 @@ const DEMO_USERS = [
   {
     username: 'demo_regulator',
     email: 'regulator@demo.com',
-    password: 'demo123',
+    password: 'Demo123!@#',
     role: 'regulator',
     first_name: 'Michael',
     last_name: 'Oversight',
@@ -44,7 +44,7 @@ const DEMO_USERS = [
   {
     username: 'demo_ngo',
     email: 'ngo@demo.com',
-    password: 'demo123',
+    password: 'Demo123!@#',
     role: 'ngo',
     first_name: 'Emma',
     last_name: 'Impact',
@@ -52,9 +52,9 @@ const DEMO_USERS = [
     account_status: 'active'
   },
   {
-    username: 'demo_admin',
+    username: 'admin',
     email: 'admin@demo.com',
-    password: 'demo123',
+    password: 'Admin123!@#',
     role: 'admin',
     first_name: 'Admin',
     last_name: 'User',

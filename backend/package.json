@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "migrate": "node scripts/migrate.js",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "init-demo-users": "node scripts/init-demo-users.js"
   },
   "keywords": [
     "stock-market",

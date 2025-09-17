@@ -8,10 +8,18 @@ const getRefreshToken = () => localStorage.getItem('refresh_token');
 const setTokens = ({ token, refreshToken }) => {
   if (token) localStorage.setItem('access_token', token);
   if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
+  // Notify AuthContext about successful token refresh
+  if (token) {
+    window.dispatchEvent(new Event('tokenRefreshed'));
+  }
 };
 const clearTokens = () => {
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
+  localStorage.removeItem('userRole');
+  
+  // Trigger a custom event to notify AuthContext
+  window.dispatchEvent(new CustomEvent('tokenExpired'));
 };
 
 const http = axios.create({
@@ -32,6 +40,7 @@ http.interceptors.request.use((config) => {
 
 let isRefreshing = false;
 let pendingRequests = [];
+let refreshPromise = null;
 
 const processQueue = (error, token = null) => {
   pendingRequests.forEach(({ resolve, reject }) => {
@@ -42,6 +51,16 @@ const processQueue = (error, token = null) => {
     }
   });
   pendingRequests = [];
+  refreshPromise = null;
+};
+
+// Event to notify AuthContext about token refresh
+const notifyTokenRefresh = () => {
+  window.dispatchEvent(new CustomEvent('tokenRefreshed'));
+};
+
+const notifyTokenExpired = () => {
+  window.dispatchEvent(new CustomEvent('tokenExpired'));
 };
 
 http.interceptors.response.use(
@@ -66,26 +85,53 @@ http.interceptors.response.use(
         });
       }
 
+      // If there's already a refresh in progress, wait for it
+      if (refreshPromise) {
+        try {
+          const newToken = await refreshPromise;
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return http(originalRequest);
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }
+
       isRefreshing = true;
 
+      refreshPromise = (async () => {
+        try {
+          const refreshToken = getRefreshToken();
+          if (!refreshToken) throw new Error('No refresh token');
+
+          const resp = await axios.post(`${API_BASE_URL}/api/auth/refresh`, { refreshToken });
+          const { token: newToken, refreshToken: newRefresh } = resp.data;
+          setTokens({ token: newToken, refreshToken: newRefresh });
+
+          // Notify AuthContext about successful token refresh
+          notifyTokenRefresh();
+
+          processQueue(null, newToken);
+          return newToken;
+        } catch (refreshErr) {
+          console.error('Token refresh failed:', refreshErr);
+          processQueue(refreshErr, null);
+          clearTokens();
+          
+          // Notify AuthContext about token expiration with a slight delay
+          setTimeout(() => notifyTokenExpired(), 100);
+          
+          throw refreshErr;
+        } finally {
+          isRefreshing = false;
+        }
+      })();
+
       try {
-        const refreshToken = getRefreshToken();
-        if (!refreshToken) throw new Error('No refresh token');
-
-        const resp = await axios.post(`${API_BASE_URL}/api/auth/refresh`, { refreshToken });
-        const { token: newToken, refreshToken: newRefresh } = resp.data;
-        setTokens({ token: newToken, refreshToken: newRefresh });
-
-        processQueue(null, newToken);
-
+        const newToken = await refreshPromise;
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return http(originalRequest);
       } catch (refreshErr) {
-        processQueue(refreshErr, null);
-        clearTokens();
         return Promise.reject(refreshErr);
-      } finally {
-        isRefreshing = false;
       }
     }
 
@@ -93,4 +139,4 @@ http.interceptors.response.use(
   }
 );
 
-export { http, setTokens, clearTokens, getAccessToken, getRefreshToken };
+export { http, setTokens, clearTokens, getAccessToken, getRefreshToken, notifyTokenRefresh, notifyTokenExpired };

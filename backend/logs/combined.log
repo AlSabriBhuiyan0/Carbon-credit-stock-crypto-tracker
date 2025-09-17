@@ -38,3 +38,105 @@
 {"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T03:28:12.152Z"}
 {"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T03:28:38.169Z"}
 {"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T03:30:12.661Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T03:37:08.144Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-08-31T03:37:15.766Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-31T04:00:00.423Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-31T04:00:00.433Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-31T05:00:00.562Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-31T05:00:00.570Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-31T06:00:00.670Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-31T06:00:00.678Z"}
+{"level":"info","message":"Generating daily market summary report","timestamp":"2025-08-31T07:00:00.905Z"}
+{"level":"info","message":"Daily market summary report generated","timestamp":"2025-08-31T07:00:00.915Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-31T07:00:00.915Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-31T07:00:00.922Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-08-31T08:00:00.582Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-08-31T08:00:00.603Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-09-16T18:57:13.465Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-09-16T18:57:13.468Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-09-16T18:57:13.469Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-09-16T18:57:13.597Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-09-16T18:57:13.687Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-09-16T18:57:17.356Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-09-16T18:57:17.364Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-09-16T18:57:17.365Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-09-16T18:57:17.366Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-09-16T18:57:17.367Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:00:00.443Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:00:00.446Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-09-16T19:00:00.447Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-09-16T19:00:00.455Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-09-16T19:12:20.492Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-09-16T19:12:20.495Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-09-16T19:12:20.496Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-09-16T19:12:20.597Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-09-16T19:12:20.679Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-09-16T19:12:24.030Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-09-16T19:12:24.033Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-09-16T19:12:24.034Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-09-16T19:12:24.034Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-09-16T19:12:24.035Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-09-16T19:14:56.333Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-09-16T19:14:56.338Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-09-16T19:14:56.339Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-09-16T19:14:56.406Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-09-16T19:14:56.474Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-09-16T19:14:59.835Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-09-16T19:14:59.836Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-09-16T19:14:59.837Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-09-16T19:14:59.838Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-09-16T19:14:59.838Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:15:00.836Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:15:00.837Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:20:00.796Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:20:00.799Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T19:22:33.712Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:25:00.287Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:25:00.290Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T19:28:15.880Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:30:00.472Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:30:00.479Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:35:00.108Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:35:00.113Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T19:36:33.170Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T19:39:15.310Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:40:00.028Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:40:00.030Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T19:41:17.213Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T19:41:21.467Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T19:45:00.707Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T19:45:00.753Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T19:55:56.666Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:00:00.447Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:00:00.458Z"}
+{"level":"info","message":"Starting scheduled carbon credit data ingestion","timestamp":"2025-09-16T20:00:00.460Z"}
+{"level":"info","message":"Carbon credit data ingestion completed successfully","timestamp":"2025-09-16T20:00:00.472Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-16T20:03:48.260Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:05:00.727Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:05:00.728Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:10:00.015Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:10:00.016Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:15:00.322Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:15:00.322Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:20:00.604Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:20:00.605Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:25:00.877Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:25:00.877Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:30:00.185Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:30:00.185Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:35:00.489Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:35:00.489Z"}
+{"level":"info","message":"Starting scheduled stock data ingestion","timestamp":"2025-09-16T20:40:00.743Z"}
+{"level":"info","message":"Markets are closed, skipping stock data ingestion","timestamp":"2025-09-16T20:40:00.743Z"}
+{"level":"info","message":"WebSocket service initialized successfully","timestamp":"2025-09-17T02:19:26.271Z"}
+{"level":"info","message":"Initializing database connection...","timestamp":"2025-09-17T02:19:26.274Z"}
+{"level":"info","message":"Initializing PostgreSQL connection pool...","timestamp":"2025-09-17T02:19:26.274Z"}
+{"level":"info","message":"PostgreSQL connection pool established successfully","timestamp":"2025-09-17T02:19:26.345Z"}
+{"level":"info","message":"PostgreSQL tables initialized successfully","timestamp":"2025-09-17T02:19:26.402Z"}
+{"level":"info","message":"Stock data ingestion scheduled","timestamp":"2025-09-17T02:19:29.531Z"}
+{"level":"info","message":"Carbon credit data ingestion scheduled","timestamp":"2025-09-17T02:19:29.532Z"}
+{"level":"info","message":"Data cleanup scheduled","timestamp":"2025-09-17T02:19:29.533Z"}
+{"level":"info","message":"Health checks scheduled","timestamp":"2025-09-17T02:19:29.533Z"}
+{"level":"info","message":"Scheduler initialized successfully","timestamp":"2025-09-17T02:19:29.534Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-17T02:20:55.391Z"}
+{"level":"warn","message":"UNFCCC service stderr:","timestamp":"2025-09-17T02:28:40.474Z"}

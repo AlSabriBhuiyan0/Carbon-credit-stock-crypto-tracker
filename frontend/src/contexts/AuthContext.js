@@ -29,7 +29,34 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, []);
+    
+    // Listen for token refresh events
+    const handleTokenRefresh = () => {
+      console.log('Token refreshed, fetching updated user profile');
+      // Only fetch profile if we're not currently loading to avoid conflicts
+      if (!loading) {
+        fetchUserProfile();
+      }
+    };
+    
+    const handleTokenExpired = () => {
+      console.log('Token expired, clearing authentication state');
+      // Use setTimeout to prevent navigation conflicts during render
+      setTimeout(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        queryClient.clear();
+      }, 0);
+    };
+    
+    window.addEventListener('tokenRefreshed', handleTokenRefresh);
+    window.addEventListener('tokenExpired', handleTokenExpired);
+    
+    return () => {
+      window.removeEventListener('tokenRefreshed', handleTokenRefresh);
+      window.removeEventListener('tokenExpired', handleTokenExpired);
+    };
+  }, [loading, queryClient]);
 
   const fetchUserProfile = async () => {
     try {
@@ -38,10 +65,13 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
-      // If profile fetch fails, clear tokens and set as unauthenticated
-      clearTokens();
-      setIsAuthenticated(false);
-      setUser(null);
+      // If profile fetch fails, it usually means token is invalid
+      // Clear authentication state and let token refresh mechanism handle it
+      if (error.response?.status === 401) {
+        setIsAuthenticated(false);
+        setUser(null);
+        clearTokens();
+      }
     } finally {
       setLoading(false);
     }

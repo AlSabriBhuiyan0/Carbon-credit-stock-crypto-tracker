@@ -24,27 +24,8 @@ const Layout = () => {
     navigate('/login');
   };
 
-  // Prevent admin users from accessing user layout
-  useEffect(() => {
-    if (user?.role === 'admin') {
-      console.log('Admin user detected, redirecting to admin dashboard');
-      navigate('/admin/dashboard', { replace: true });
-      return;
-    }
-  }, [user, navigate]);
-
-  // Don't render anything if user is admin (they will be redirected)
-  if (user?.role === 'admin') {
-    console.log('Admin user detected, not rendering user layout');
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-32 h-32 mx-auto border-b-2 border-blue-600 rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600">Redirecting to admin dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  // The ProtectedRoute component handles admin user redirects
+  // No need to duplicate that logic here
 
   const navigation = [
     { name: 'Dashboard', href: '/app/dashboard', icon: BarChart3, current: location.pathname === '/app/dashboard' },
